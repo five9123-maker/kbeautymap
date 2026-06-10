@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>K-Beauty 글로벌 대시보드 — 브랜드 순위 & 세계 수출 지도</title>
+<style>
+  :root {
+    --bg: #0e1117;
+    --panel: #161b24;
+    --panel2: #1c2330;
+    --border: #2a3344;
+    --text: #e8ecf3;
+    --muted: #8b95a7;
+    --accent: #ff5c8a;
+    --accent2: #ffb3c6;
+    --green: #4ade80;
+    --red: #f87171;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", -apple-system, sans-serif;
+    line-height: 1.5;
+  }
+  .wrap { max-width: 1440px; margin: 0 auto; padding: 24px; }
+  header { display: flex; flex-wrap: wrap; align-items: baseline; gap: 12px; margin-bottom: 8px; }
+  header h1 { font-size: 26px; font-weight: 800; letter-spacing: -0.5px; }
+  header h1 .k { color: var(--accent); }
+  header .sub { color: var(--muted); font-size: 13px; }
+
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; margin: 16px 0; }
+  .kpi {
+    background: linear-gradient(135deg, var(--panel) 0%, var(--panel2) 100%);
+    border: 1px solid var(--border); border-radius: 14px; padding: 16px 18px;
+  }
+  .kpi .label { font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+  .kpi .value { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; }
+  .kpi .delta { font-size: 12px; margin-top: 2px; }
+  .up { color: var(--green); } .down { color: var(--red); }
+
+  .grid { display: grid; gap: 14px; }
+  .row-map { grid-template-columns: 1fr 340px; }
+  .row-2 { grid-template-columns: 3fr 2fr; }
+  @media (max-width: 1000px) { .row-map, .row-2 { grid-template-columns: 1fr; } }
+
+  .card {
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: 14px; padding: 18px; margin-bottom: 14px;
+  }
+  .card h2 { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+  .card .desc { font-size: 12px; color: var(--muted); margin-bottom: 10px; }
+
+  #map { width: 100%; height: 540px; }
+  #trend { width: 100%; height: 300px; }
+  #brandBar { width: 100%; height: 560px; }
+  #catPie { width: 100%; height: 280px; }
+
+  .toplist { display: flex; flex-direction: column; gap: 6px; max-height: 500px; overflow-y: auto; }
+  .toplist .item {
+    display: flex; align-items: center; gap: 10px; padding: 8px 10px;
+    border-radius: 10px; background: var(--panel2); cursor: pointer;
+    border: 1px solid transparent; transition: border-color .15s;
+  }
+  .toplist .item:hover { border-color: var(--accent); }
+  .toplist .rank { width: 24px; text-align: center; font-weight: 800; color: var(--accent2); font-size: 13px; }
+  .toplist .flag { font-size: 18px; }
+  .toplist .nm { flex: 1; font-size: 13px; font-weight: 600; }
+  .toplist .val { font-size: 13px; font-weight: 700; }
+  .toplist .yoy { font-size: 11px; width: 58px; text-align: right; }
+
+  .brandDetail { background: var(--panel2); border-radius: 12px; padding: 14px; margin-top: 10px; font-size: 13px; display: none; }
+  .brandDetail.show { display: block; }
+  .brandDetail h3 { font-size: 15px; color: var(--accent2); margin-bottom: 6px; }
+  .brandDetail .meta { color: var(--muted); font-size: 12px; margin-bottom: 8px; }
+  .brandDetail ul { list-style: none; }
+  .brandDetail li { padding: 3px 0; border-bottom: 1px dashed var(--border); }
+  .brandDetail li:last-child { border-bottom: none; }
+
+  .products { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 12px; }
+  .pcard {
+    background: var(--panel2); border: 1px solid var(--border); border-radius: 12px;
+    padding: 14px; display: flex; flex-direction: column; gap: 6px;
+  }
+  .pcard .pbrand { font-size: 11px; color: var(--accent); font-weight: 700; text-transform: uppercase; letter-spacing: .5px; }
+  .pcard .pname { font-size: 14px; font-weight: 700; }
+  .pcard .pcat { font-size: 11px; color: var(--muted); }
+  .pcard .pmetric { font-size: 13px; color: var(--accent2); font-weight: 600; margin-top: 2px; }
+  .pcard .pnote { font-size: 12px; color: var(--muted); }
+
+  footer { color: var(--muted); font-size: 11px; margin-top: 20px; line-height: 1.8; }
+  footer a { color: var(--muted); }
+  .srcLabel { font-weight: 700; color: var(--text); }
+  .chip {
+    display: inline-block; padding: 2px 10px; border-radius: 99px;
+    background: var(--panel2); border: 1px solid var(--border);
+    font-size: 11px; color: var(--muted); margin-left: 6px;
+  }
+  .ytoggle { display: inline-flex; gap: 4px; margin-left: 10px; vertical-align: middle; }
+  .ytoggle button {
+    padding: 3px 14px; border-radius: 99px; border: 1px solid var(--border);
+    background: var(--panel2); color: var(--muted); font-size: 12px; font-weight: 700; cursor: pointer;
+  }
+  .ytoggle button.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .legend { display: inline-flex; gap: 12px; margin-left: 4px; }
+  .legend span { font-size: 11px; color: var(--muted); }
+  .legend i { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 4px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1><span class="k">K-Beauty</span> 글로벌 대시보드</h1>
+    <span class="sub" id="metaLine"></span>
+  </header>
+
+  <div class="kpis" id="kpis"></div>
+
+  <div class="grid row-map">
+    <div class="card">
+      <h2>🌍 국가별 한국 화장품 수출액
+        <span class="ytoggle" id="yearToggle"></span>
+      </h2>
+      <div class="desc">국가에 마우스를 올리면 수출액·증감률이 표시됩니다. 휠로 확대/축소. (상위 20개국 데이터)</div>
+      <div id="map"></div>
+    </div>
+    <div class="card">
+      <h2>🏆 수출 상위 시장</h2>
+      <div class="desc">클릭하면 지도가 해당 국가로 이동합니다.</div>
+      <div class="toplist" id="topMarkets"></div>
+    </div>
+  </div>
+
+  <div class="grid row-2">
+    <div class="card">
+      <h2>💄 K-Beauty 기업·브랜드 매출 순위</h2>
+      <div class="desc">최근 연간 매출 기준 (FY2025, 일부 FY2024). 막대 클릭 시 상세 표시.
+        <span class="legend">
+          <span><i style="background:#ff5c8a"></i>브랜드 기업</span>
+          <span><i style="background:#64748b"></i>ODM 제조</span>
+          <span><i style="background:#ffb3c6"></i>자회사·산하 브랜드 (모회사에 포함)</span>
+        </span>
+      </div>
+      <div id="brandBar"></div>
+      <div class="brandDetail" id="brandDetail"></div>
+    </div>
+    <div>
+      <div class="card">
+        <h2>📈 화장품 수출액 추이</h2>
+        <div class="desc">연도별 한국 화장품 총 수출액 (USD)</div>
+        <div id="trend"></div>
+      </div>
+      <div class="card">
+        <h2>🧴 수출 지역 구성</h2>
+        <div class="desc">주요 권역별 수출 비중</div>
+        <div id="catPie"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>⭐ 히트 제품별 매출·판매 지표</h2>
+    <div class="desc">글로벌 시장에서 검증된 대표 제품들의 공개된 판매 실적</div>
+    <div class="products" id="products"></div>
+  </div>
+
+  <footer id="sources"></footer>
+</div>
+
+<script src="assets/echarts.min.js"></script>
+<script src="assets/world.js"></script>
+<script src="data/data.js"></script>
+<script>
+const D = window.DASHBOARD_DATA;
+const fmtUSD = v => v >= 1000 ? `$${(v/1000).toFixed(2)}B` : `$${v.toLocaleString()}M`;
+const fmtKRW = v => v >= 10000 ? `${(v/10000).toFixed(2)}조원` : `${v.toLocaleString()}억원`;
+const yoyTxt = y => y == null ? '' : `${y > 0 ? '▲' : '▼'} ${Math.abs(y).toFixed(1)}%`;
+const yoyCls = y => y == null ? '' : (y > 0 ? 'up' : 'down');
+
+/* ---------- meta + KPI ---------- */
+document.getElementById('metaLine').textContent =
+  `데이터 기준: ${D.meta.dataYear} · 작성일 ${D.meta.updated}`;
+
+document.getElementById('kpis').innerHTML = D.kpi.map(k => `
+  <div class="kpi">
+    <div class="label">${k.label}</div>
+    <div class="value">${k.value}</div>
+    <div class="delta ${yoyCls(k.yoy)}">${k.sub ?? yoyTxt(k.yoy)}</div>
+  </div>`).join('');
+
+/* ---------- world map (연도 토글) ---------- */
+echarts.registerMap('world', window.WORLD_GEOJSON);
+const mapChart = echarts.init(document.getElementById('map'), null, {renderer: 'canvas'});
+let curYear = D.meta.exportYear;
+const yearData = () => D.exportYears[curYear];
+
+function renderMap() {
+  const yd = yearData();
+  const maxExport = Math.max(...yd.countries.map(c => c.value));
+  mapChart.setOption({
+    backgroundColor: 'transparent',
+    tooltip: {
+      trigger: 'item',
+      backgroundColor: '#1c2330', borderColor: '#2a3344', textStyle: {color: '#e8ecf3'},
+      formatter: p => {
+        const c = yearData().countries.find(x => x.name === p.name);
+        if (!c) return `${p.name}<br/><span style="color:#8b95a7">상위 20개국 외 (데이터 없음)</span>`;
+        return `${c.flag} <b>${c.nameKo}</b> · ${curYear}년<br/>` +
+               `수출액: <b>${fmtUSD(c.value)}</b><br/>` +
+               (c.yoy != null ? `전년 대비: <span style="color:${c.yoy>0?'#4ade80':'#f87171'}">${yoyTxt(c.yoy)}</span>` : '');
+      }
+    },
+    visualMap: {
+      min: 0, max: maxExport, left: 10, bottom: 10,
+      text: ['수출액 (USD)', ''], textStyle: {color: '#8b95a7', fontSize: 11},
+      inRange: {color: ['#2a3344', '#7a3b54', '#c44569', '#ff5c8a', '#ffb3c6']},
+      calculable: true,
+      formatter: v => fmtUSD(Math.round(v))
+    },
+    series: [{
+      name: '수출액', type: 'map', map: 'world', roam: true,
+      zoom: 1.15, scaleLimit: {min: 1, max: 8},
+      itemStyle: {areaColor: '#222a38', borderColor: '#0e1117', borderWidth: 0.6},
+      emphasis: {label: {show: true, color: '#fff', fontWeight: 700}, itemStyle: {areaColor: '#ff8fab'}},
+      select: {disabled: true},
+      data: yd.countries.map(c => ({name: c.name, value: c.value}))
+    }]
+  });
+}
+
+/* ---------- top markets list ---------- */
+const tm = document.getElementById('topMarkets');
+function renderTopMarkets() {
+  const yd = yearData();
+  tm.innerHTML = [...yd.countries].sort((a,b) => b.value - a.value).slice(0, 20).map((c, i) => `
+    <div class="item" data-name="${c.name}">
+      <div class="rank">${i+1}</div>
+      <div class="flag">${c.flag ?? ''}</div>
+      <div class="nm">${c.nameKo}</div>
+      <div class="val">${fmtUSD(c.value)}</div>
+      <div class="yoy ${yoyCls(c.yoy)}">${yoyTxt(c.yoy)}</div>
+    </div>`).join('');
+}
+tm.addEventListener('click', e => {
+  const item = e.target.closest('.item'); if (!item) return;
+  mapChart.dispatchAction({type: 'highlight', name: item.dataset.name});
+  setTimeout(() => mapChart.dispatchAction({type: 'downplay', name: item.dataset.name}), 1600);
+});
+
+/* ---------- year toggle ---------- */
+const yt = document.getElementById('yearToggle');
+function renderToggle() {
+  yt.innerHTML = Object.keys(D.exportYears).map(y =>
+    `<button class="${+y === curYear ? 'on' : ''}" data-y="${y}">${y}</button>`).join('');
+}
+yt.addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  curYear = +b.dataset.y;
+  renderToggle(); renderMap(); renderTopMarkets();
+});
+renderToggle(); renderMap(); renderTopMarkets();
+
+/* ---------- brand ranking bar ---------- */
+const brands = [...D.brands].sort((a,b) => a.revenueKRW - b.revenueKRW); // ascending for horizontal bar
+const brandChart = echarts.init(document.getElementById('brandBar'));
+brandChart.setOption({
+  backgroundColor: 'transparent',
+  grid: {left: 8, right: 70, top: 10, bottom: 10, containLabel: true},
+  tooltip: {
+    backgroundColor: '#1c2330', borderColor: '#2a3344', textStyle: {color: '#e8ecf3'},
+    formatter: p => {
+      const b = D.brands.find(x => x.display === p.name);
+      return `<b>${b.display}</b><br/>매출: <b>${fmtKRW(b.revenueKRW)}</b> (${b.year}년)` +
+             (b.yoy != null ? `<br/>전년 대비: <span style="color:${b.yoy>0?'#4ade80':'#f87171'}">${yoyTxt(b.yoy)}</span>` : '') +
+             (b.note ? `<br/><span style="color:#8b95a7">${b.note}</span>` : '');
+    }
+  },
+  xAxis: {type: 'value', axisLabel: {color: '#8b95a7', formatter: v => v >= 10000 ? `${v/10000}조` : `${v.toLocaleString()}억`}, splitLine: {lineStyle: {color: '#222a38'}}},
+  yAxis: {type: 'category', data: brands.map(b => b.display), axisLabel: {color: '#e8ecf3', fontSize: 12, fontWeight: 600}},
+  series: [{
+    type: 'bar', data: brands.map(b => ({value: b.revenueKRW,
+      itemStyle: {color: {house: '#ff5c8a', odm: '#64748b', sub: '#ffb3c6'}[b.group] ?? '#ff5c8a', borderRadius: [0,6,6,0]}})),
+    barWidth: '62%',
+    label: {show: true, position: 'right', color: '#8b95a7', fontSize: 11, formatter: p => fmtKRW(p.value)}
+  }]
+});
+brandChart.on('click', p => {
+  const b = D.brands.find(x => x.display === p.name); if (!b) return;
+  const el = document.getElementById('brandDetail');
+  el.className = 'brandDetail show';
+  el.innerHTML = `<h3>${b.display}</h3>
+    <div class="meta">${b.year}년 매출 ${fmtKRW(b.revenueKRW)}${b.opProfit ? ` · 영업이익 ${fmtKRW(b.opProfit)}` : ''}${b.note ? ` · ${b.note}` : ''}</div>
+    <ul>${b.products.map(p => `<li>🧴 ${p}</li>`).join('')}</ul>`;
+});
+
+/* ---------- export trend ---------- */
+const trendChart = echarts.init(document.getElementById('trend'));
+trendChart.setOption({
+  backgroundColor: 'transparent',
+  grid: {left: 10, right: 16, top: 30, bottom: 10, containLabel: true},
+  tooltip: {trigger: 'axis', backgroundColor: '#1c2330', borderColor: '#2a3344', textStyle: {color: '#e8ecf3'},
+    valueFormatter: v => fmtUSD(v)},
+  xAxis: {type: 'category', data: D.exportTrend.map(t => t.year), axisLabel: {color: '#8b95a7'}},
+  yAxis: {type: 'value', axisLabel: {color: '#8b95a7', formatter: v => `$${v/1000}B`}, splitLine: {lineStyle: {color: '#222a38'}}},
+  series: [{
+    type: 'line', smooth: true, data: D.exportTrend.map(t => t.value),
+    lineStyle: {color: '#ff5c8a', width: 3}, itemStyle: {color: '#ff5c8a'},
+    areaStyle: {color: new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'rgba(255,92,138,.35)'},{offset:1,color:'rgba(255,92,138,0)'}])},
+    label: {show: true, color: '#8b95a7', fontSize: 10, formatter: p => p.dataIndex === D.exportTrend.length-1 || p.dataIndex === 0 ? fmtUSD(p.value) : ''}
+  }]
+});
+
+/* ---------- region pie ---------- */
+const pieChart = echarts.init(document.getElementById('catPie'));
+pieChart.setOption({
+  backgroundColor: 'transparent',
+  tooltip: {backgroundColor: '#1c2330', borderColor: '#2a3344', textStyle: {color: '#e8ecf3'},
+    formatter: p => `${p.name}: <b>${fmtUSD(p.value)}</b> (${p.percent}%)`},
+  series: [{
+    type: 'pie', radius: ['42%', '72%'], center: ['50%', '52%'],
+    itemStyle: {borderColor: '#161b24', borderWidth: 2, borderRadius: 6},
+    label: {color: '#e8ecf3', fontSize: 12, formatter: '{b}\n{d}%'},
+    data: D.regionShare.map((r, i) => ({name: r.name, value: r.value,
+      itemStyle: {color: ['#ff5c8a','#c44569','#7a3b54','#4a5568','#ffb3c6','#8b95a7'][i % 6]}}))
+  }]
+});
+
+/* ---------- products ---------- */
+document.getElementById('products').innerHTML = D.products.map(p => `
+  <div class="pcard">
+    <div class="pbrand">${p.brand}</div>
+    <div class="pname">${p.name}</div>
+    <div class="pcat">${p.category} · 주요 시장: ${p.region}</div>
+    <div class="pmetric">${p.metric}</div>
+    ${p.note ? `<div class="pnote">${p.note}</div>` : ''}
+  </div>`).join('');
+
+/* ---------- sources ---------- */
+document.getElementById('sources').innerHTML =
+  `<span class="srcLabel">데이터 출처</span><br/>` + D.meta.sources.map(s => `· ${s}`).join('<br/>') +
+  `<br/><br/>※ 본 대시보드의 수치는 공개 보도자료·기업 IR 기준이며, 일부는 추정치를 포함합니다.`;
+
+window.addEventListener('resize', () => [mapChart, brandChart, trendChart, pieChart].forEach(c => c.resize()));
+</script>
+</body>
+</html>
