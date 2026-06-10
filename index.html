@@ -201,9 +201,9 @@
   <footer id="sources"></footer>
 </div>
 
-<script src="assets/echarts.min.js"></script>
-<script src="assets/world.js"></script>
-<script src="data/data.js"></script>
+<script src="assets/echarts.min.js?v=3"></script>
+<script src="assets/world.js?v=3"></script>
+<script src="data/data.js?v=3"></script>
 <script>
 const D = window.DASHBOARD_DATA;
 const fmtUSD = v => v >= 1000 ? `$${(v/1000).toFixed(2)}B` : `$${v.toLocaleString()}M`;
@@ -402,6 +402,12 @@ function renderProductRank(metric) {
   const excluded = D.products.filter(p => p.cumUnits == null && p.annualRevenueKRW == null);
   document.getElementById('prodExcluded').innerHTML =
     `※ ${excluded.map(p => p.name).join(', ')} 은(는) 제품 단독 수치 미공개로 순위에서 제외 (아래 카드 참고)`;
+  if (!items.length) {
+    prodChart.clear();
+    document.getElementById('prodExcluded').innerHTML =
+      '데이터를 불러오지 못했습니다. 강력 새로고침(Cmd+Shift+R) 후 다시 확인해주세요.';
+    return;
+  }
   document.getElementById('productRank').style.height = Math.max(300, items.length * 46 + 40) + 'px';
   prodChart.resize();
   prodChart.setOption({
