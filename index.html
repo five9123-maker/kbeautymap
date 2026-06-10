@@ -59,7 +59,6 @@
 
   #map { width: 100%; height: 540px; }
   #trend { width: 100%; height: 300px; }
-  #brandBar { width: 100%; height: 560px; }
   #catPie { width: 100%; height: 280px; }
 
   .toplist { display: flex; flex-direction: column; gap: 6px; max-height: 500px; overflow-y: auto; }
@@ -100,6 +99,41 @@
   .legend { display: inline-flex; flex-wrap: wrap; gap: 8px 12px; margin-left: 4px; }
   .legend span { font-size: 11px; color: var(--muted); }
   .legend i { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 4px; }
+  /* ---------- 브랜드 로고 리스트 ---------- */
+  .blist { display: flex; flex-direction: column; gap: 7px; max-height: 760px; overflow-y: auto; padding-right: 4px; }
+  .brow {
+    display: grid; grid-template-columns: 34px 46px minmax(0,1.1fr) minmax(0,1fr) 64px; gap: 12px; align-items: center;
+    background: var(--panel2); border: 1px solid var(--border); border-radius: 12px;
+    padding: 9px 14px; cursor: pointer; transition: transform .15s, border-color .15s;
+    animation: rowIn .3s both;
+  }
+  .brow:hover { transform: translateX(3px); border-color: var(--accent); }
+  .brow .brk { font-size: 15px; font-weight: 900; font-style: italic; color: var(--muted); text-align: center; }
+  .brow.r1 .brk { color: #ffd700; } .brow.r2 .brk { color: #c9d4e6; } .brow.r3 .brk { color: #e09a6c; }
+  .blogo {
+    width: 46px; height: 46px; border-radius: 10px; background: #f4f5f7; border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0;
+  }
+  .blogo img { width: 32px; height: 32px; object-fit: contain; }
+  .blogo .mono {
+    display: none; width: 100%; height: 100%; align-items: center; justify-content: center;
+    font-size: 19px; font-weight: 900; color: #fff;
+    background: linear-gradient(135deg, var(--accent), #c44569);
+  }
+  .bname { min-width: 0; }
+  .bname .bn { font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .bname .bt { font-size: 10.5px; color: var(--muted); display: flex; gap: 5px; align-items: center; margin-top: 1px; }
+  .gbadge { padding: 0 6px; border-radius: 5px; font-size: 9.5px; font-weight: 700; border: 1px solid; }
+  .gbadge.house { color: var(--accent2); border-color: rgba(255,92,138,.4); }
+  .gbadge.odm { color: #9fb0c8; border-color: rgba(148,163,184,.4); }
+  .gbadge.sub { color: #f3c6d3; border-color: rgba(255,179,198,.35); }
+  .brev { min-width: 0; }
+  .brev .rv { font-size: 13px; font-weight: 800; text-align: right; }
+  .brev .track { height: 5px; border-radius: 99px; background: rgba(42,51,68,.8); margin-top: 4px; overflow: hidden; }
+  .brev .fillr { height: 100%; border-radius: 99px; }
+  .byoy { font-size: 11px; font-weight: 700; text-align: right; }
+  @media (max-width: 700px) { .brow { grid-template-columns: 26px 38px minmax(0,1fr) 90px; } .byoy { display: none; } .blogo { width: 38px; height: 38px; } }
+
   /* ---------- 제품 랭킹 익스플로러 (화해 스타일) ---------- */
   .explorer-bar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 14px 0 10px; }
   .explorer-bar input {
@@ -215,7 +249,7 @@
     .kpi { padding: 12px 14px; }
     .kpi .value { font-size: 19px; }
     #map { height: 360px; }
-    #brandBar { height: 480px; }
+
     .toplist { max-height: 320px; }
   }
 </style>
@@ -265,14 +299,8 @@
           <button data-f="house">브랜드 기업만</button>
         </span>
       </h2>
-      <div class="desc">최근 연간 매출 기준 (FY2025, 일부 FY2024). 막대 클릭 시 상세 표시. 자회사는 모회사 수치에 포함되어 있어 합산 시 중복됩니다.
-        <span class="legend">
-          <span><i style="background:#ff5c8a"></i>브랜드 기업</span>
-          <span><i style="background:#64748b"></i>ODM 제조</span>
-          <span><i style="background:#ffb3c6"></i>자회사·산하 브랜드</span>
-        </span>
-      </div>
-      <div id="brandBar"></div>
+      <div class="desc">최근 연간 매출 기준 (FY2025, 일부 FY2024). 행을 클릭하면 대표 제품 상세가 표시됩니다. 자회사는 모회사 수치에 포함되어 있어 합산 시 중복됩니다. 매출 바는 √스케일.</div>
+      <div class="blist" id="brandList"></div>
       <div class="brandDetail" id="brandDetail"></div>
     </div>
     <div>
@@ -313,9 +341,9 @@
   <footer id="sources"></footer>
 </div>
 
-<script src="assets/echarts.min.js?v=4"></script>
-<script src="assets/world.js?v=4"></script>
-<script src="data/data.js?v=4"></script>
+<script src="assets/echarts.min.js?v=5"></script>
+<script src="assets/world.js?v=5"></script>
+<script src="data/data.js?v=5"></script>
 <script>
 const D = window.DASHBOARD_DATA;
 const fmtUSD = v => v >= 1000 ? `$${(v/1000).toFixed(2)}B` : `$${v.toLocaleString()}M`;
@@ -426,36 +454,38 @@ yt.addEventListener('click', e => {
 });
 renderToggle(); renderMap(); renderTopMarkets();
 
-/* ---------- brand ranking bar (필터 지원) ---------- */
-const brandChart = echarts.init(document.getElementById('brandBar'));
+/* ---------- brand ranking (로고 리스트, 필터 지원) ---------- */
 const BRAND_FILTERS = {
   all: b => true,
   nodup: b => b.group !== 'sub',
   house: b => b.group === 'house',
 };
+const GROUP_LABEL = { house: '브랜드 기업', odm: 'ODM', sub: '자회사' };
+const GROUP_COLOR = { house: 'linear-gradient(90deg,#c44569,#ff5c8a)', odm: 'linear-gradient(90deg,#475569,#94a3b8)', sub: 'linear-gradient(90deg,#b97a8d,#ffb3c6)' };
+const logoImg = b => b.domain
+  ? `<img src="https://www.google.com/s2/favicons?domain=${b.domain}&sz=128" alt="${b.display}" loading="lazy"
+       onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+     <span class="mono">${b.display.replace(/[ (].*$/, '').slice(0, 1)}</span>`
+  : `<span class="mono" style="display:flex">${b.display.replace(/[ (].*$/, '').slice(0, 1)}</span>`;
+
 function renderBrands(filter) {
-  const brands = D.brands.filter(BRAND_FILTERS[filter]).sort((a,b) => a.revenueKRW - b.revenueKRW);
-  brandChart.setOption({
-    backgroundColor: 'transparent',
-    grid: {left: 8, right: 70, top: 10, bottom: 10, containLabel: true},
-    tooltip: {
-      backgroundColor: '#1c2330', borderColor: '#2a3344', textStyle: {color: '#e8ecf3'},
-      formatter: p => {
-        const b = D.brands.find(x => x.display === p.name);
-        return `<b>${b.display}</b><br/>매출: <b>${fmtKRW(b.revenueKRW)}</b> (${b.year}년)` +
-               (b.yoy != null ? `<br/>전년 대비: <span style="color:${b.yoy>0?'#4ade80':'#f87171'}">${yoyTxt(b.yoy)}</span>` : '') +
-               (b.note ? `<br/><span style="color:#8b95a7">${b.note}</span>` : '');
-      }
-    },
-    xAxis: {type: 'value', axisLabel: {color: '#8b95a7', formatter: v => v >= 10000 ? `${v/10000}조` : `${v.toLocaleString()}억`}, splitLine: {lineStyle: {color: '#222a38'}}},
-    yAxis: {type: 'category', data: brands.map(b => b.display), axisLabel: {color: '#e8ecf3', fontSize: 12, fontWeight: 600}},
-    series: [{
-      type: 'bar', data: brands.map(b => ({value: b.revenueKRW,
-        itemStyle: {color: {house: '#ff5c8a', odm: '#64748b', sub: '#ffb3c6'}[b.group] ?? '#ff5c8a', borderRadius: [0,6,6,0]}})),
-      barWidth: '62%',
-      label: {show: true, position: 'right', color: '#8b95a7', fontSize: 11, formatter: p => fmtKRW(p.value)}
-    }]
-  });
+  const brands = D.brands.filter(BRAND_FILTERS[filter]).sort((a, b) => b.revenueKRW - a.revenueKRW);
+  const max = brands[0]?.revenueKRW ?? 1;
+  document.getElementById('brandList').innerHTML = brands.map((b, i) => `
+    <div class="brow ${i < 3 ? 'r' + (i + 1) : ''}" data-name="${b.display}" style="animation-delay:${Math.min(i * 22, 440)}ms">
+      <div class="brk">${i + 1}</div>
+      <div class="blogo">${logoImg(b)}</div>
+      <div class="bname">
+        <div class="bn">${b.display}</div>
+        <div class="bt"><span class="gbadge ${b.group}">${GROUP_LABEL[b.group]}</span><span>FY${b.year}</span>
+          ${b.yoy != null ? `<span class="${yoyCls(b.yoy)}">${yoyTxt(b.yoy)}</span>` : ''}</div>
+      </div>
+      <div class="brev">
+        <div class="rv">${fmtKRW(b.revenueKRW)}</div>
+        <div class="track"><div class="fillr" style="width:${Math.max(3, Math.sqrt(b.revenueKRW / max) * 100)}%;background:${GROUP_COLOR[b.group]}"></div></div>
+      </div>
+      <div class="byoy ${yoyCls(b.yoy)}">${yoyTxt(b.yoy)}</div>
+    </div>`).join('');
 }
 renderBrands('all');
 document.getElementById('brandFilter').addEventListener('click', e => {
@@ -464,13 +494,15 @@ document.getElementById('brandFilter').addEventListener('click', e => {
   document.getElementById('brandDetail').className = 'brandDetail';
   renderBrands(b.dataset.f);
 });
-brandChart.on('click', p => {
-  const b = D.brands.find(x => x.display === p.name); if (!b) return;
+document.getElementById('brandList').addEventListener('click', e => {
+  const row = e.target.closest('.brow'); if (!row) return;
+  const b = D.brands.find(x => x.display === row.dataset.name); if (!b) return;
   const el = document.getElementById('brandDetail');
   el.className = 'brandDetail show';
   el.innerHTML = `<h3>${b.display}</h3>
     <div class="meta">${b.year}년 매출 ${fmtKRW(b.revenueKRW)}${b.opProfit ? ` · 영업이익 ${fmtKRW(b.opProfit)}` : ''}${b.note ? ` · ${b.note}` : ''}</div>
     <ul>${b.products.map(p => `<li>🧴 ${p}</li>`).join('')}</ul>`;
+  el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 });
 
 /* ---------- export trend ---------- */
@@ -685,7 +717,7 @@ document.getElementById('sources').innerHTML =
   `<span class="srcLabel">데이터 출처</span><br/>` + D.meta.sources.map(s => `· ${s}`).join('<br/>') +
   `<br/><br/>※ 본 대시보드의 수치는 공개 보도자료·기업 IR 기준이며, 일부는 추정치를 포함합니다.`;
 
-window.addEventListener('resize', () => [mapChart, brandChart, trendChart, pieChart, prodChart].forEach(c => c.resize()));
+window.addEventListener('resize', () => [mapChart, trendChart, pieChart, prodChart].forEach(c => c.resize()));
 </script>
 </body>
 </html>
