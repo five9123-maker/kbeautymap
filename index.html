@@ -147,6 +147,18 @@
     </div>
   </div>
 
+  <div class="card">
+    <h2 style="text-align:center">🏅 제품별 판매·매출 순위
+      <span class="ytoggle" id="prodMetricToggle">
+        <button class="on" data-m="units">누적 판매량</button>
+        <button data-m="revenue">연 매출 (공개 제품)</button>
+      </span>
+    </h2>
+    <div class="desc" style="text-align:center">막대에 마우스를 올리면 <b>주요 매출 지역</b>과 <b>정보 출처</b>가 표시됩니다. 제품 단독 매출은 대부분 비공개라 공개된 지표 기준으로만 순위를 매겼습니다.</div>
+    <div id="productRank" style="max-width:980px;margin:0 auto;height:420px"></div>
+    <div class="desc" style="text-align:center;margin-top:6px" id="prodExcluded"></div>
+  </div>
+
   <div class="grid row-2">
     <div class="card">
       <h2>💄 K-Beauty 기업·브랜드 매출 순위
@@ -381,14 +393,68 @@ pieChart.setOption({
   }]
 });
 
+/* ---------- product ranking (중앙 차트) ---------- */
+const prodChart = echarts.init(document.getElementById('productRank'));
+function renderProductRank(metric) {
+  const has = p => metric === 'units' ? p.cumUnits != null : p.annualRevenueKRW != null;
+  const items = D.products.filter(has)
+    .sort((a, b) => metric === 'units' ? a.cumUnits - b.cumUnits : a.annualRevenueKRW - b.annualRevenueKRW);
+  const excluded = D.products.filter(p => p.cumUnits == null && p.annualRevenueKRW == null);
+  document.getElementById('prodExcluded').innerHTML =
+    `※ ${excluded.map(p => p.name).join(', ')} 은(는) 제품 단독 수치 미공개로 순위에서 제외 (아래 카드 참고)`;
+  document.getElementById('productRank').style.height = Math.max(300, items.length * 46 + 40) + 'px';
+  prodChart.resize();
+  prodChart.setOption({
+    backgroundColor: 'transparent',
+    grid: {left: 8, right: 96, top: 6, bottom: 6, containLabel: true},
+    tooltip: {
+      backgroundColor: '#1c2330', borderColor: '#2a3344', textStyle: {color: '#e8ecf3'},
+      enterable: true, confine: true,
+      formatter: p => {
+        const it = items[p.dataIndex];
+        const val = metric === 'units'
+          ? `누적 판매: <b>${it.cumUnits.toLocaleString()}만 ${it.unitsSuffix}</b>${it.unitsNote ? ` <span style="color:#8b95a7">(${it.unitsNote})</span>` : ''}`
+          : `연 매출: <b>${fmtKRW(it.annualRevenueKRW)}</b> <span style="color:#8b95a7">(${it.revenueYear}년)</span>`;
+        return `<b>${it.name}</b> <span style="color:#ff5c8a">${it.brand}</span><br/>${val}<br/>` +
+               `📍 주요 매출 지역: <b>${it.region}</b><br/>` +
+               `📰 출처: <a href="${it.sourceUrl}" target="_blank" style="color:#ffb3c6">${it.sourceName}</a>`;
+      }
+    },
+    xAxis: {type: 'value', axisLabel: {color: '#8b95a7',
+      formatter: v => metric === 'units' ? `${v.toLocaleString()}만` : (v >= 10000 ? `${v/10000}조` : `${v.toLocaleString()}억`)},
+      splitLine: {lineStyle: {color: '#222a38'}}},
+    yAxis: {type: 'category', data: items.map(it => `${it.name.length > 22 ? it.name.slice(0, 22) + '…' : it.name}`),
+      axisLabel: {color: '#e8ecf3', fontSize: 12, fontWeight: 600}},
+    series: [{
+      type: 'bar', barWidth: '60%',
+      data: items.map((it, i) => ({
+        value: metric === 'units' ? it.cumUnits : it.annualRevenueKRW,
+        itemStyle: {color: i === items.length - 1 ? '#ffc2d1' : i >= items.length - 3 ? '#ff7fa5' : '#c44569', borderRadius: [0, 6, 6, 0]}
+      })),
+      label: {show: true, position: 'right', color: '#8b95a7', fontSize: 11,
+        formatter: p => {
+          const it = items[p.dataIndex];
+          return metric === 'units' ? `${it.cumUnits.toLocaleString()}만 ${it.unitsSuffix}` : `${fmtKRW(it.annualRevenueKRW)} (${it.revenueYear})`;
+        }}
+    }]
+  }, {notMerge: true});
+}
+renderProductRank('units');
+document.getElementById('prodMetricToggle').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  document.querySelectorAll('#prodMetricToggle button').forEach(x => x.classList.toggle('on', x === b));
+  renderProductRank(b.dataset.m);
+});
+
 /* ---------- products ---------- */
 document.getElementById('products').innerHTML = D.products.map(p => `
   <div class="pcard">
     <div class="pbrand">${p.brand}</div>
     <div class="pname">${p.name}</div>
-    <div class="pcat">${p.category} · 주요 시장: ${p.region}</div>
+    <div class="pcat">${p.category} · 📍 주요 매출 지역: ${p.region}</div>
     <div class="pmetric">${p.metric}</div>
     ${p.note ? `<div class="pnote">${p.note}</div>` : ''}
+    ${p.sourceName ? `<div class="pnote">📰 출처: <a href="${p.sourceUrl}" target="_blank" title="${p.sourceUrl}" style="color:#8b95a7">${p.sourceName}</a></div>` : ''}
   </div>`).join('');
 
 /* ---------- sources ---------- */
@@ -396,7 +462,7 @@ document.getElementById('sources').innerHTML =
   `<span class="srcLabel">데이터 출처</span><br/>` + D.meta.sources.map(s => `· ${s}`).join('<br/>') +
   `<br/><br/>※ 본 대시보드의 수치는 공개 보도자료·기업 IR 기준이며, 일부는 추정치를 포함합니다.`;
 
-window.addEventListener('resize', () => [mapChart, brandChart, trendChart, pieChart].forEach(c => c.resize()));
+window.addEventListener('resize', () => [mapChart, brandChart, trendChart, pieChart, prodChart].forEach(c => c.resize()));
 </script>
 </body>
 </html>
