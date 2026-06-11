@@ -47,8 +47,29 @@
 
   .grid { display: grid; gap: 14px; }
   .row-map { grid-template-columns: 1fr 340px; }
-  .row-2 { grid-template-columns: 3fr 2fr; }
-  @media (max-width: 1000px) { .row-map, .row-2 { grid-template-columns: 1fr; } }
+  .row-growth { grid-template-columns: 5fr 3fr; }
+  @media (max-width: 1000px) { .row-map, .row-growth { grid-template-columns: 1fr; } }
+
+  .secnav {
+    position: sticky; top: 0; z-index: 50;
+    display: flex; gap: 6px; flex-wrap: wrap; padding: 10px 2px; margin: 0 -2px 14px;
+    background: rgba(14,17,23,.82); backdrop-filter: blur(8px);
+  }
+  .secnav a {
+    padding: 6px 14px; border-radius: 99px; font-size: 12px; font-weight: 700;
+    color: var(--muted); text-decoration: none; border: 1px solid var(--border); background: var(--panel);
+    transition: all .15s;
+  }
+  .secnav a:hover { color: #fff; border-color: var(--accent); background: var(--panel2); }
+  html { scroll-behavior: smooth; }
+  [id^="sec-"] { scroll-margin-top: 64px; }
+
+  .eyebrow {
+    font-size: 11px; font-weight: 800; letter-spacing: 1.5px; color: var(--accent);
+    margin-bottom: 3px; text-transform: uppercase;
+  }
+  .card.reveal { opacity: 0; transform: translateY(18px); transition: opacity .5s ease, transform .5s ease; }
+  .card.reveal.vis { opacity: 1; transform: none; }
 
   .card {
     background: var(--panel); border: 1px solid var(--border);
@@ -58,7 +79,7 @@
   .card .desc { font-size: 12px; color: var(--muted); margin-bottom: 10px; }
 
   #map { width: 100%; height: 540px; }
-  #trend { width: 100%; height: 300px; }
+  #trend { width: 100%; height: 360px; }
   #catPie { width: 100%; height: 280px; }
 
   .toplist { display: flex; flex-direction: column; gap: 6px; max-height: 500px; overflow-y: auto; }
@@ -100,7 +121,8 @@
   .legend span { font-size: 11px; color: var(--muted); }
   .legend i { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 4px; }
   /* ---------- 브랜드 로고 리스트 ---------- */
-  .blist { display: flex; flex-direction: column; gap: 7px; max-height: 760px; overflow-y: auto; padding-right: 4px; }
+  .blist { display: grid; grid-template-columns: repeat(auto-fill, minmax(440px, 1fr)); gap: 7px 12px; }
+  @media (max-width: 940px) { .blist { grid-template-columns: 1fr; } }
   .brow {
     display: grid; grid-template-columns: 34px 46px minmax(0,1.1fr) minmax(0,1fr) 64px; gap: 12px; align-items: center;
     background: var(--panel2); border: 1px solid var(--border); border-radius: 12px;
@@ -263,61 +285,62 @@
 
   <div class="kpis" id="kpis"></div>
 
-  <div class="grid row-map">
+  <nav class="secnav">
+    <a href="#sec-growth">① 성장</a>
+    <a href="#sec-map">② 수출 지도</a>
+    <a href="#sec-brands">③ 브랜드</a>
+    <a href="#sec-products">④ 제품</a>
+    <a href="#sec-chart">⑤ 제품 수치</a>
+  </nav>
+
+  <div class="grid row-growth" id="sec-growth">
     <div class="card">
+      <div class="eyebrow">01 · 얼마나 성장했나</div>
+      <h2>📈 8년 새 수출 2배 — $6.3B에서 $11.4B로</h2>
+      <div class="desc">연도별 한국 화장품 총 수출액 (USD). 2022년 중국발 역성장을 미국·유럽이 메우며 2024년 사상 첫 $10B를 돌파했습니다.</div>
+      <div id="trend"></div>
+    </div>
+    <div class="card">
+      <div class="eyebrow">01 · 시장 구성</div>
+      <h2>🧴 수출 권역 비중</h2>
+      <div class="desc">2024년, 식약처. 아시아가 여전히 60%지만 북미·유럽이 +50%대로 급성장.</div>
+      <div id="catPie"></div>
+    </div>
+  </div>
+
+  <div class="grid row-map" id="sec-map">
+    <div class="card">
+      <div class="eyebrow">02 · 어디로 수출되나</div>
       <h2>🌍 국가별 한국 화장품 수출액
         <span class="ytoggle" id="yearToggle"></span>
       </h2>
-      <div class="desc">국가에 마우스를 올리면 수출액·증감률이 표시됩니다. 휠로 확대/축소. (상위 20개국 데이터)</div>
+      <div class="desc">국가에 마우스를 올리면 수출액·증감률이 표시됩니다. 휠로 확대/축소. 2025년 미국이 사상 처음 중국을 추월했습니다.</div>
       <div id="map"></div>
     </div>
     <div class="card">
+      <div class="eyebrow">02 · TOP 20</div>
       <h2>🏆 수출 상위 시장</h2>
-      <div class="desc">클릭하면 지도가 해당 국가로 이동합니다.</div>
+      <div class="desc">클릭하면 지도에서 해당 국가를 표시합니다.</div>
       <div class="toplist" id="topMarkets"></div>
     </div>
   </div>
 
-  <div class="card">
-    <h2 style="text-align:center">🏅 제품별 판매·매출 순위
-      <span class="ytoggle" id="prodMetricToggle">
-        <button class="on" data-m="units">누적 판매량</button>
-        <button data-m="revenue">연 매출 (공개 제품)</button>
+  <div class="card" id="sec-brands">
+    <div class="eyebrow">03 · 누가 이끄는가</div>
+    <h2>💄 K-Beauty 기업·브랜드 매출 TOP 30
+      <span class="ytoggle" id="brandFilter">
+        <button class="on" data-f="all">전체</button>
+        <button data-f="nodup">자회사 제외</button>
+        <button data-f="house">브랜드 기업만</button>
       </span>
     </h2>
-    <div class="desc" style="text-align:center">막대에 마우스를 올리면 <b>주요 매출 지역</b>과 <b>정보 출처</b>가 표시됩니다. 제품 단독 매출은 대부분 비공개라 공개된 지표 기준으로만 순위를 매겼습니다.</div>
-    <div id="productRank" style="max-width:980px;margin:0 auto;height:420px"></div>
-    <div class="desc" style="text-align:center;margin-top:6px" id="prodExcluded"></div>
+    <div class="desc">최근 연간 매출 기준 (FY2025, 일부 FY2024). 행을 클릭하면 대표 제품 상세가 표시됩니다. 자회사는 모회사 수치에 포함되어 있어 합산 시 중복됩니다. 매출 바는 √스케일.</div>
+    <div class="blist" id="brandList"></div>
+    <div class="brandDetail" id="brandDetail"></div>
   </div>
 
-  <div class="grid row-2">
-    <div class="card">
-      <h2>💄 K-Beauty 기업·브랜드 매출 순위
-        <span class="ytoggle" id="brandFilter">
-          <button class="on" data-f="all">전체</button>
-          <button data-f="nodup">자회사 제외</button>
-          <button data-f="house">브랜드 기업만</button>
-        </span>
-      </h2>
-      <div class="desc">최근 연간 매출 기준 (FY2025, 일부 FY2024). 행을 클릭하면 대표 제품 상세가 표시됩니다. 자회사는 모회사 수치에 포함되어 있어 합산 시 중복됩니다. 매출 바는 √스케일.</div>
-      <div class="blist" id="brandList"></div>
-      <div class="brandDetail" id="brandDetail"></div>
-    </div>
-    <div>
-      <div class="card">
-        <h2>📈 화장품 수출액 추이</h2>
-        <div class="desc">연도별 한국 화장품 총 수출액 (USD)</div>
-        <div id="trend"></div>
-      </div>
-      <div class="card">
-        <h2>🧴 수출 지역 구성</h2>
-        <div class="desc">주요 권역별 수출 비중 (2024년, 식약처)</div>
-        <div id="catPie"></div>
-      </div>
-    </div>
-  </div>
-
-  <div class="card">
+  <div class="card" id="sec-products">
+    <div class="eyebrow">04 · 무엇이 팔리는가</div>
     <h2>🧪 K-Beauty 제품 랭킹 TOP 30</h2>
     <div class="desc">판매 실적·수상 이력 기반 종합 순위. 제품을 클릭하면 성분·효능·평점·출처 상세가 열립니다.</div>
     <div class="explorer-bar">
@@ -334,6 +357,19 @@
     <div class="plist" id="plist"></div>
   </div>
 
+  <div class="card" id="sec-chart">
+    <div class="eyebrow" style="text-align:center">05 · 공개 수치로 보는 제품</div>
+    <h2 style="text-align:center">🏅 제품별 판매·매출 순위
+      <span class="ytoggle" id="prodMetricToggle">
+        <button class="on" data-m="units">누적 판매량</button>
+        <button data-m="revenue">연 매출 (공개 제품)</button>
+      </span>
+    </h2>
+    <div class="desc" style="text-align:center">막대에 마우스를 올리면 <b>주요 매출 지역</b>과 <b>정보 출처</b>가 표시됩니다. 제품 단독 매출은 대부분 비공개라 공개된 지표 기준으로만 순위를 매겼습니다.</div>
+    <div id="productRank" style="max-width:980px;margin:0 auto;height:420px"></div>
+    <div class="desc" style="text-align:center;margin-top:6px" id="prodExcluded"></div>
+  </div>
+
   <div class="modalwrap" id="pModalWrap">
     <div class="modal" id="pModal"></div>
   </div>
@@ -341,9 +377,9 @@
   <footer id="sources"></footer>
 </div>
 
-<script src="assets/echarts.min.js?v=5"></script>
-<script src="assets/world.js?v=5"></script>
-<script src="data/data.js?v=5"></script>
+<script src="assets/echarts.min.js?v=6"></script>
+<script src="assets/world.js?v=6"></script>
+<script src="data/data.js?v=6"></script>
 <script>
 const D = window.DASHBOARD_DATA;
 const fmtUSD = v => v >= 1000 ? `$${(v/1000).toFixed(2)}B` : `$${v.toLocaleString()}M`;
@@ -518,7 +554,16 @@ trendChart.setOption({
     type: 'line', smooth: true, data: D.exportTrend.map(t => t.value),
     lineStyle: {color: '#ff5c8a', width: 3}, itemStyle: {color: '#ff5c8a'},
     areaStyle: {color: new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'rgba(255,92,138,.35)'},{offset:1,color:'rgba(255,92,138,0)'}])},
-    label: {show: true, color: '#8b95a7', fontSize: 10, formatter: p => p.dataIndex === D.exportTrend.length-1 || p.dataIndex === 0 ? fmtUSD(p.value) : ''}
+    label: {show: true, color: '#8b95a7', fontSize: 10, formatter: p => p.dataIndex === D.exportTrend.length-1 || p.dataIndex === 0 ? fmtUSD(p.value) : ''},
+    markPoint: {
+      symbol: 'roundRect', symbolSize: [86, 26], symbolOffset: [0, -28],
+      label: {fontSize: 10, fontWeight: 700, color: '#fff'},
+      data: [
+        {coord: ['2022', 7953.2], value: '중국발 -13%', itemStyle: {color: '#64748b'}},
+        {coord: ['2024', 10177.3], value: '첫 $10B 돌파', itemStyle: {color: '#ff5c8a'}},
+        {coord: ['2025', 11417.6], value: '세계 2위', itemStyle: {color: '#c44569'}},
+      ]
+    }
   }]
 });
 
@@ -716,6 +761,14 @@ renderCats(); renderList();
 document.getElementById('sources').innerHTML =
   `<span class="srcLabel">데이터 출처</span><br/>` + D.meta.sources.map(s => `· ${s}`).join('<br/>') +
   `<br/><br/>※ 본 대시보드의 수치는 공개 보도자료·기업 IR 기준이며, 일부는 추정치를 포함합니다.`;
+
+/* ---------- 스크롤 리빌 ---------- */
+if ('IntersectionObserver' in window) {
+  const io = new IntersectionObserver(es => es.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add('vis'); io.unobserve(e.target); }
+  }), { threshold: 0.06 });
+  document.querySelectorAll('.card').forEach(c => { c.classList.add('reveal'); io.observe(c); });
+}
 
 window.addEventListener('resize', () => [mapChart, trendChart, pieChart, prodChart].forEach(c => c.resize()));
 </script>
