@@ -101,7 +101,7 @@
   <div class="card">
     <div class="eyebrow">01 · 20년의 궤적</div>
     <h2>📈 프랑스 화장품 수출 20년 — 그리고 한국이 따라온 길</h2>
-    <div class="desc">프랑스(파랑)와 한국(핑크)의 수출액 — 한국은 20년 전 프랑스의 1/6 규모에서 출발해 2025년 2위까지 왔지만, 1위와의 격차는 여전히 2배 이상입니다.</div>
+    <div class="desc">프랑스(파랑)·한국(핑크)과 주요 경쟁국(미국·독일·이탈리아·스페인·일본)의 수출액. 범례를 클릭해 국가를 켜고 끌 수 있습니다 — 2~4위권(미국·독일·한국)의 자리 다툼이 보입니다.</div>
     <div id="frTrend"></div>
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px;margin-top:12px" id="frTrends"></div>
   </div>
@@ -151,11 +151,11 @@
   <footer id="src"></footer>
 </div>
 
-<script src="assets/tabs.js?v=22"></script>
-<script src="assets/echarts.min.js?v=22"></script>
-<script src="assets/world.js?v=22"></script>
-<script src="data/data.js?v=22"></script>
-<script src="data/france.js?v=22"></script>
+<script src="assets/tabs.js?v=23"></script>
+<script src="assets/echarts.min.js?v=23"></script>
+<script src="assets/world.js?v=23"></script>
+<script src="data/data.js?v=23"></script>
+<script src="data/france.js?v=23"></script>
 <script>
 const F = window.FRANCE_DATA;
 const KR_TREND = window.DASHBOARD_DATA.exportTrend; // 한국 오버레이 (동일 데이터셋)
@@ -199,12 +199,20 @@ trend.setOption({
   grid: { left: 12, right: 100, top: 30, bottom: 10, containLabel: true },
   legend: { top: 0, textStyle: { color: KB.c.muted }, icon: 'roundRect' },
   tooltip: { trigger: 'axis', backgroundColor: KB.c.tooltipBg, borderColor: KB.c.tooltipBorder, textStyle: { color: KB.c.text },
-    formatter: ps => `<b>${ps[0]?.name}년</b><br>` + ps.filter(p => p.value != null).map(p =>
+    formatter: ps => `<b>${ps[0]?.name}년</b><br>` + ps.filter(p => p.value != null)
+      .sort((a, b) => b.value - a.value).map(p =>
       `${p.marker} ${p.seriesName}: <b>${fmtB(p.value)}</b>`).join('<br>') +
-      `<br><span style="color:${KB.c.muted};font-size:10px">프랑스: FEBEA/UN Comtrade 보도 종합 · 한국: 식약처/관세청</span>` },
+      `<br><span style="color:${KB.c.muted};font-size:10px">프랑스: FEBEA/UN Comtrade · 한국: 식약처/관세청 · 미국·독일·이탈리아·스페인·일본: UN Comtrade HS33 (TrendEconomy)</span>` },
   xAxis: { type: 'category', data: allYears, axisLabel: { color: KB.c.muted } },
   yAxis: { type: 'value', axisLabel: { color: KB.c.muted, formatter: v => '$' + v + 'B' }, splitLine: { lineStyle: { color: KB.c.split } } },
   series: [
+    ...Object.entries(F.competitors ?? {}).map(([name, arr], i) => ({
+      name, type: 'line', smooth: true, connectNulls: true,
+      data: allYears.map(y => arr.find(s => s.year === y)?.valueB ?? null),
+      lineStyle: { width: 1.8, color: ['#94a3b8', '#a78bfa', '#34d399', '#fbbf24', '#22d3ee'][i % 5], type: 'dashed' },
+      itemStyle: { color: ['#94a3b8', '#a78bfa', '#34d399', '#fbbf24', '#22d3ee'][i % 5] },
+      symbolSize: 4, z: 1,
+    })),
     { name: '프랑스', type: 'line', smooth: true, connectNulls: true,
       data: F.series.map(s => s.valueB),
       lineStyle: { width: 3.2, color: '#3b82f6' }, itemStyle: { color: '#3b82f6' }, symbolSize: 6,

@@ -2,7 +2,7 @@
  * 페이지 추가 시 TABS 배열만 수정. 현재 페이지는 URL로 자동 감지. */
 (function () {
   /* ---------- 테마 ---------- */
-  const theme = localStorage.getItem('kb-theme') === 'dark' ? 'dark' : 'light'; // 기본 라이트
+  const theme = localStorage.getItem('kb-theme') === 'light' ? 'light' : 'dark'; // 기본 다크
   document.documentElement.dataset.theme = theme;
   const PAL = {
     light: {
