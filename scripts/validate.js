@@ -82,6 +82,26 @@ const ok = (m) => console.log('  ✓ ' + m);
   ok(`제품: ${D.products.length}개 (판매량 차트 ${D.products.filter(p => p.cumUnits != null).length}, 매출 차트 ${D.products.filter(p => p.annualRevenueKRW != null).length})`);
 }
 
+/* ---------- 플랫폼 실측 랭킹 ---------- */
+{
+  const PR = D.platformRanks;
+  if (!PR) errs.push('platformRanks 누락');
+  else {
+    const oy = PR.oliveYoungGlobal;
+    if (!oy?.snapshotDate || !oy?.sourceUrl || !(oy?.items?.length >= 10)) errs.push('올리브영 글로벌 랭킹 불완전');
+    for (const it of oy?.items ?? []) {
+      if (!it.rank || !it.brand || !it.name || it.priceUSD == null || it.rating == null) errs.push(`OY 항목 필드 누락: #${it.rank}`);
+      if (it.rating < 3 || it.rating > 5) errs.push(`OY 평점 범위 오류: #${it.rank}`);
+    }
+    const q = PR.qoo10jp;
+    if (!q?.month || !q?.sourceUrl || !q?.basis || !(q?.categories?.length >= 1)) errs.push('Qoo10 월간 랭킹 불완전');
+    for (const cat of q?.categories ?? [])
+      for (const it of cat.items ?? [])
+        if (!it.rank || !it.brand || !it.name) errs.push(`Qoo10 항목 필드 누락: ${cat.category} #${it.rank}`);
+    ok(`플랫폼 랭킹: 올리브영 ${oy?.items?.length ?? 0}개 (${oy?.snapshotDate}), Qoo10 ${q?.categories?.length ?? 0}개 카테고리 (${q?.month})`);
+  }
+}
+
 /* ---------- 인사이트 ---------- */
 {
   const I = D.insights;

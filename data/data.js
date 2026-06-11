@@ -467,6 +467,76 @@ window.DASHBOARD_DATA = {
       sourceName: "코스인코리아·올리브영", sourceUrl: "https://cosinkorea.com/news/article.html?no=48755" },
   ],
 
+  /* 플랫폼 실측 랭킹 — 플랫폼이 직접 집계·공표하는 판매 기반 랭킹 (월간 스냅샷 루틴이 갱신)
+   * oliveYoungGlobal: global.oliveyoung.com 베스트셀러 (order-best API, 일일 판매 데이터 기반)
+   * qoo10jp: eBay Japan이 PR Times에 공식 발표하는 월간 판매개수 기준 랭킹 */
+  platformRanks: {
+    oliveYoungGlobal: {
+      snapshotDate: "2026-06-11",
+      sourceName: "올리브영 글로벌 베스트셀러",
+      sourceUrl: "https://global.oliveyoung.com/display/page/best-seller",
+      items: [
+      { rank: 1, brand: "MEDIHEAL", name: "Toner Pad 100+100 Pads Double Set (+Portable Case) (7 Options)", priceUSD: 23.17, rating: 5, reviews: 40 },
+      { rank: 2, brand: "MEDIHEAL", name: "Essential Mask Sheet 10ea Set (+1ea) (OY-Exclusive)", priceUSD: 10, rating: 4.8, reviews: 5056 },
+      { rank: 3, brand: "FOODOLOGY", name: "Coleology Cutting Jelly 30 Sticks (30-day supply)", priceUSD: 37.93, rating: 4.7, reviews: 1644 },
+      { rank: 4, brand: "Centellian24", name: "Madeca Cream Time Reverse 50ml Set (+15ml*2ea+Derma Mask Sheet 3ea)", priceUSD: 19.8, rating: 4.8, reviews: 256 },
+      { rank: 5, brand: "ROUND LAB", name: "Birch Juice Moisturizing Sunscreen 50ml Double Set (+20ml)", priceUSD: 23.52, rating: 4.9, reviews: 16 },
+      { rank: 6, brand: "Purito Seoul", name: "Daily Soft Touch Sunscreen 60ml Double Pack (+Cleanser 30ml)", priceUSD: 26.73, rating: 5, reviews: 3 },
+      { rank: 7, brand: "tooq", name: "Volume Glaze Syrup Tint (9 Colors)", priceUSD: 9.58, rating: 4.8, reviews: 376 },
+      { rank: 8, brand: "celimax", name: "Retinal Shot Tightening Booster 15ml Set (+3ml)", priceUSD: 24, rating: 4.7, reviews: 221 },
+      { rank: 9, brand: "ILLIYOON", name: "Ceramide Ato Lotion Double Pack (600ml+600ml)", priceUSD: 35.29, rating: 4.9, reviews: 188 },
+      { rank: 10, brand: "S.NATURE", name: "Aqua Squalane Moisturizing Cream 60ml Double Set (+Cream 10ml)", priceUSD: 22.4, rating: 4.8, reviews: 27 },
+      { rank: 11, brand: "Centellian24", name: "Expert Madeca Cream Active Renew PDRN Double Set", priceUSD: 48.98, rating: 4.9, reviews: 46 },
+      { rank: 12, brand: "Anua", name: "PDRN Hyaluronic Capsule 100 Serum 30ml Refill Set", priceUSD: 35.63, rating: 4.8, reviews: 2979 },
+      { rank: 13, brand: "numbuzin", name: "No. 9 NAD Bio Lifting-sil Essence 50ml", priceUSD: 24.65, rating: 4.9, reviews: 2068 },
+      { rank: 14, brand: "medicube", name: "★2025 Awards★ medicube PDRN Pink Peptide Ampoule 30ml Limited Set (+Refill 50ml+PDRN Pink One Day Serum 1.5ml*5P)", priceUSD: 23.71, rating: 4.8, reviews: 1001 },
+      { rank: 15, brand: "SKIN1004", name: "Madagascar Centella Hyalu-Cica Water-Fit Sun Serum 50mL*2ea (Twin pack)", priceUSD: 27.74, rating: 4.9, reviews: 9747 },
+      { rank: 16, brand: "Torriden", name: "[Upgraded] Torriden Dive In Low Molecular Hyaluronic Acid Serum 50ml", priceUSD: 15.75, rating: 5, reviews: 3 },
+      { rank: 17, brand: "UNOVE", name: "Deep Damage Repair Hair Mask (Treatment / Hair Pack) 320mL Double Pack (5 Options)", priceUSD: 32.88, rating: 4.8, reviews: 2923 },
+      { rank: 18, brand: "Anua", name: "PDRN Hyaluronic Acid 100 Moisturizing Cream 60ml Double Set (+PDRN Toner 40ml)", priceUSD: 43.83, rating: 4.5, reviews: 8 },
+      { rank: 19, brand: "Torriden", name: "[Upgraded] Torriden Dive-In Low Molecular Hyaluronic Acid Soothing Cream 100ml Double Set (Cream 20ml+Serum 20ml)", priceUSD: 28, rating: 4.8, reviews: 5 },
+      { rank: 20, brand: "Dr. Althea", name: "345 Relief Cream Mist Set (100ml+60ml)", priceUSD: 35, rating: 4.8, reviews: 35 },
+      ],
+    },
+    qoo10jp: {
+      month: "2026-04",
+      releaseDate: "2026-05-27",
+      basis: "판매개수(販売個数) 기준, 집계 2026-04-01~04-30",
+      sourceName: "eBay Japan 공식 보도자료 (PR Times)",
+      sourceUrl: "https://prtimes.jp/main/html/rd/p/000000947.000022933.html",
+      categories: [
+        { category: "선케어", items: [
+          { rank: 1, brand: "스킨1004", name: "히알루-시카 워터핏 선세럼" },
+          { rank: 2, brand: "오즈너리", name: "레스트 앤 더 선" },
+          { rank: 3, brand: "Funny Elves", name: "UV 소프트 매트 프레스드 파우더" },
+          { rank: 4, brand: "화시쯔 (Florasis)", name: "UV 페이스 파우더" },
+          { rank: 5, brand: "아누아", name: "선크림 2종" },
+        ]},
+        { category: "립 메이크업", items: [
+          { rank: 1, brand: "에이프릴스킨", name: "히어로 립 타투 틴트" },
+          { rank: 2, brand: "달바", name: "플럼핑 립 글로우 무드 볼류마이저" },
+          { rank: 3, brand: "롬앤", name: "쥬시 플래시 립 오일" },
+          { rank: 4, brand: "페리페라", name: "무드 글로이 틴트" },
+          { rank: 5, brand: "밀크터치", name: "젤리핏 틴티드 글로우 틴트" },
+        ]},
+        { category: "아이섀도", items: [
+          { rank: 1, brand: "릴리바이레드", name: "리틀비티 모먼트 섀도우" },
+          { rank: 2, brand: "홀리카홀리카", name: "마이페이브 피스 섀도우" },
+          { rank: 3, brand: "투에이엔 (2aN)", name: "베터미 아이팔레트" },
+          { rank: 4, brand: "웨이크메이크", name: "소프트 블러링 아이팔레트" },
+          { rank: 5, brand: "투쿨포스쿨", name: "프로타주 펜슬" },
+        ]},
+        { category: "치크", items: [
+          { rank: 1, brand: "라카", name: "선쉴드 글로이 치크" },
+          { rank: 2, brand: "투에이엔 (2aN)", name: "듀얼 치크" },
+          { rank: 3, brand: "AZTK", name: "젤리 컬러 치크 리퀴드" },
+          { rank: 4, brand: "얼터너티브 스테레오", name: "버미 크림 치크" },
+          { rank: 5, brand: "어바웃톤", name: "스킨 레이어 핏 치크" },
+        ]},
+      ],
+    },
+  },
+
   /* 인사이트 브리핑 — 업계가 주목하는 핵심 이슈 (2026.6 기준, 웹 리서치) */
   insights: [
     { tag: "🇺🇸 미국 관세", title: "15% 관세 + 직구 면세 폐지 — 가격·생산지 전략이 최우선 과제로",

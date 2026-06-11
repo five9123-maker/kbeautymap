@@ -326,8 +326,7 @@
     <a href="#sec-map">② 수출 지도</a>
     <a href="#sec-brands">③ 브랜드</a>
     <a href="#sec-products">④ 제품</a>
-    <a href="#sec-chart">⑤ 제품 수치</a>
-    <a href="#sec-insights">⑥ 인사이트</a>
+    <a href="#sec-insights">⑤ 인사이트</a>
   </nav>
 
   <div class="grid row-growth" id="sec-growth">
@@ -379,12 +378,25 @@
 
   <div class="card" id="sec-products">
     <div class="eyebrow">04 · 무엇이 팔리는가</div>
-    <h2>🧪 K-Beauty 제품 랭킹 TOP 30</h2>
-    <div class="desc">판매 실적·수상 이력 기반 종합 순위. 제품을 클릭하면 성분·효능·평점·출처 상세가 열립니다.</div>
+    <h2>🏆 플랫폼 실측 랭킹</h2>
+    <div class="desc">에디터 추정이 아닌, 플랫폼이 직접 집계·공표하는 판매 기반 랭킹입니다. 항목에 호버하면 집계 기준이 표시됩니다.</div>
+    <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(380px,1fr));gap:14px;margin-bottom:22px">
+      <div>
+        <h2 style="font-size:13.5px" data-tip="올리브영 글로벌몰 공식 베스트셀러 — '일일 판매 데이터 기반' 실측 랭킹.<br>스냅샷 시점 기준 · 기획세트(증정 포함) 단위 집계 · 평점/리뷰는 글로벌몰 자체 수치">🌿 올리브영 글로벌 베스트셀러 <span class="chip" id="oyDate"></span></h2>
+        <div class="toplist" style="max-height:430px" id="oyList"></div>
+      </div>
+      <div>
+        <h2 style="font-size:13.5px" data-tip="eBay Japan(Qoo10 운영사)이 PR Times에 공식 발표하는 월간 랭킹 — 실제 판매개수(販売個数) 기준 집계">🇯🇵 Qoo10 재팬 월간 공식 랭킹 <span class="chip" id="qooDate"></span></h2>
+        <div class="toplist" style="max-height:430px" id="qooList"></div>
+      </div>
+    </div>
+
+    <h2>🧪 제품 도감 30</h2>
+    <div class="desc">주요 제품의 성분·효능·가격·평점 데이터베이스. 정렬은 Amazon 리뷰 수 등 공개 지표만 사용하며, 제품을 클릭하면 상세가 열립니다.</div>
     <div class="explorer-bar">
       <input type="search" id="pSearch" placeholder="🔍 제품·브랜드·성분 검색">
       <span class="sortgrp ytoggle" id="pSort">
-        <button class="on" data-s="rank">종합 순위</button>
+        <button class="on" data-s="reviews">Amazon 리뷰순</button>
         <button data-s="rating">평점순</button>
         <button data-s="priceAsc">낮은 가격</button>
         <button data-s="priceDesc">높은 가격</button>
@@ -395,21 +407,8 @@
     <div class="plist" id="plist"></div>
   </div>
 
-  <div class="card" id="sec-chart">
-    <div class="eyebrow" style="text-align:center">05 · 공개 수치로 보는 제품</div>
-    <h2 style="text-align:center">🏅 제품별 판매·매출 순위
-      <span class="ytoggle" id="prodMetricToggle">
-        <button class="on" data-m="units">누적 판매량</button>
-        <button data-m="revenue">연 매출 (공개 제품)</button>
-      </span>
-    </h2>
-    <div class="desc" style="text-align:center">막대에 마우스를 올리면 <b>주요 매출 지역</b>과 <b>정보 출처</b>가 표시됩니다. 제품 단독 매출은 대부분 비공개라 공개된 지표 기준으로만 순위를 매겼습니다.</div>
-    <div id="productRank" style="max-width:980px;margin:0 auto;height:420px"></div>
-    <div class="desc" style="text-align:center;margin-top:6px" id="prodExcluded"></div>
-  </div>
-
   <div class="card" id="sec-insights">
-    <div class="eyebrow">06 · 지금 업계가 주목하는 것</div>
+    <div class="eyebrow">05 · 지금 업계가 주목하는 것</div>
     <h2>🔭 K-Beauty 인사이트 브리핑</h2>
     <div class="desc">브랜드사·진출 기업·투자자가 지금 가장 궁금해하는 이슈를 핵심 수치와 함께 정리했습니다.</div>
     <div class="igrid" id="insights"></div>
@@ -422,9 +421,9 @@
   <footer id="sources"></footer>
 </div>
 
-<script src="assets/echarts.min.js?v=10"></script>
-<script src="assets/world.js?v=10"></script>
-<script src="data/data.js?v=10"></script>
+<script src="assets/echarts.min.js?v=11"></script>
+<script src="assets/world.js?v=11"></script>
+<script src="data/data.js?v=11"></script>
 <script>
 const D = window.DASHBOARD_DATA;
 const fmtUSD = v => v >= 1000 ? `$${(v/1000).toFixed(2)}B` : `$${v.toLocaleString()}M`;
@@ -720,74 +719,38 @@ pieChart.setOption({
   }]
 });
 
-/* ---------- product ranking (중앙 차트) ---------- */
-const prodChart = echarts.init(document.getElementById('productRank'));
-function renderProductRank(metric) {
-  const has = p => metric === 'units' ? p.cumUnits != null : p.annualRevenueKRW != null;
-  const items = D.products.filter(has)
-    .sort((a, b) => metric === 'units' ? a.cumUnits - b.cumUnits : a.annualRevenueKRW - b.annualRevenueKRW);
-  const excluded = D.products.filter(p => p.cumUnits == null && p.annualRevenueKRW == null);
-  document.getElementById('prodExcluded').innerHTML =
-    `※ ${excluded.map(p => p.name).join(', ')} 은(는) 제품 단독 수치 미공개로 순위에서 제외 (아래 카드 참고)`;
-  if (!items.length) {
-    prodChart.clear();
-    document.getElementById('prodExcluded').innerHTML =
-      '데이터를 불러오지 못했습니다. 강력 새로고침(Cmd+Shift+R) 후 다시 확인해주세요.';
-    return;
-  }
-  document.getElementById('productRank').style.height = Math.max(300, items.length * 46 + 40) + 'px';
-  prodChart.resize();
-  prodChart.setOption({
-    backgroundColor: 'transparent',
-    grid: {left: 8, right: 96, top: 6, bottom: 6, containLabel: true},
-    tooltip: {
-      backgroundColor: '#1c2330', borderColor: '#2a3344', textStyle: {color: '#e8ecf3'},
-      enterable: true, confine: true,
-      formatter: p => {
-        const it = items[p.dataIndex];
-        const val = metric === 'units'
-          ? `누적 판매: <b>${it.cumUnits.toLocaleString()}만 ${it.unitsSuffix}</b>${it.unitsNote ? ` <span style="color:#8b95a7">(${it.unitsNote})</span>` : ''}`
-          : `연 매출: <b>${fmtKRW(it.annualRevenueKRW)}</b> <span style="color:#8b95a7">(${it.revenueYear}년)</span>`;
-        return `<b>${it.name}</b> <span style="color:#ff5c8a">${it.brand}</span><br/>${val}<br/>` +
-               `📍 주요 매출 지역: <b>${it.region}</b><br/>` +
-               `📰 출처: <a href="${it.sourceUrl}" target="_blank" style="color:#ffb3c6">${it.sourceName}</a>` +
-               `<br/><span style="color:#8b95a7;font-size:10px">${metric === 'units'
-                 ? '누적 판매량 = 공식 발표·보도 수치, 기준 시점은 괄호 표기 (시점 상이 주의)'
-                 : '연 매출 = 제품/라인 단독 공개 수치 — 비공개 제품은 차트에서 제외'}</span>`;
-      }
-    },
-    xAxis: {type: 'value', axisLabel: {color: '#8b95a7',
-      formatter: v => metric === 'units' ? `${v.toLocaleString()}만` : (v >= 10000 ? `${v/10000}조` : `${v.toLocaleString()}억`)},
-      splitLine: {lineStyle: {color: '#222a38'}}},
-    yAxis: {type: 'category', data: items.map(it => `${it.name.length > 22 ? it.name.slice(0, 22) + '…' : it.name}`),
-      axisLabel: {color: '#e8ecf3', fontSize: 12, fontWeight: 600}},
-    series: [{
-      type: 'bar', barWidth: '60%',
-      data: items.map((it, i) => ({
-        value: metric === 'units' ? it.cumUnits : it.annualRevenueKRW,
-        itemStyle: {color: i === items.length - 1 ? '#ffc2d1' : i >= items.length - 3 ? '#ff7fa5' : '#c44569', borderRadius: [0, 6, 6, 0]}
-      })),
-      label: {show: true, position: 'right', color: '#8b95a7', fontSize: 11,
-        formatter: p => {
-          const it = items[p.dataIndex];
-          return metric === 'units' ? `${it.cumUnits.toLocaleString()}만 ${it.unitsSuffix}` : `${fmtKRW(it.annualRevenueKRW)} (${it.revenueYear})`;
-        }}
-    }]
-  }, {notMerge: true});
+/* ---------- 플랫폼 실측 랭킹 ---------- */
+{
+  const PR = D.platformRanks;
+  const oy = PR.oliveYoungGlobal;
+  document.getElementById('oyDate').textContent = `${oy.snapshotDate} 스냅샷`;
+  document.getElementById('oyList').innerHTML = oy.items.map(it => `
+    <div class="item" data-tip="${(`<b>${it.brand}</b> ${it.name}<br>판매가 ${it.priceUSD} · 글로벌몰 평점 ${it.rating} (리뷰 ${it.reviews.toLocaleString()})<br>출처: 올리브영 글로벌 베스트셀러 (일일 판매 데이터 기반, ${oy.snapshotDate} 수집)`).replace(/"/g, '&quot;')}">
+      <div class="rank">${it.rank}</div>
+      <div class="nm" style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><b style="color:var(--accent2)">${it.brand}</b> ${it.name}</div>
+      <div class="val" style="flex-shrink:0">${it.priceUSD}</div>
+      <div class="yoy" style="width:74px">★${it.rating.toFixed(1)} <span style="color:#8b95a7">(${it.reviews >= 1000 ? (it.reviews/1000).toFixed(1) + 'k' : it.reviews})</span></div>
+    </div>`).join('') +
+    `<div class="pcount">출처: <a href="${oy.sourceUrl}" target="_blank" style="color:#8b95a7">${oy.sourceName}</a> · 기획세트 단위 집계</div>`;
+
+  const q = PR.qoo10jp;
+  document.getElementById('qooDate').textContent = `${q.month} 월간`;
+  document.getElementById('qooList').innerHTML = q.categories.map(cat => `
+    <div class="pcount" style="margin:4px 2px 2px"><b style="color:var(--text)">${cat.category}</b></div>` +
+    cat.items.map(it => `
+    <div class="item" data-tip="${(`<b>${it.brand}</b> ${it.name}<br>${q.month} ${cat.category} ${it.rank}위 — ${q.basis}<br>출처: ${q.sourceName} (${q.releaseDate} 발표)`).replace(/"/g, '&quot;')}">
+      <div class="rank">${it.rank}</div>
+      <div class="nm" style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><b style="color:var(--accent2)">${it.brand}</b> ${it.name}</div>
+    </div>`).join('')).join('') +
+    `<div class="pcount">출처: <a href="${q.sourceUrl}" target="_blank" style="color:#8b95a7">${q.sourceName}</a> · ${q.basis}</div>`;
 }
-renderProductRank('units');
-document.getElementById('prodMetricToggle').addEventListener('click', e => {
-  const b = e.target.closest('button'); if (!b) return;
-  document.querySelectorAll('#prodMetricToggle button').forEach(x => x.classList.toggle('on', x === b));
-  renderProductRank(b.dataset.m);
-});
 
 /* ---------- 제품 랭킹 익스플로러 ---------- */
 const CAT_ICONS = {
   '토너·패드': '💧', '에센스·세럼': '✨', '크림·로션': '🧴', '선케어': '☀️',
   '쿠션·베이스': '🪞', '립': '💋', '마스크팩': '🎭', '디바이스': '⚡', '클렌징': '🫧',
 };
-const pState = { q: '', cat: '전체', sort: 'rank' };
+const pState = { q: '', cat: '전체', sort: 'reviews' };
 const ratingOf = p => Math.max(p.ratingAmazon ?? 0, p.ratingOliveYoung ?? 0, p.ratingHwahae ?? 0);
 const starsHtml = r => `<span class="stars">★★★★★<span class="fill" style="width:${r/5*100}%">★★★★★</span></span>`;
 const wonFmt = v => v == null ? '가격 미공개' : `₩${v.toLocaleString()}`;
@@ -801,7 +764,7 @@ function filteredProducts() {
       .filter(Boolean).join(' ').toLowerCase().includes(q);
   });
   const sorters = {
-    rank: (a, b) => a.rank - b.rank,
+    reviews: (a, b) => (b.reviewsAmazon ?? 0) - (a.reviewsAmazon ?? 0),
     rating: (a, b) => ratingOf(b) - ratingOf(a),
     priceAsc: (a, b) => (a.priceKRW ?? 1e12) - (b.priceKRW ?? 1e12),
     priceDesc: (a, b) => (b.priceKRW ?? -1) - (a.priceKRW ?? -1),
@@ -822,14 +785,14 @@ function renderList() {
   document.getElementById('plist').innerHTML = items.map((p, i) => {
     const r = ratingOf(p);
     const award = (p.awards ?? [])[0];
-    const tip = `<b>${p.name}</b><br>종합 순위 ${p.rank}위 = 판매 실적·수상 이력 기반 편집 순위 (단일 공식 지표 아님)` +
+    const tip = `<b>${p.name}</b><br>정렬 위치는 현재 선택된 공개 지표(리뷰 수·평점·가격) 기준` +
       `<br>판매 지표: ${p.salesMetric}` +
       (r ? `<br>평점 ${r.toFixed(1)} = Amazon/올리브영 리스팅·보도 기준 최대값 (리뷰 수는 보수적 하한)` : '') +
       (p.priceKRW ? `<br>가격: 정가 기준 (할인가 변동 큼)` : '') +
       `<br>출처: ${p.sourceName}`;
     return `
     <div class="prow" data-rank="${p.rank}" data-tip="${tip.replace(/"/g, '&quot;')}" style="animation-delay:${Math.min(i * 28, 500)}ms">
-      <div class="prank ${p.rank <= 3 ? 'r' + p.rank : ''}">${p.rank}</div>
+      <div class="prank ${i < 3 ? 'r' + (i + 1) : ''}">${i + 1}</div>
       <div class="pthumb">${CAT_ICONS[p.cat] ?? '🧴'}</div>
       <div class="pinfo">
         <div class="pb">${p.brand}</div>
@@ -952,13 +915,11 @@ function syncURL() {
   if (bf && bf !== 'all') sp.set('bf', bf);
   if (pState.cat !== '전체') sp.set('cat', pState.cat);
   if (pState.q) sp.set('q', pState.q);
-  if (pState.sort !== 'rank') sp.set('sort', pState.sort);
-  const pm = document.querySelector('#prodMetricToggle button.on')?.dataset.m;
-  if (pm && pm !== 'units') sp.set('m', pm);
+  if (pState.sort !== 'reviews') sp.set('sort', pState.sort);
   const qs = sp.toString();
   history.replaceState(null, '', (qs ? '?' + qs : location.pathname) + location.hash);
 }
-['yearToggle', 'brandFilter', 'pCats', 'pSort', 'prodMetricToggle'].forEach(id =>
+['yearToggle', 'brandFilter', 'pCats', 'pSort'].forEach(id =>
   document.getElementById(id).addEventListener('click', () => setTimeout(syncURL, 0)));
 document.getElementById('pSearch').addEventListener('input', () => syncURL());
 
@@ -975,15 +936,11 @@ document.getElementById('pSearch').addEventListener('input', () => syncURL());
   let dirty = false;
   if (sp.get('cat')) { pState.cat = sp.get('cat'); dirty = true; }
   if (sp.get('q')) { pState.q = sp.get('q'); document.getElementById('pSearch').value = pState.q; dirty = true; }
-  if (['rating', 'priceAsc', 'priceDesc'].includes(sp.get('sort'))) {
+  if (['reviews', 'rating', 'priceAsc', 'priceDesc'].includes(sp.get('sort'))) {
     pState.sort = sp.get('sort'); dirty = true;
     document.querySelectorAll('#pSort button').forEach(x => x.classList.toggle('on', x.dataset.s === pState.sort));
   }
   if (dirty) { renderCats(); renderList(); }
-  if (sp.get('m') === 'revenue') {
-    document.querySelectorAll('#prodMetricToggle button').forEach(x => x.classList.toggle('on', x.dataset.m === 'revenue'));
-    renderProductRank('revenue');
-  }
 })();
 
 /* ---------- scrollspy ---------- */
@@ -1002,7 +959,7 @@ if ('IntersectionObserver' in window) {
   document.querySelectorAll('.card').forEach(c => { c.classList.add('reveal'); io.observe(c); });
 }
 
-window.addEventListener('resize', () => [mapChart, trendChart, pieChart, prodChart].forEach(c => c.resize()));
+window.addEventListener('resize', () => [mapChart, trendChart, pieChart].forEach(c => c.resize()));
 </script>
 </body>
 </html>
