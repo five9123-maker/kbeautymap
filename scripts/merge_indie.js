@@ -98,8 +98,8 @@ window.INDIE_DATA = {
   meta: {
     updated: "${new Date().toISOString().slice(0, 10)}",
     sources: [
-      "코스모닝 연간 기획 — 화장품 기업 403개사(2025)·406개사(2024)·402개사(2023) 경영실적 분석 (감사보고서 기반)",
-      "뷰티누리·코스인코리아·더벨·THE VC·사람인/캐치 기업 재무정보, 각사 공시·IR·IPO 증권신고서 보도",
+      { label: "코스모닝 연간 기획 — 화장품 기업 경영실적 분석 (감사보고서 기반)", url: "https://www.cosmorning.com/news/article.html?no=52923" },
+      { label: "뷰티누리·코스인코리아·더벨·THE VC·사람인/캐치 기업 재무정보 (기업별 출처는 행 호버 툴팁)", url: "https://thevc.kr" },
     ],
   },
   defaultSelection: ["구다이글로벌", "에이피알", "더파운더즈", "달바글로벌", "토리든"],

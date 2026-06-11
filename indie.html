@@ -202,9 +202,9 @@
   <footer id="src"></footer>
 </div>
 
-<script src="assets/tabs.js?v=20"></script>
-<script src="assets/echarts.min.js?v=20"></script>
-<script src="data/indie.js?v=20"></script>
+<script src="assets/tabs.js?v=21"></script>
+<script src="assets/echarts.min.js?v=21"></script>
+<script src="data/indie.js?v=21"></script>
 <script>
 const D = window.INDIE_DATA;
 const YEARS = [2021, 2022, 2023, 2024, 2025];
@@ -449,7 +449,8 @@ document.getElementById('logBtn').addEventListener('click', e => {
 })();
 
 document.getElementById('src').innerHTML =
-  `<b style="color:var(--text)">데이터 기준</b><br/>` + D.meta.sources.map(s => `· ${s}`).join('<br/>') +
+  `<b style="color:var(--text)">데이터 기준</b><br/>` + D.meta.sources.map(s =>
+    s.url ? `· <a href="${s.url}" target="_blank" style="color:var(--muted);text-decoration:underline">${s.label}</a>` : `· ${s.label ?? s}`).join('<br/>') +
   `<br/>※ 매출은 연결 기준 우선, 일부 별도 기준 혼재. 빈 연도는 감사보고서 미공시 등으로 확인 불가한 해입니다.` +
   `<br/>※ 🌍 표시는 외국인 창업·해외 법인 K-뷰티 브랜드 — 매출은 외화 보도치를 연평균 환율로 환산한 값이라 국내 감사보고서 수치와 정밀도가 다릅니다.`;
 

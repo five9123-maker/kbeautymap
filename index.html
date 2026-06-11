@@ -259,6 +259,13 @@
     </div>
   </div>
 
+  <div class="card">
+    <div class="eyebrow">01 · 세계에서 몇 위인가</div>
+    <h2 data-tip="기준: HS33 화장품 수출액, 한국무역협회 K-STAT (식약처 연례 보도자료 인용)<br>2025년은 식약처가 상위 3개국만 공표 — 독일 이하 순위 미확정<br>한국 점유율: 2014년 1.5% → 2023년 5.9% (UN Comtrade)">🏆 화장품 수출 강국 순위 — 1위는 프랑스, 한국은 5년 새 3위→2위</h2>
+    <div class="desc">2022~23년 독일에 밀려 4위까지 내려갔다가, 2024년 독일·2025년 미국을 차례로 추월했습니다. 선에 호버하면 수출액이 표시됩니다.</div>
+    <div id="rankBump" style="height:260px;max-width:980px;margin:0 auto"></div>
+  </div>
+
   <div class="grid row-map" id="sec-map">
     <div class="card">
       <div class="eyebrow">02 · 어디로 수출되나</div>
@@ -316,10 +323,10 @@
   <footer id="sources"></footer>
 </div>
 
-<script src="assets/tabs.js?v=20"></script>
-<script src="assets/echarts.min.js?v=20"></script>
-<script src="assets/world.js?v=20"></script>
-<script src="data/data.js?v=20"></script>
+<script src="assets/tabs.js?v=21"></script>
+<script src="assets/echarts.min.js?v=21"></script>
+<script src="assets/world.js?v=21"></script>
+<script src="data/data.js?v=21"></script>
 <script>
 const D = window.DASHBOARD_DATA;
 const fmtUSD = v => v >= 1000 ? `$${(v/1000).toFixed(2)}B` : `$${v.toLocaleString()}M`;
@@ -579,6 +586,38 @@ trendChart.setOption({
   }]
 });
 
+/* ---------- 세계 수출 강국 순위 (bump) ---------- */
+const GR = D.globalRank;
+const RYEARS = Object.keys(GR.years);
+const COUNTRIES = ['프랑스', '미국', '독일', '한국'];
+const RCOLOR = { '프랑스': '#60a5fa', '미국': '#94a3b8', '독일': '#a78bfa', '한국': KB.c.accent };
+const rankBump = echarts.init(document.getElementById('rankBump'));
+rankBump.setOption({
+  backgroundColor: 'transparent',
+  grid: { left: 14, right: 90, top: 14, bottom: 8, containLabel: true },
+  tooltip: {
+    trigger: 'axis', backgroundColor: KB.c.tooltipBg, borderColor: KB.c.tooltipBorder, textStyle: { color: KB.c.text },
+    formatter: ps => {
+      const y = ps[0]?.name;
+      const rows = (GR.years[y] ?? []).map(r =>
+        `${r.rank}위 ${r.country === '한국' ? '<b style="color:' + KB.c.accent + '">한국</b>' : r.country}: ${r.valueB}B`).join('<br>');
+      return `<b>${y}년</b><br>${rows}<br><span style="color:${KB.c.muted};font-size:10px">출처: 식약처/K-STAT · ${y === '2025' ? '상위 3개국만 공표' : 'HS33 기준'}</span>`;
+    }
+  },
+  xAxis: { type: 'category', data: RYEARS, axisLabel: { color: KB.c.muted }, boundaryGap: true },
+  yAxis: { type: 'value', inverse: true, min: 0.5, max: 5.5, interval: 1,
+    axisLabel: { color: KB.c.muted, formatter: v => Number.isInteger(v) && v >= 1 && v <= 5 ? v + '위' : '' },
+    splitLine: { lineStyle: { color: KB.c.split } } },
+  series: COUNTRIES.map(c => ({
+    name: c, type: 'line',
+    data: RYEARS.map(y => GR.years[y].find(r => r.country === c)?.rank ?? null),
+    lineStyle: { width: c === '한국' ? 4 : 2.2, color: RCOLOR[c] },
+    itemStyle: { color: RCOLOR[c] }, symbolSize: c === '한국' ? 10 : 7,
+    endLabel: { show: true, formatter: p => `${c} ${p.value}위`, color: RCOLOR[c], fontSize: 11.5, fontWeight: c === '한국' ? 800 : 600, distance: 8 },
+    labelLayout: { moveOverlap: 'shiftY' },
+  })),
+});
+
 /* ---------- region pie ---------- */
 const pieChart = echarts.init(document.getElementById('catPie'));
 pieChart.setOption({
@@ -623,7 +662,8 @@ pieChart.setOption({
 
 /* ---------- sources ---------- */
 document.getElementById('sources').innerHTML =
-  `<span class="srcLabel">데이터 출처</span><br/>` + D.meta.sources.map(s => `· ${s}`).join('<br/>') +
+  `<span class="srcLabel">데이터 출처</span><br/>` + D.meta.sources.map(s =>
+    s.url ? `· <a href="${s.url}" target="_blank" style="color:var(--muted);text-decoration:underline">${s.label}</a>` : `· ${s.label}`).join('<br/>') +
   `<br/><br/>※ 본 대시보드의 수치는 공개 보도자료·기업 IR 기준이며, 일부는 추정치를 포함합니다.`;
 
 /* ---------- 인사이트 브리핑 ---------- */
@@ -676,7 +716,7 @@ if ('IntersectionObserver' in window) {
   document.querySelectorAll('.card').forEach(c => { c.classList.add('reveal'); io.observe(c); });
 }
 
-window.addEventListener('resize', () => [mapChart, trendChart, pieChart].forEach(c => c.resize()));
+window.addEventListener('resize', () => [mapChart, trendChart, pieChart, rankBump].forEach(c => c.resize()));
 </script>
 </body>
 </html>

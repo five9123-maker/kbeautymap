@@ -108,9 +108,9 @@
   <footer id="src"></footer>
 </div>
 
-<script src="assets/tabs.js?v=20"></script>
-<script src="assets/echarts.min.js?v=20"></script>
-<script src="data/trends.js?v=20"></script>
+<script src="assets/tabs.js?v=21"></script>
+<script src="assets/echarts.min.js?v=21"></script>
+<script src="data/trends.js?v=21"></script>
 <script>
 const D = window.TRENDS_DATA;
 const YEARS = [2019, 2020, 2021, 2022, 2023, 2024, 2025];
@@ -225,7 +225,8 @@ document.getElementById('cards').innerHTML = D.ingredients.map(g => {
 }).join('');
 
 document.getElementById('src').innerHTML =
-  `<b style="color:var(--text)">데이터 기준</b><br>` + D.meta.sources.map(s => `· ${s}`).join('<br>') +
+  `<b style="color:var(--text)">데이터 기준</b><br>` + D.meta.sources.map(s =>
+    s.url ? `· <a href="${s.url}" target="_blank" style="color:var(--muted);text-decoration:underline">${s.label}</a>` : `· ${s.label ?? s}`).join('<br>') +
   `<br>※ 단계 판정은 보도·신호 기반의 편집 판단이며, PubMed 논문 수는 검색식에 따라 달라질 수 있는 근사 지표입니다. 분기 인사이트 갱신 시 함께 재점검됩니다.`;
 
 window.addEventListener('resize', () => mx.resize());

@@ -10,11 +10,11 @@ window.DASHBOARD_DATA = {
     dataYear: "수출 2024·2025 / 기업실적 FY2024·FY2025",
     exportYear: 2025,
     sources: [
-      "식품의약품안전처 보도자료 (2025-05-27) — 2024년 화장품 생산·수출 실적 (관세청 데이터 기준)",
-      "대한민국 정책브리핑(korea.kr), 코스모닝·뷰티누리·코스인코리아·THE K BEAUTY SCIENCE — 2025년 수출 실적",
-      "아모레퍼시픽그룹 IR (2026-02-06), LG생활건강 실적 공시, APR·구다이글로벌·더파운더즈·달바글로벌 등 각사 발표/언론 보도",
-      "FnGuide (VT·클리오·에이블씨엔씨), 한국콜마·코스맥스 실적 공시",
-      "제품 실적: PR Newswire, BeautyMatter, 한국경제, 헤럴드경제, 딜사이트, Forbes Korea 등",
+      { label: "식품의약품안전처 보도자료 (2025-05-27) — 2024년 화장품 생산·수출 실적 (관세청 데이터 기준)", url: "https://kcia.or.kr/inc/down.php?dir=BOARD&file_name=202505_174830652594232_2.pdf&rename=5.27.pdf" },
+      { label: "THE K BEAUTY SCIENCE·코스모닝·뷰티누리 — 2025년 수출 실적 보도", url: "https://www.thekbs.co.kr/news/articleView.html?idxno=14719" },
+      { label: "아모레퍼시픽그룹 IR (2026-02-06), LG생활건강 실적 공시 등 각사 발표", url: "https://www.apgroup.com/int/ko/news/2026-02-06-1.html" },
+      { label: "FnGuide (상장사 연간 실적), 한국콜마·코스맥스 실적 공시", url: "https://comp.fnguide.com" },
+      { label: "제품 실적: PR Newswire, BeautyMatter, 한국경제, Forbes Korea 등 (각 카드에 개별 링크)", url: null },
     ],
   },
 
@@ -71,6 +71,25 @@ window.DASHBOARD_DATA = {
         { name: "Philippines", nameKo: "필리핀", flag: "🇵🇭", value: 112.0, yoy: 22.7 },
       ],
     },
+  },
+
+  /* 세계 화장품 수출 강국 순위 — HS33, 한국무역협회 K-STAT (식약처 연례 보도자료 인용 기준)
+   * 2025년은 식약처 발표 상위 3개국만 공표 (독일·이탈리아 null) */
+  globalRank: {
+    basis: "HS33 화장품 수출액, 한국무역협회 K-STAT 집계 (식약처 보도자료 기준)",
+    shareNote: "한국의 세계 수출시장 점유율: 2014년 1.5% → 2023년 5.9% (UN Comtrade 기준, 코스모닝 분석)",
+    years: {
+      2021: [{ country: "프랑스", valueB: 17.85, rank: 1 }, { country: "미국", valueB: 9.57, rank: 2 }, { country: "한국", valueB: 9.18, rank: 3 }, { country: "독일", valueB: 8.06, rank: 4 }, { country: "일본", valueB: 7.47, rank: 5 }],
+      2022: [{ country: "프랑스", valueB: 19.44, rank: 1 }, { country: "미국", valueB: 10.38, rank: 2 }, { country: "독일", valueB: 8.73, rank: 3 }, { country: "한국", valueB: 7.95, rank: 4 }, { country: "이탈리아", valueB: 5.94, rank: 5 }],
+      2023: [{ country: "프랑스", valueB: 21.89, rank: 1 }, { country: "미국", valueB: 11.08, rank: 2 }, { country: "독일", valueB: 9.75, rank: 3 }, { country: "한국", valueB: 8.46, rank: 4 }, { country: "이탈리아", valueB: 7.36, rank: 5 }],
+      2024: [{ country: "프랑스", valueB: 23.26, rank: 1 }, { country: "미국", valueB: 11.2, rank: 2 }, { country: "한국", valueB: 10.18, rank: 3 }, { country: "독일", valueB: 9.08, rank: 4 }, { country: "스페인", valueB: 8.37, rank: 5 }],
+      2025: [{ country: "프랑스", valueB: 24.28, rank: 1 }, { country: "한국", valueB: 11.42, rank: 2 }, { country: "미국", valueB: 10.75, rank: 3 }],
+    },
+    sources: [
+      { name: "식약처 보도자료 (K-STAT 국가별 표)", url: "https://kcia.or.kr/inc/down.php?dir=BOARD&file_name=202505_174830652594232_2.pdf&rename=5.27.pdf" },
+      { name: "THE K BEAUTY SCIENCE (2025 세계 2위)", url: "https://www.thekbs.co.kr/news/articleView.html?idxno=14719" },
+      { name: "코스모닝 (점유율 분석)", url: "https://www.cosmorning.com/news/article.html?no=48838" },
+    ],
   },
 
   /* 연도별 총 수출액 추이 — 단위: USD 백만 (식약처/관세청) */

@@ -4,8 +4,8 @@ window.TRENDS_DATA = {
   meta: {
     updated: "2026-06-11",
     sources: [
-      "PubMed (NCBI E-utilities) — 성분×피부 문맥 연도별 논문 수 (검색식은 scripts 참고, 2026-06-11 수집)",
-      "웹 리서치 — NBC Select, Cosmetics Business, Happi, Spate, Future Market Insights 등 (2025~2026 보도)",
+      { label: "PubMed (NCBI E-utilities) — 성분×피부 문맥 연도별 논문 수 (2026-06-11 수집)", url: "https://pubmed.ncbi.nlm.nih.gov" },
+      { label: "웹 리서치 — NBC Select, Cosmetics Business, Happi, Spate 등 (성분별 출처는 카드 하단 링크)", url: null },
     ],
   },
   ingredients: [
