@@ -72,6 +72,15 @@
   }
   .xlink:hover { background: rgba(255,92,138,.22); }
   .blink { margin-left: 10px; font-size: 11px; color: var(--accent2); cursor: pointer; text-decoration: underline; }
+  .dtip {
+    position: fixed; z-index: 200; max-width: 330px; padding: 10px 13px;
+    background: #20283a; border: 1px solid #3a4663; border-radius: 10px;
+    font-size: 11.5px; line-height: 1.6; color: var(--text);
+    box-shadow: 0 10px 28px rgba(0,0,0,.55); pointer-events: none;
+    opacity: 0; transition: opacity .12s;
+  }
+  .dtip.show { opacity: 1; }
+  .dtip b { color: var(--accent2); }
   html { scroll-behavior: smooth; }
   [id^="sec-"] { scroll-margin-top: 64px; }
 
@@ -426,9 +435,9 @@
   <footer id="sources"></footer>
 </div>
 
-<script src="assets/echarts.min.js?v=8"></script>
-<script src="assets/world.js?v=8"></script>
-<script src="data/data.js?v=8"></script>
+<script src="assets/echarts.min.js?v=9"></script>
+<script src="assets/world.js?v=9"></script>
+<script src="data/data.js?v=9"></script>
 <script>
 const D = window.DASHBOARD_DATA;
 const fmtUSD = v => v >= 1000 ? `$${(v/1000).toFixed(2)}B` : `$${v.toLocaleString()}M`;
@@ -441,11 +450,40 @@ document.getElementById('metaLine').textContent =
   `데이터 기준: ${D.meta.dataYear} · 작성일 ${D.meta.updated}`;
 
 document.getElementById('kpis').innerHTML = D.kpi.map(k => `
-  <div class="kpi">
+  <div class="kpi" ${k.tip ? `data-tip="${k.tip}"` : ''}>
     <div class="label">${k.label}</div>
     <div class="value">${k.value}</div>
     <div class="delta ${yoyCls(k.yoy)}">${k.sub ?? yoyTxt(k.yoy)}</div>
   </div>`).join('');
+
+/* ---------- 출처·산출근거 툴팁 엔진 ---------- */
+const dtip = document.createElement('div');
+dtip.className = 'dtip';
+document.body.appendChild(dtip);
+let dtipOwner = null;
+document.addEventListener('mouseover', e => {
+  const t = e.target.closest('[data-tip]');
+  if (t === dtipOwner) return;
+  dtipOwner = t;
+  if (!t) { dtip.classList.remove('show'); return; }
+  dtip.innerHTML = t.dataset.tip;
+  dtip.style.left = '0px'; dtip.style.top = '0px';
+  dtip.classList.add('show');
+  const r = t.getBoundingClientRect(), tw = dtip.offsetWidth, th = dtip.offsetHeight;
+  const x = Math.min(Math.max(8, r.left), innerWidth - tw - 8);
+  let y = r.bottom + 8;
+  if (y + th > innerHeight - 8) y = Math.max(8, r.top - th - 8);
+  dtip.style.left = x + 'px'; dtip.style.top = y + 'px';
+});
+document.addEventListener('scroll', () => { dtipOwner = null; dtip.classList.remove('show'); }, true);
+const SRC_NOTE = {
+  2024: '식약처 확정치 (관세청 데이터 기준, 2025-05-27 보도자료)',
+  2025: '관세청/식약처 기준 2025년 연간 집계 보도',
+};
+const YOY_NOTE = {
+  2024: 'YoY = 식약처 표 기준 전년 대비',
+  2025: 'YoY = 본 데이터셋 2024년 값 대비 계산 (집계기준 차이로 보도치와 ±수%p 가능)',
+};
 
 /* ---------- world map (연도 토글) ---------- */
 echarts.registerMap('world', window.WORLD_GEOJSON);
@@ -468,7 +506,8 @@ function renderMap() {
         if (!c) return `${p.name}<br/><span style="color:#8b95a7">상위 20개국 외 (데이터 없음)</span>`;
         return `${c.flag} <b>${c.nameKo}</b> · ${curYear}년<br/>` +
                `수출액: <b>${fmtUSD(c.value)}</b><br/>` +
-               (c.yoy != null ? `전년 대비: <span style="color:${c.yoy>0?'#4ade80':'#f87171'}">${yoyTxt(c.yoy)}</span>` : '');
+               (c.yoy != null ? `전년 대비: <span style="color:${c.yoy>0?'#4ade80':'#f87171'}">${yoyTxt(c.yoy)}</span>` : '') +
+               `<br/><span style="color:#8b95a7;font-size:10px">출처: ${SRC_NOTE[curYear]}<br/>${YOY_NOTE[curYear]}</span>`;
       }
     },
     visualMap: {
@@ -509,14 +548,21 @@ function renderMap() {
 const tm = document.getElementById('topMarkets');
 function renderTopMarkets() {
   const yd = yearData();
-  tm.innerHTML = [...yd.countries].sort((a,b) => b.value - a.value).slice(0, 20).map((c, i) => `
-    <div class="item" data-name="${c.name}">
+  const otherYear = curYear === 2025 ? 2024 : 2025;
+  tm.innerHTML = [...yd.countries].sort((a,b) => b.value - a.value).slice(0, 20).map((c, i) => {
+    const o = D.exportYears[otherYear].countries.find(x => x.name === c.name);
+    const tip = `<b>${c.nameKo}</b> · ${curYear}년 ${fmtUSD(c.value)}` +
+      (o ? `<br>${otherYear}년: ${fmtUSD(o.value)}` : `<br>${otherYear}년: 상위 20위 밖`) +
+      `<br>출처: ${SRC_NOTE[curYear]}<br>${YOY_NOTE[curYear]}`;
+    return `
+    <div class="item" data-name="${c.name}" data-tip="${tip.replace(/"/g, '&quot;')}">
       <div class="rank">${i+1}</div>
       <div class="flag">${c.flag ?? ''}</div>
       <div class="nm">${c.nameKo}</div>
       <div class="val">${fmtUSD(c.value)}</div>
       <div class="yoy ${yoyCls(c.yoy)}">${yoyTxt(c.yoy)}</div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 }
 /* ---------- 국가 상세 ---------- */
 const COUNTRY_INSIGHTS = {
@@ -587,8 +633,15 @@ const logoImg = b => b.domain
 function renderBrands(filter) {
   const brands = D.brands.filter(BRAND_FILTERS[filter]).sort((a, b) => b.revenueKRW - a.revenueKRW);
   const max = brands[0]?.revenueKRW ?? 1;
-  document.getElementById('brandList').innerHTML = brands.map((b, i) => `
-    <div class="brow ${i < 3 ? 'r' + (i + 1) : ''}" data-name="${b.display}" style="animation-delay:${Math.min(i * 22, 440)}ms">
+  document.getElementById('brandList').innerHTML = brands.map((b, i) => {
+    const tip = `<b>${b.display}</b> · FY${b.year} 연결 매출 ${fmtKRW(b.revenueKRW)}` +
+      (b.opProfit != null ? `<br>영업이익 ${fmtKRW(b.opProfit)} (이익률 ${(b.opProfit / b.revenueKRW * 100).toFixed(1)}%)` : '') +
+      (b.yoy != null ? `<br>YoY ${yoyTxt(b.yoy)} = 전년 매출 대비` : '') +
+      `<br>출처: ${b.source ?? '각사 공시·보도'}` +
+      `<br>막대 길이 = √(매출÷1위 매출) — √스케일이라 시각 비교용` +
+      (b.group === 'sub' ? '<br>⚠ 모회사 수치에 포함된 자회사 (합산 시 중복)' : '');
+    return `
+    <div class="brow ${i < 3 ? 'r' + (i + 1) : ''}" data-name="${b.display}" data-tip="${tip.replace(/"/g, '&quot;')}" style="animation-delay:${Math.min(i * 22, 440)}ms">
       <div class="brk">${i + 1}</div>
       <div class="blogo">${logoImg(b)}</div>
       <div class="bname">
@@ -601,7 +654,8 @@ function renderBrands(filter) {
         <div class="track"><div class="fillr" style="width:${Math.max(3, Math.sqrt(b.revenueKRW / max) * 100)}%;background:${GROUP_COLOR[b.group]}"></div></div>
       </div>
       <div class="byoy ${yoyCls(b.yoy)}">${yoyTxt(b.yoy)}</div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 }
 renderBrands('all');
 document.getElementById('brandFilter').addEventListener('click', e => {
@@ -630,6 +684,7 @@ document.getElementById('brandList').addEventListener('click', e => {
   el.innerHTML = `<h3>${b.display}</h3>
     <div class="meta">${b.year}년 매출 ${fmtKRW(b.revenueKRW)}${b.opProfit ? ` · 영업이익 ${fmtKRW(b.opProfit)}` : ''}${b.note ? ` · ${b.note}` : ''}</div>
     <ul>${b.products.map(p => `<li>🧴 ${p}</li>`).join('')}</ul>
+    ${b.source ? `<div class="meta" style="margin-top:8px">📰 출처: ${b.sourceUrl ? `<a href="${b.sourceUrl}" target="_blank" style="color:#ffb3c6">${b.source}</a>` : b.source}</div>` : ''}
     ${q ? `<button class="xlink" data-q="${q}">🧪 제품 랭킹에서 "${q}" 보기 →</button>` : ''}`;
   el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 });
@@ -647,7 +702,9 @@ trendChart.setOption({
   backgroundColor: 'transparent',
   grid: {left: 10, right: 16, top: 30, bottom: 10, containLabel: true},
   tooltip: {trigger: 'axis', backgroundColor: '#1c2330', borderColor: '#2a3344', textStyle: {color: '#e8ecf3'},
-    valueFormatter: v => fmtUSD(v)},
+    formatter: ps => `<b>${ps[0].name}년</b>: ${fmtUSD(ps[0].value)}` +
+      (ps[0].dataIndex > 0 ? ` (전년 대비 ${((ps[0].value / D.exportTrend[ps[0].dataIndex - 1].value - 1) * 100).toFixed(1)}%)` : '') +
+      `<br/><span style="color:#8b95a7;font-size:10px">출처: 식약처/관세청 연도별 수출 통계 (2018~2024 확정, 2025 연간 보도)</span>`},
   xAxis: {type: 'category', data: D.exportTrend.map(t => t.year), axisLabel: {color: '#8b95a7'}},
   yAxis: {type: 'value', axisLabel: {color: '#8b95a7', formatter: v => `$${v/1000}B`}, splitLine: {lineStyle: {color: '#222a38'}}},
   series: [{
@@ -672,7 +729,8 @@ const pieChart = echarts.init(document.getElementById('catPie'));
 pieChart.setOption({
   backgroundColor: 'transparent',
   tooltip: {backgroundColor: '#1c2330', borderColor: '#2a3344', textStyle: {color: '#e8ecf3'},
-    formatter: p => `${p.name}: <b>${fmtUSD(p.value)}</b> (${p.percent}%)`},
+    formatter: p => `${p.name}: <b>${fmtUSD(p.value)}</b> (${p.percent}%)` +
+      `<br/><span style="color:#8b95a7;font-size:10px">출처: 식약처 2024년 권역별 수출 발표<br/>'기타' = 총액 − (아시아+북미+유럽)</span>`},
   series: [{
     type: 'pie', radius: ['42%', '72%'], center: ['50%', '52%'],
     itemStyle: {borderColor: '#161b24', borderWidth: 2, borderRadius: 6},
@@ -712,7 +770,10 @@ function renderProductRank(metric) {
           : `연 매출: <b>${fmtKRW(it.annualRevenueKRW)}</b> <span style="color:#8b95a7">(${it.revenueYear}년)</span>`;
         return `<b>${it.name}</b> <span style="color:#ff5c8a">${it.brand}</span><br/>${val}<br/>` +
                `📍 주요 매출 지역: <b>${it.region}</b><br/>` +
-               `📰 출처: <a href="${it.sourceUrl}" target="_blank" style="color:#ffb3c6">${it.sourceName}</a>`;
+               `📰 출처: <a href="${it.sourceUrl}" target="_blank" style="color:#ffb3c6">${it.sourceName}</a>` +
+               `<br/><span style="color:#8b95a7;font-size:10px">${metric === 'units'
+                 ? '누적 판매량 = 공식 발표·보도 수치, 기준 시점은 괄호 표기 (시점 상이 주의)'
+                 : '연 매출 = 제품/라인 단독 공개 수치 — 비공개 제품은 차트에서 제외'}</span>`;
       }
     },
     xAxis: {type: 'value', axisLabel: {color: '#8b95a7',
@@ -781,8 +842,13 @@ function renderList() {
   document.getElementById('plist').innerHTML = items.map((p, i) => {
     const r = ratingOf(p);
     const award = (p.awards ?? [])[0];
+    const tip = `<b>${p.name}</b><br>종합 순위 ${p.rank}위 = 판매 실적·수상 이력 기반 편집 순위 (단일 공식 지표 아님)` +
+      `<br>판매 지표: ${p.salesMetric}` +
+      (r ? `<br>평점 ${r.toFixed(1)} = Amazon/올리브영 리스팅·보도 기준 최대값 (리뷰 수는 보수적 하한)` : '') +
+      (p.priceKRW ? `<br>가격: 정가 기준 (할인가 변동 큼)` : '') +
+      `<br>출처: ${p.sourceName}`;
     return `
-    <div class="prow" data-rank="${p.rank}" style="animation-delay:${Math.min(i * 28, 500)}ms">
+    <div class="prow" data-rank="${p.rank}" data-tip="${tip.replace(/"/g, '&quot;')}" style="animation-delay:${Math.min(i * 28, 500)}ms">
       <div class="prank ${p.rank <= 3 ? 'r' + p.rank : ''}">${p.rank}</div>
       <div class="pthumb">${CAT_ICONS[p.cat] ?? '🧴'}</div>
       <div class="pinfo">
@@ -891,7 +957,7 @@ document.getElementById('sources').innerHTML =
 /* ---------- 인사이트 브리핑 ---------- */
 document.getElementById('insights').innerHTML = (D.insights ?? []).map(it => `
   <div class="icard">
-    <span class="itag">${it.tag}</span>
+    <span class="itag" data-tip="2026.6 기준 웹 리서치 (2025~2026 보도 종합) — 분기마다 자동 갱신됩니다.<br>강조 수치는 원문 출처에서 확인된 값">${it.tag}</span>
     <h3>${it.title}</h3>
     <ul>${it.facts.map(f => `<li>${f}</li>`).join('')}</ul>
     <div class="iwhy"><b>왜 중요한가</b> · ${it.why}</div>
