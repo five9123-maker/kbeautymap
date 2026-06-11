@@ -14,6 +14,13 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💄</text></svg>">
 <style>
   :root {
+    --bg: #f4f6fa; --panel: #ffffff; --panel2: #eef1f7; --border: #d9dfeb;
+    --text: #1c2330; --muted: #5b6577; --accent: #e0407a;
+    --green: #15803d; --red: #dc2626;
+    --navbg: rgba(255,255,255,.92); --tipbg: #ffffff; --tipborder: #d8deea;
+    --accent2: #c0316b;
+  }
+  html[data-theme="dark"] {
     --bg: #0e1117;
     --panel: #161b24;
     --panel2: #1c2330;
@@ -24,6 +31,7 @@
     --accent2: #ffb3c6;
     --green: #4ade80;
     --red: #f87171;
+    --navbg: rgba(14,17,23,.93); --tipbg: #20283a; --tipborder: #3a4663;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
@@ -49,7 +57,7 @@
   .secnav {
     position: sticky; top: 54px; z-index: 50;
     display: flex; gap: 6px; flex-wrap: wrap; padding: 10px 2px; margin: 0 -2px 14px;
-    background: rgba(14,17,23,.82); backdrop-filter: blur(8px);
+    background: var(--navbg); backdrop-filter: blur(8px);
   }
   .secnav a {
     padding: 6px 14px; border-radius: 99px; font-size: 12px; font-weight: 700;
@@ -61,7 +69,7 @@
   .brow.flash { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(255,92,138,.4); }
   .dtip {
     position: fixed; z-index: 200; max-width: 330px; padding: 10px 13px;
-    background: #20283a; border: 1px solid #3a4663; border-radius: 10px;
+    background: var(--tipbg); border: 1px solid var(--tipborder); border-radius: 10px;
     font-size: 11.5px; line-height: 1.6; color: var(--text);
     box-shadow: 0 10px 28px rgba(0,0,0,.55); pointer-events: none;
     opacity: 0; transition: opacity .12s;
@@ -308,10 +316,10 @@
   <footer id="sources"></footer>
 </div>
 
-<script src="assets/tabs.js?v=18"></script>
-<script src="assets/echarts.min.js?v=18"></script>
-<script src="assets/world.js?v=18"></script>
-<script src="data/data.js?v=18"></script>
+<script src="assets/tabs.js?v=19"></script>
+<script src="assets/echarts.min.js?v=19"></script>
+<script src="assets/world.js?v=19"></script>
+<script src="data/data.js?v=19"></script>
 <script>
 const D = window.DASHBOARD_DATA;
 const fmtUSD = v => v >= 1000 ? `$${(v/1000).toFixed(2)}B` : `$${v.toLocaleString()}M`;
@@ -367,19 +375,19 @@ function renderMap() {
     backgroundColor: 'transparent',
     tooltip: {
       trigger: 'item',
-      backgroundColor: '#1c2330', borderColor: '#2a3344', textStyle: {color: '#e8ecf3'},
+      backgroundColor: KB.c.tooltipBg, borderColor: KB.c.tooltipBorder, textStyle: {color: KB.c.text},
       formatter: p => {
         const c = yearData().countries.find(x => x.name === p.name);
-        if (!c) return `${p.name}<br/><span style="color:#8b95a7">상위 20개국 외 (데이터 없음)</span>`;
+        if (!c) return `${p.name}<br/><span style="color:${KB.c.muted}">상위 20개국 외 (데이터 없음)</span>`;
         return `${c.flag} <b>${c.nameKo}</b> · ${curYear}년<br/>` +
                `수출액: <b>${fmtUSD(c.value)}</b><br/>` +
-               (c.yoy != null ? `전년 대비: <span style="color:${c.yoy>0?'#4ade80':'#f87171'}">${yoyTxt(c.yoy)}</span>` : '') +
-               `<br/><span style="color:#8b95a7;font-size:10px">출처: ${SRC_NOTE[curYear]}<br/>${YOY_NOTE[curYear]}</span>`;
+               (c.yoy != null ? `전년 대비: <span style="color:${c.yoy>0?KB.c.green:KB.c.red}">${yoyTxt(c.yoy)}</span>` : '') +
+               `<br/><span style="color:${KB.c.muted};font-size:10px">출처: ${SRC_NOTE[curYear]}<br/>${YOY_NOTE[curYear]}</span>`;
       }
     },
     visualMap: {
       type: 'piecewise', seriesIndex: [0], left: 10, bottom: 10,
-      textStyle: {color: '#8b95a7', fontSize: 11}, itemWidth: 14, itemHeight: 10, itemGap: 4,
+      textStyle: {color: KB.c.muted, fontSize: 11}, itemWidth: 14, itemHeight: 10, itemGap: 4,
       pieces: [
         {min: 2000, label: '$2B 이상', color: '#ffc2d1'},
         {min: 1000, max: 2000, label: '$1B ~ 2B', color: '#ff7fa5'},
@@ -391,7 +399,7 @@ function renderMap() {
     },
     geo: {
       map: 'world', roam: true, zoom: 1.15, scaleLimit: {min: 1, max: 8},
-      itemStyle: {areaColor: '#222a38', borderColor: '#0e1117', borderWidth: 0.6},
+      itemStyle: {areaColor: KB.c.split, borderColor: KB.c.mapBorder, borderWidth: 0.6},
       emphasis: {label: {show: true, color: '#fff', fontWeight: 700}, itemStyle: {areaColor: '#ff8fab'}},
       select: {disabled: true},
     },
@@ -539,7 +547,7 @@ document.getElementById('brandList').addEventListener('click', e => {
   el.innerHTML = `<h3>${b.display}</h3>
     <div class="meta">${b.year}년 매출 ${fmtKRW(b.revenueKRW)}${b.opProfit ? ` · 영업이익 ${fmtKRW(b.opProfit)}` : ''}${b.note ? ` · ${b.note}` : ''}</div>
     <ul>${b.products.map(p => `<li>🧴 ${p}</li>`).join('')}</ul>
-    ${b.source ? `<div class="meta" style="margin-top:8px">📰 출처: ${b.sourceUrl ? `<a href="${b.sourceUrl}" target="_blank" style="color:#ffb3c6">${b.source}</a>` : b.source}</div>` : ''}`;
+    ${b.source ? `<div class="meta" style="margin-top:8px">📰 출처: ${b.sourceUrl ? `<a href="${b.sourceUrl}" target="_blank" style="color:${KB.c.accent2}">${b.source}</a>` : b.source}</div>` : ''}`;
   el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 });
 
@@ -548,22 +556,22 @@ const trendChart = echarts.init(document.getElementById('trend'));
 trendChart.setOption({
   backgroundColor: 'transparent',
   grid: {left: 10, right: 16, top: 30, bottom: 10, containLabel: true},
-  tooltip: {trigger: 'axis', backgroundColor: '#1c2330', borderColor: '#2a3344', textStyle: {color: '#e8ecf3'},
+  tooltip: {trigger: 'axis', backgroundColor: KB.c.tooltipBg, borderColor: KB.c.tooltipBorder, textStyle: {color: KB.c.text},
     formatter: ps => `<b>${ps[0].name}년</b>: ${fmtUSD(ps[0].value)}` +
       (ps[0].dataIndex > 0 ? ` (전년 대비 ${((ps[0].value / D.exportTrend[ps[0].dataIndex - 1].value - 1) * 100).toFixed(1)}%)` : '') +
-      `<br/><span style="color:#8b95a7;font-size:10px">출처: 식약처/관세청 연도별 수출 통계 (2018~2024 확정, 2025 연간 보도)</span>`},
-  xAxis: {type: 'category', data: D.exportTrend.map(t => t.year), axisLabel: {color: '#8b95a7'}},
-  yAxis: {type: 'value', axisLabel: {color: '#8b95a7', formatter: v => `$${v/1000}B`}, splitLine: {lineStyle: {color: '#222a38'}}},
+      `<br/><span style="color:${KB.c.muted};font-size:10px">출처: 식약처/관세청 연도별 수출 통계 (2018~2024 확정, 2025 연간 보도)</span>`},
+  xAxis: {type: 'category', data: D.exportTrend.map(t => t.year), axisLabel: {color: KB.c.muted}},
+  yAxis: {type: 'value', axisLabel: {color: KB.c.muted, formatter: v => `$${v/1000}B`}, splitLine: {lineStyle: {color: KB.c.split}}},
   series: [{
     type: 'line', smooth: true, data: D.exportTrend.map(t => t.value),
     lineStyle: {color: '#ff5c8a', width: 3}, itemStyle: {color: '#ff5c8a'},
     areaStyle: {color: new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'rgba(255,92,138,.35)'},{offset:1,color:'rgba(255,92,138,0)'}])},
-    label: {show: true, color: '#8b95a7', fontSize: 10, formatter: p => p.dataIndex === D.exportTrend.length-1 || p.dataIndex === 0 ? fmtUSD(p.value) : ''},
+    label: {show: true, color: KB.c.muted, fontSize: 10, formatter: p => p.dataIndex === D.exportTrend.length-1 || p.dataIndex === 0 ? fmtUSD(p.value) : ''},
     markPoint: {
       symbol: 'roundRect', symbolSize: [86, 26], symbolOffset: [0, -28],
       label: {fontSize: 10, fontWeight: 700, color: '#fff'},
       data: [
-        {coord: ['2022', 7953.2], value: '중국발 -13%', itemStyle: {color: '#64748b'}},
+        {coord: ['2022', 7953.2], value: '중국발 -13%', itemStyle: {color: KB.c.dim}},
         {coord: ['2024', 10177.3], value: '첫 $10B 돌파', itemStyle: {color: '#ff5c8a'}},
         {coord: ['2025', 11417.6], value: '화장품 수출 세계 2위', symbolSize: [132, 26], symbolOffset: [-80, -36], itemStyle: {color: '#c44569'}},
       ]
@@ -575,15 +583,15 @@ trendChart.setOption({
 const pieChart = echarts.init(document.getElementById('catPie'));
 pieChart.setOption({
   backgroundColor: 'transparent',
-  tooltip: {backgroundColor: '#1c2330', borderColor: '#2a3344', textStyle: {color: '#e8ecf3'},
+  tooltip: {backgroundColor: KB.c.tooltipBg, borderColor: KB.c.tooltipBorder, textStyle: {color: KB.c.text},
     formatter: p => `${p.name}: <b>${fmtUSD(p.value)}</b> (${p.percent}%)` +
-      `<br/><span style="color:#8b95a7;font-size:10px">출처: 식약처 2024년 권역별 수출 발표<br/>'기타' = 총액 − (아시아+북미+유럽)</span>`},
+      `<br/><span style="color:${KB.c.muted};font-size:10px">출처: 식약처 2024년 권역별 수출 발표<br/>'기타' = 총액 − (아시아+북미+유럽)</span>`},
   series: [{
     type: 'pie', radius: ['42%', '72%'], center: ['50%', '52%'],
     itemStyle: {borderColor: '#161b24', borderWidth: 2, borderRadius: 6},
-    label: {color: '#e8ecf3', fontSize: 12, formatter: '{b}\n{d}%'},
+    label: {color: KB.c.text, fontSize: 12, formatter: '{b}\n{d}%'},
     data: D.regionShare.map((r, i) => ({name: r.name, value: r.value,
-      itemStyle: {color: ['#ff5c8a','#c44569','#7a3b54','#4a5568','#ffb3c6','#8b95a7'][i % 6]}}))
+      itemStyle: {color: ['#ff5c8a','#c44569','#7a3b54',KB.c.dim,KB.c.accent2,KB.c.muted][i % 6]}}))
   }]
 });
 
@@ -597,9 +605,9 @@ pieChart.setOption({
       <div class="rank">${it.rank}</div>
       <div class="nm" style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><b style="color:var(--accent2)">${it.brand}</b> ${it.name}</div>
       <div class="val" style="flex-shrink:0">${it.priceUSD}</div>
-      <div class="yoy" style="width:74px">★${it.rating.toFixed(1)} <span style="color:#8b95a7">(${it.reviews >= 1000 ? (it.reviews/1000).toFixed(1) + 'k' : it.reviews})</span></div>
+      <div class="yoy" style="width:74px">★${it.rating.toFixed(1)} <span style="color:${KB.c.muted}">(${it.reviews >= 1000 ? (it.reviews/1000).toFixed(1) + 'k' : it.reviews})</span></div>
     </div>`).join('') +
-    `<div class="pcount">출처: <a href="${oy.sourceUrl}" target="_blank" style="color:#8b95a7">${oy.sourceName}</a> · 기획세트 단위 집계</div>`;
+    `<div class="pcount">출처: <a href="${oy.sourceUrl}" target="_blank" style="color:${KB.c.muted}">${oy.sourceName}</a> · 기획세트 단위 집계</div>`;
 
   const q = PR.qoo10jp;
   document.getElementById('qooDate').textContent = `${q.month} 월간`;
@@ -610,7 +618,7 @@ pieChart.setOption({
       <div class="rank">${it.rank}</div>
       <div class="nm" style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><b style="color:var(--accent2)">${it.brand}</b> ${it.name}</div>
     </div>`).join('')).join('') +
-    `<div class="pcount">출처: <a href="${q.sourceUrl}" target="_blank" style="color:#8b95a7">${q.sourceName}</a> · ${q.basis}</div>`;
+    `<div class="pcount">출처: <a href="${q.sourceUrl}" target="_blank" style="color:${KB.c.muted}">${q.sourceName}</a> · ${q.basis}</div>`;
 }
 
 /* ---------- sources ---------- */
