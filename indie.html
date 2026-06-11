@@ -47,8 +47,16 @@
   }
   .card h2 { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
   .card .desc { font-size: 12px; color: var(--muted); margin-bottom: 10px; }
-  .grid { display: grid; gap: 14px; grid-template-columns: 480px 1fr; align-items: start; }
-  @media (max-width: 1100px) { .grid { grid-template-columns: 1fr; } }
+  .grid { display: grid; gap: 14px; grid-template-columns: 480px 1fr; align-items: stretch; }
+  /* 좌측 리스트 카드: 우측 차트 카드 높이에 맞추고 내부 스크롤 */
+  .listcard { position: relative; margin-bottom: 14px; }
+  .listcard .inner { position: absolute; inset: 18px; display: flex; flex-direction: column; }
+  .listcard .inner .ilist { flex: 1; min-height: 0; max-height: none; }
+  @media (max-width: 1100px) {
+    .grid { grid-template-columns: 1fr; }
+    .listcard .inner { position: static; }
+    .listcard .inner .ilist { max-height: 560px; }
+  }
 
   .dtip {
     position: fixed; z-index: 200; max-width: 330px; padding: 10px 13px;
@@ -164,19 +172,21 @@
   <div class="statgrid" id="stats"></div>
 
   <div class="grid">
-    <div class="card">
-      <h2>📋 인디 브랜드 TOP 100</h2>
-      <div class="desc">최근 매출 기준. 행을 클릭하면 우측 차트에 추가/제거됩니다. 미니 그래프는 2021~2025 매출 추이.</div>
-      <div class="bar">
-        <input type="search" id="iSearch" placeholder="🔍 기업·브랜드 검색">
-        <span class="ytoggle" id="iSort">
-          <button class="on" data-s="rev">최신 매출</button>
-          <button data-s="grow">5년 성장배수</button>
-          <button data-s="cagr">CAGR</button>
-          <button data-s="drop">하락폭</button>
-        </span>
+    <div class="card listcard">
+      <div class="inner">
+        <h2>📋 인디 브랜드 TOP 100</h2>
+        <div class="desc">최근 매출 기준. 행을 클릭하면 우측 차트에 추가/제거됩니다. 나머지는 스크롤로 탐색하세요.</div>
+        <div class="bar">
+          <input type="search" id="iSearch" placeholder="🔍 기업·브랜드 검색">
+          <span class="ytoggle" id="iSort">
+            <button class="on" data-s="rev">최신 매출</button>
+            <button data-s="grow">5년 성장배수</button>
+            <button data-s="cagr">CAGR</button>
+            <button data-s="drop">하락폭</button>
+          </span>
+        </div>
+        <div class="ilist" id="ilist"></div>
       </div>
-      <div class="ilist" id="ilist"></div>
     </div>
 
     <div class="card">
