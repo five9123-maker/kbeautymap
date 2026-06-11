@@ -14,13 +14,13 @@
   const style = document.createElement('style');
   style.textContent = `
     .gnav {
+      display: block; margin: 0; /* 페이지의 header 요소 선택자 무력화 */
       position: sticky; top: 0; z-index: 100;
       background: rgba(14,17,23,.93); backdrop-filter: blur(10px);
       border-bottom: 1px solid #2a3344;
     }
     .gnav-in {
-      max-width: 1440px; margin: 0 auto; height: 54px;
-      display: flex; align-items: center; gap: 16px; padding: 0 24px;
+      height: 54px; display: flex; align-items: center; gap: 16px; padding: 0 24px;
     }
     .gnav .brand {
       font-size: 15px; font-weight: 800; color: #e8ecf3; text-decoration: none;
