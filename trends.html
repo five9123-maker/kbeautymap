@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>성분 레이더 — K-Beauty 글로벌 대시보드</title>
+<meta name="description" content="K-뷰티 성분 트렌드 라이프사이클 추적 — PDRN·엑소좀·시카의 현재 위치와 차기 주자">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧬</text></svg>">
+<style>
+  :root {
+    --bg: #0e1117; --panel: #161b24; --panel2: #1c2330; --border: #2a3344;
+    --text: #e8ecf3; --muted: #8b95a7; --accent: #ff5c8a; --violet: #c084fc;
+    --green: #4ade80; --red: #f87171; --mint: #5eead4;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", -apple-system, sans-serif; line-height: 1.5; }
+  .wrap { max-width: 1440px; margin: 0 auto; padding: 24px; }
+  header { display: flex; flex-wrap: wrap; align-items: baseline; gap: 12px; margin-bottom: 16px; }
+  header h1 { font-size: 26px; font-weight: 800; letter-spacing: -.5px; }
+  header h1 .k { color: var(--violet); }
+  header .sub { color: var(--muted); font-size: 13px; }
+  .ptabs { display: flex; border: 1.5px solid var(--border); border-radius: 12px; overflow: hidden; margin-left: auto; flex-shrink: 0; }
+  .ptabs a { display: flex; align-items: center; gap: 7px; padding: 7px 14px; font-size: 12px; font-weight: 700; color: var(--muted); text-decoration: none; border-right: 1px solid var(--border); transition: all .15s; white-space: nowrap; }
+  .ptabs a:last-child { border-right: none; }
+  .ptabs a .co { width: 7px; height: 7px; border-radius: 50%; }
+  .ptabs a:hover { color: var(--text); background: var(--panel2); }
+  .ptabs a.on { background: var(--panel2); color: #fff; }
+  .card { background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 18px; margin-bottom: 14px; }
+  .card h2 { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+  .card .desc { font-size: 12px; color: var(--muted); margin-bottom: 10px; }
+  .dtip { position: fixed; z-index: 200; max-width: 330px; padding: 10px 13px; background: #20283a; border: 1px solid #3a4663; border-radius: 10px; font-size: 11.5px; line-height: 1.6; color: var(--text); box-shadow: 0 10px 28px rgba(0,0,0,.55); pointer-events: none; opacity: 0; transition: opacity .12s; }
+  .dtip.show { opacity: 1; }
+  .dtip b { color: var(--violet); }
+
+  /* 라이프사이클 트랙 */
+  .lifecycle { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+  .lc-stage { background: var(--panel2); border: 1px solid var(--border); border-radius: 12px; padding: 12px; min-height: 120px; }
+  .lc-stage .t { font-size: 11.5px; font-weight: 800; color: var(--muted); margin-bottom: 8px; letter-spacing: .3px; }
+  .lc-stage .chips { display: flex; flex-wrap: wrap; gap: 5px; }
+  .lc-chip { padding: 4px 11px; border-radius: 99px; font-size: 12px; font-weight: 700; cursor: pointer; border: 1px solid rgba(192,132,252,.4); background: rgba(192,132,252,.1); color: #ddd6fe; transition: all .15s; }
+  .lc-chip:hover { background: rgba(192,132,252,.28); }
+  .lc-chip.em { border-color: rgba(94,234,212,.4); background: rgba(94,234,212,.08); color: var(--mint); }
+  @media (max-width: 900px) { .lifecycle { grid-template-columns: 1fr; } .lc-stage { min-height: 0; } }
+
+  .grid2 { display: grid; grid-template-columns: 1.1fr 1fr; gap: 14px; align-items: start; }
+  @media (max-width: 1000px) { .grid2 { grid-template-columns: 1fr; } }
+  #matrix { width: 100%; height: 430px; }
+
+  /* 성분 카드 */
+  .igrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 12px; }
+  .icard { background: var(--panel2); border: 1px solid var(--border); border-radius: 14px; padding: 16px 18px; display: flex; flex-direction: column; gap: 8px; transition: transform .15s, border-color .15s; }
+  .icard:hover { transform: translateY(-3px); border-color: var(--violet); }
+  .icard .top { display: flex; align-items: baseline; gap: 8px; }
+  .icard h3 { font-size: 16px; font-weight: 800; }
+  .icard .en { font-size: 10.5px; color: var(--muted); }
+  .stagebadge { margin-left: auto; padding: 2px 10px; border-radius: 99px; font-size: 10.5px; font-weight: 800; border: 1px solid; white-space: nowrap; }
+  .s1 { color: #93c5fd; border-color: rgba(147,197,253,.4); } .s2 { color: #a5b4fc; border-color: rgba(165,180,252,.4); }
+  .s3 { color: var(--mint); border-color: rgba(94,234,212,.4); } .s4 { color: #fbbf24; border-color: rgba(251,191,36,.4); }
+  .s5 { color: var(--muted); border-color: var(--border); }
+  .icard .row { font-size: 12px; }
+  .icard .row b { color: #ddd6fe; font-size: 11px; }
+  .icard .pm { display: flex; align-items: flex-end; gap: 10px; }
+  .icard .pm svg { flex-shrink: 0; }
+  .icard .pm .pmtxt { font-size: 10.5px; color: var(--muted); }
+  .icard .outlook { font-size: 11.5px; color: var(--muted); border-top: 1px dashed var(--border); padding-top: 8px; margin-top: auto; }
+  .icard .outlook b { color: var(--text); }
+  .isrc { font-size: 10.5px; } .isrc a { color: var(--muted); }
+
+  footer { color: var(--muted); font-size: 11px; margin-top: 20px; line-height: 1.8; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>🧬 <span class="k">성분</span> 레이더</h1>
+    <span class="sub" id="metaLine"></span>
+    <nav class="ptabs" data-active="trends"></nav>
+  </header>
+
+  <div class="card">
+    <h2>🛰 라이프사이클 트랙 — 지금 각 성분은 어디에 있나</h2>
+    <div class="desc">성분 트렌드는 <b>①시술·학술 → ②원료·특허 → ③신제품 베팅 → ④수요 폭발 → ⑤메인스트림/포화</b> 순서로 이동합니다 (PDRN·시카가 걸어온 길). 칩에 호버하면 판정 근거가 표시됩니다. <span style="color:var(--mint)">민트 칩</span>은 신흥 후보.</div>
+    <div class="lifecycle" id="lifecycle"></div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <h2 data-tip="x축 = 라이프사이클 단계(①~⑤), y축 = PubMed 논문 수 증가율 (2023→2025, 성분×피부 문맥 검색)<br>버블 크기 = 2025년 논문 수.<br><b>좌상단(초기 단계 + 학술 급증) = 차기 트렌드 후보 구간</b>">📡 학술 모멘텀 × 시장 단계 매트릭스</h2>
+      <div class="desc">좌상단 = 학술 신호는 급증하는데 시장은 아직 초기 → <b>차기 주자 후보 구간</b>. 우하단 = 시장은 포화인데 연구도 정체 → 성숙.</div>
+      <div id="matrix"></div>
+    </div>
+    <div class="card">
+      <h2>🌱 신흥 후보 레이더 (①~②단계)</h2>
+      <div class="desc">아직 제품화 전이지만 선행 신호가 잡히는 성분 — 다음 PDRN 후보들.</div>
+      <div id="emerging"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>🗂 성분 스코어카드 12</h2>
+    <div class="desc">수요·공급 신호와 PubMed 논문 추이(2019~2025, 막대), 대표 제품, 전망. 모든 수치는 출처 링크 첨부.</div>
+    <div class="igrid" id="cards"></div>
+  </div>
+
+  <footer id="src"></footer>
+</div>
+
+<script src="assets/tabs.js?v=15"></script>
+<script src="assets/echarts.min.js?v=15"></script>
+<script src="data/trends.js?v=15"></script>
+<script>
+const D = window.TRENDS_DATA;
+const YEARS = [2019, 2020, 2021, 2022, 2023, 2024, 2025];
+const stageNum = s => +({'①': 1, '②': 2, '③': 3, '④': 4, '⑤': 5}[s.trim()[0]] ?? 0);
+const stageCls = s => 's' + stageNum(s);
+
+document.getElementById('metaLine').textContent =
+  `학술 신호: PubMed 논문 수 (2026-06-11 수집) · 단계 판정: 웹 리서치 · 작성일 ${D.meta.updated}`;
+
+/* ---------- 툴팁 엔진 ---------- */
+const dtip = document.createElement('div');
+dtip.className = 'dtip';
+document.body.appendChild(dtip);
+let dtipOwner = null;
+document.addEventListener('mouseover', e => {
+  const t = e.target.closest('[data-tip]');
+  if (t === dtipOwner) return;
+  dtipOwner = t;
+  if (!t) { dtip.classList.remove('show'); return; }
+  dtip.innerHTML = t.dataset.tip;
+  dtip.style.left = '0px'; dtip.style.top = '0px';
+  dtip.classList.add('show');
+  const r = t.getBoundingClientRect(), tw = dtip.offsetWidth, th = dtip.offsetHeight;
+  const x = Math.min(Math.max(8, r.left), innerWidth - tw - 8);
+  let y = r.bottom + 8;
+  if (y + th > innerHeight - 8) y = Math.max(8, r.top - th - 8);
+  dtip.style.left = x + 'px'; dtip.style.top = y + 'px';
+});
+document.addEventListener('scroll', () => { dtipOwner = null; dtip.classList.remove('show'); }, true);
+
+/* ---------- 라이프사이클 트랙 ---------- */
+const STAGES = ['①시술·학술', '②원료·특허', '③신제품 베팅', '④수요 폭발', '⑤메인스트림/포화'];
+document.getElementById('lifecycle').innerHTML = STAGES.map((st, i) => {
+  const n = i + 1;
+  const here = D.ingredients.filter(g => stageNum(g.stage) === n);
+  const em = n <= 2 ? D.emerging.filter(e => (e.reason.match(/[①②③④⑤]/g) ?? []).some(m => stageNum(m) === n)) : [];
+  return `<div class="lc-stage">
+    <div class="t">${st}</div>
+    <div class="chips">
+      ${here.map(g => `<span class="lc-chip" data-k="${g.key}" data-tip="${(`<b>${g.name}</b> — ${g.stageReason}`).replace(/"/g, '&quot;')}">${g.name}</span>`).join('')}
+      ${em.map(e => `<span class="lc-chip em" data-tip="${(`<b>${e.name}</b> — ${e.reason}`).replace(/"/g, '&quot;')}">${e.name.split(' ')[0]}</span>`).join('')}
+    </div>
+  </div>`;
+}).join('');
+document.getElementById('lifecycle').addEventListener('click', e => {
+  const chip = e.target.closest('.lc-chip[data-k]'); if (!chip) return;
+  document.querySelector(`.icard[data-k="${chip.dataset.k}"]`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+});
+
+/* ---------- 매트릭스 ---------- */
+const mx = echarts.init(document.getElementById('matrix'));
+const mdata = D.ingredients.filter(g => g.pubmed).map(g => {
+  const a = g.pubmed[2023] || 1, b = g.pubmed[2025] || 0;
+  return { name: g.name, value: [stageNum(g.stage), Math.round((b / a - 1) * 100), g.pubmed[2025]], g };
+});
+mx.setOption({
+  backgroundColor: 'transparent',
+  grid: { left: 10, right: 30, top: 20, bottom: 10, containLabel: true },
+  tooltip: {
+    backgroundColor: '#1c2330', borderColor: '#2a3344', textStyle: { color: '#e8ecf3' },
+    formatter: p => `<b>${p.name}</b><br>단계: ${STAGES[p.value[0] - 1]}<br>PubMed 증가율(2023→25): <b>${p.value[1] > 0 ? '+' : ''}${p.value[1]}%</b> (2025년 ${p.value[2]}편)<br><span style="color:#8b95a7;font-size:10px">검색식: 성분 AND 피부 문맥 (E-utilities)</span>`
+  },
+  xAxis: { type: 'value', min: 0.5, max: 5.5, interval: 1, axisLabel: { color: '#8b95a7', fontSize: 10, formatter: v => ['', '①학술', '②원료', '③베팅', '④폭발', '⑤포화'][v] ?? '' }, splitLine: { lineStyle: { color: '#222a38' } } },
+  yAxis: { type: 'value', name: '논문 증가율 %', nameTextStyle: { color: '#8b95a7', fontSize: 10 }, axisLabel: { color: '#8b95a7', formatter: v => v + '%' }, splitLine: { lineStyle: { color: '#222a38' } } },
+  series: [{
+    type: 'scatter',
+    symbolSize: d => Math.max(12, Math.sqrt(d[2]) * 3.2),
+    data: mdata,
+    label: { show: true, position: 'top', color: '#ddd6fe', fontSize: 10.5, fontWeight: 700, formatter: p => p.name },
+    itemStyle: { color: p => ['#93c5fd', '#a5b4fc', '#5eead4', '#fbbf24', '#64748b'][p.value[0] - 1], opacity: .85 },
+    labelLayout: { hideOverlap: true },
+  }]
+});
+
+/* ---------- 신흥 후보 ---------- */
+document.getElementById('emerging').innerHTML = D.emerging.map(e => `
+  <div style="padding:10px 0;border-bottom:1px dashed var(--border);font-size:12.5px">
+    <b style="color:var(--mint)">${e.name}</b><br>
+    <span style="color:var(--muted)">${e.reason}</span><br>
+    <span class="isrc">📰 <a href="${e.sourceUrl}" target="_blank">${e.source}</a></span>
+  </div>`).join('');
+
+/* ---------- 스코어카드 ---------- */
+function bars(pm) {
+  if (!pm) return '';
+  const vals = YEARS.map(y => pm[y] ?? 0), max = Math.max(...vals, 1);
+  const w = 9, gap = 3, H = 36;
+  return `<svg width="${YEARS.length * (w + gap)}" height="${H}">
+    ${vals.map((v, i) => {
+      const h = Math.max(2, v / max * (H - 4));
+      return `<rect x="${i * (w + gap)}" y="${H - h}" width="${w}" height="${h}" rx="2" fill="${i >= 5 ? '#c084fc' : '#4a5568'}"/>`;
+    }).join('')}
+  </svg>`;
+}
+document.getElementById('cards').innerHTML = D.ingredients.map(g => {
+  const pm25 = g.pubmed?.[2025], pm23 = g.pubmed?.[2023];
+  const growth = pm23 ? Math.round((pm25 / pm23 - 1) * 100) : null;
+  return `
+  <div class="icard" data-k="${g.key}">
+    <div class="top"><h3>${g.name}</h3><span class="en">${g.nameEn}</span>
+      <span class="stagebadge ${stageCls(g.stage)}" data-tip="${g.stageReason.replace(/"/g, '&quot;')}">${g.stage}</span></div>
+    <div class="row"><b>수요</b> · ${g.demandSignal}</div>
+    <div class="row"><b>공급</b> · ${g.supplySignal}</div>
+    <div class="pm" data-tip="PubMed 논문 수 2019→2025 (성분 AND 피부 문맥)<br>보라 막대 = 2024·2025년<br>${YEARS.map(y => `${y}: ${g.pubmed?.[y] ?? '-'}`).join(' · ')}">
+      ${bars(g.pubmed)}
+      <span class="pmtxt">PubMed ${pm25 ?? '-'}편 (2025)${growth != null ? ` · 2023 대비 ${growth > 0 ? '+' : ''}${growth}%` : ''}</span>
+    </div>
+    <div class="row"><b>대표 제품</b> · ${(g.heroProducts ?? []).join(' · ')}</div>
+    <div class="outlook"><b>전망</b> · ${g.outlook}</div>
+    <div class="isrc">📰 ${(g.sources ?? []).map(s => `<a href="${s.url}" target="_blank">${s.name}</a>`).join(' · ')}</div>
+  </div>`;
+}).join('');
+
+document.getElementById('src').innerHTML =
+  `<b style="color:var(--text)">데이터 기준</b><br>` + D.meta.sources.map(s => `· ${s}`).join('<br>') +
+  `<br>※ 단계 판정은 보도·신호 기반의 편집 판단이며, PubMed 논문 수는 검색식에 따라 달라질 수 있는 근사 지표입니다. 분기 인사이트 갱신 시 함께 재점검됩니다.`;
+
+window.addEventListener('resize', () => mx.resize());
+</script>
+</body>
+</html>

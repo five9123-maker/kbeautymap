@@ -158,6 +158,60 @@ const ok = (m) => console.log('  ✓ ' + m);
   if (new Set(iv).size > 1) errs.push(`indie.html 캐시버스트 불일치: ${iv.join(',')}`);
 }
 
+/* ---------- 신규 탭 데이터 (deals/markets/trends/calendar) ---------- */
+{
+  const load = (file, key) => {
+    const w = {}; const g = global.window; global.window = w;
+    require(path.join(root, file));
+    global.window = g;
+    return w[key];
+  };
+  const DL = load('data/deals.js', 'DEALS_DATA');
+  if (!(DL?.deals?.length >= 20)) errs.push(`딜 수 부족: ${DL?.deals?.length ?? 0}`);
+  for (const d of DL?.deals ?? []) {
+    if (!d.date || !d.acquirer || !d.target || !d.source || !d.sourceUrl) errs.push(`딜 필드 누락: ${d.target ?? '?'}`);
+    if (d.priceKRW != null && (d.priceKRW < 10 || d.priceKRW > 100000)) errs.push(`딜 가격 이상치: ${d.target} ${d.priceKRW}`);
+    if (d.stakePct != null && (d.stakePct <= 0 || d.stakePct > 100)) errs.push(`지분율 오류: ${d.target}`);
+  }
+  if (!(DL?.ipos?.length >= 8)) errs.push('IPO 수 부족');
+  ok(`딜 워치: ${DL.deals.length}딜 + ${DL.ipos.length} IPO`);
+
+  const MK = load('data/markets.js', 'MARKETS_DATA');
+  if (!(MK?.markets?.length >= 5)) errs.push('마켓 수 부족');
+  for (const m of MK?.markets ?? []) {
+    if (!m.key || !m.channels?.length || !m.regulations?.length || !m.playbook || !m.stat || !m.sources?.length)
+      errs.push(`마켓 필드 누락: ${m.name ?? '?'}`);
+    for (const r of m.regulations) if (r.deadline && isNaN(new Date(r.deadline))) errs.push(`마켓 규제 날짜 오류: ${m.name}/${r.name}`);
+  }
+  ok(`마켓: ${MK.markets.length}개 시장`);
+
+  const TR = load('data/trends.js', 'TRENDS_DATA');
+  if (!(TR?.ingredients?.length >= 10)) errs.push('성분 수 부족');
+  for (const g of TR?.ingredients ?? []) {
+    if (!g.key || !g.stage || !g.stageReason || !g.outlook || !g.sources?.length) errs.push(`성분 필드 누락: ${g.name ?? '?'}`);
+    if (g.pubmed) for (const [y, v] of Object.entries(g.pubmed))
+      if (typeof v !== 'number' || v < 0 || v > 100000) errs.push(`PubMed 수치 오류: ${g.name}/${y}`);
+  }
+  if (!(TR?.emerging?.length >= 3)) errs.push('신흥 성분 부족');
+  ok(`성분 레이더: ${TR.ingredients.length}성분 + ${TR.emerging.length}신흥`);
+
+  const CA = load('data/calendar.js', 'CALENDAR_DATA');
+  if (!(CA?.events?.length >= 15)) errs.push('캘린더 이벤트 부족');
+  const VALID_CATS = new Set(['규제', 'IPO', '세일', '전시', '실적']);
+  for (const e of CA?.events ?? []) {
+    if (!e.date || !e.title || !VALID_CATS.has(e.category) || e.confirmed == null || !e.sourceUrl) errs.push(`이벤트 필드 누락: ${e.title ?? '?'}`);
+    if (isNaN(new Date(e.date.length === 7 ? e.date + '-15' : e.date))) errs.push(`이벤트 날짜 오류: ${e.title}`);
+  }
+  ok(`캘린더: ${CA.events.length}개 이벤트`);
+
+  // 신규 페이지 캐시버스트 일관성
+  for (const f of ['deals.html', 'markets.html', 'trends.html', 'calendar.html', 'indie.html']) {
+    const h = fs.readFileSync(path.join(root, f), 'utf8');
+    const vs = [...h.matchAll(/\?v=(\d+)/g)].map(x => +x[1]);
+    if (new Set(vs).size > 1) errs.push(`${f} 캐시버스트 불일치: ${vs.join(',')}`);
+  }
+}
+
 if (errs.length) {
   console.error('\n❌ 검증 실패 ' + errs.length + '건:\n' + errs.map(e => '  - ' + e).join('\n'));
   process.exit(1);

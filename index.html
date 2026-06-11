@@ -236,10 +236,7 @@
   <header>
     <h1><span class="k">K-Beauty</span> 글로벌 대시보드</h1>
     <span class="sub" id="metaLine"></span>
-    <nav class="ptabs">
-      <a class="on" href="index.html"><span class="co" style="background:var(--accent)"></span>글로벌 대시보드</a>
-      <a href="indie.html"><span class="co" style="background:#5eead4"></span>인디 워치</a>
-    </nav>
+    <nav class="ptabs" data-active="global"></nav>
   </header>
 
   <nav class="secnav">
@@ -322,9 +319,10 @@
   <footer id="sources"></footer>
 </div>
 
-<script src="assets/echarts.min.js?v=14"></script>
-<script src="assets/world.js?v=14"></script>
-<script src="data/data.js?v=14"></script>
+<script src="assets/tabs.js?v=15"></script>
+<script src="assets/echarts.min.js?v=15"></script>
+<script src="assets/world.js?v=15"></script>
+<script src="data/data.js?v=15"></script>
 <script>
 const D = window.DASHBOARD_DATA;
 const fmtUSD = v => v >= 1000 ? `$${(v/1000).toFixed(2)}B` : `$${v.toLocaleString()}M`;
@@ -578,7 +576,7 @@ trendChart.setOption({
       data: [
         {coord: ['2022', 7953.2], value: '중국발 -13%', itemStyle: {color: '#64748b'}},
         {coord: ['2024', 10177.3], value: '첫 $10B 돌파', itemStyle: {color: '#ff5c8a'}},
-        {coord: ['2025', 11417.6], value: '세계 2위', itemStyle: {color: '#c44569'}},
+        {coord: ['2025', 11417.6], value: '화장품 수출 세계 2위', symbolSize: [132, 26], symbolOffset: [-80, -36], itemStyle: {color: '#c44569'}},
       ]
     }
   }]

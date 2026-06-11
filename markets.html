@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>마켓 딥다이브 — K-Beauty 글로벌 대시보드</title>
+<meta name="description" content="K-뷰티 시장별 진출 가이드 — 채널 지형·규제 체크리스트·검증된 플레이북">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌏</text></svg>">
+<style>
+  :root {
+    --bg: #0e1117; --panel: #161b24; --panel2: #1c2330; --border: #2a3344;
+    --text: #e8ecf3; --muted: #8b95a7; --accent: #ff5c8a; --blue: #60a5fa;
+    --green: #4ade80; --red: #f87171;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", -apple-system, sans-serif; line-height: 1.5; }
+  .wrap { max-width: 1440px; margin: 0 auto; padding: 24px; }
+  header { display: flex; flex-wrap: wrap; align-items: baseline; gap: 12px; margin-bottom: 16px; }
+  header h1 { font-size: 26px; font-weight: 800; letter-spacing: -.5px; }
+  header h1 .k { color: var(--blue); }
+  header .sub { color: var(--muted); font-size: 13px; }
+  .ptabs { display: flex; border: 1.5px solid var(--border); border-radius: 12px; overflow: hidden; margin-left: auto; flex-shrink: 0; }
+  .ptabs a { display: flex; align-items: center; gap: 7px; padding: 7px 14px; font-size: 12px; font-weight: 700; color: var(--muted); text-decoration: none; border-right: 1px solid var(--border); transition: all .15s; white-space: nowrap; }
+  .ptabs a:last-child { border-right: none; }
+  .ptabs a .co { width: 7px; height: 7px; border-radius: 50%; }
+  .ptabs a:hover { color: var(--text); background: var(--panel2); }
+  .ptabs a.on { background: var(--panel2); color: #fff; }
+  .card { background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 18px; margin-bottom: 14px; }
+  .card h2 { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+  .card .desc { font-size: 12px; color: var(--muted); margin-bottom: 10px; }
+  .dtip { position: fixed; z-index: 200; max-width: 330px; padding: 10px 13px; background: #20283a; border: 1px solid #3a4663; border-radius: 10px; font-size: 11.5px; line-height: 1.6; color: var(--text); box-shadow: 0 10px 28px rgba(0,0,0,.55); pointer-events: none; opacity: 0; transition: opacity .12s; }
+  .dtip.show { opacity: 1; }
+  .dtip b { color: var(--blue); }
+
+  .mtabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+  .mtabs button {
+    padding: 9px 18px; border-radius: 12px; border: 1px solid var(--border); background: var(--panel);
+    color: var(--muted); font-size: 13.5px; font-weight: 800; cursor: pointer; transition: all .15s;
+  }
+  .mtabs button:hover { border-color: var(--blue); color: var(--text); }
+  .mtabs button.on { background: var(--blue); border-color: var(--blue); color: #0e1117; }
+
+  .hero { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 14px; }
+  .hcard { background: var(--panel2); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; }
+  .hcard .l { font-size: 11px; color: var(--muted); }
+  .hcard .v { font-size: 18px; font-weight: 800; margin-top: 3px; }
+  .hcard .s { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+  .mgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; align-items: start; }
+  @media (max-width: 1000px) { .mgrid { grid-template-columns: 1fr; } }
+  .chan { display: flex; flex-direction: column; gap: 7px; }
+  .chrow { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; background: var(--panel2); border: 1px solid var(--border); border-radius: 11px; padding: 10px 14px; }
+  .chrow .n { font-size: 13px; font-weight: 800; grid-column: 1 / -1; }
+  .chrow .r { font-size: 11.5px; color: var(--blue); }
+  .chrow .f { font-size: 11.5px; color: var(--muted); }
+  .reg { display: flex; flex-direction: column; gap: 7px; }
+  .regrow { display: flex; gap: 10px; align-items: flex-start; background: var(--panel2); border: 1px solid var(--border); border-radius: 11px; padding: 10px 14px; }
+  .regrow .dday { flex-shrink: 0; min-width: 64px; text-align: center; padding: 4px 8px; border-radius: 8px; font-size: 11px; font-weight: 800; }
+  .dd-urgent { background: rgba(248,113,113,.15); color: var(--red); border: 1px solid rgba(248,113,113,.4); }
+  .dd-soon { background: rgba(251,191,36,.13); color: #fbbf24; border: 1px solid rgba(251,191,36,.4); }
+  .dd-ok { background: var(--panel); color: var(--muted); border: 1px solid var(--border); }
+  .regrow .body { font-size: 12px; }
+  .regrow .body b { font-size: 12.5px; }
+  .sev { font-size: 9.5px; font-weight: 800; padding: 0 6px; border-radius: 5px; border: 1px solid; margin-left: 6px; }
+  .sev.must { color: var(--red); border-color: rgba(248,113,113,.4); }
+  .sev.warn { color: #fbbf24; border-color: rgba(251,191,36,.4); }
+  .playbook { background: linear-gradient(135deg, rgba(96,165,250,.12), rgba(96,165,250,.03)); border: 1px solid rgba(96,165,250,.35); border-radius: 12px; padding: 14px 16px; font-size: 14px; font-weight: 700; color: #bfdbfe; margin-bottom: 14px; }
+  .playbook small { display: block; font-weight: 400; font-size: 11px; color: var(--muted); margin-top: 4px; }
+  .tagrow { display: flex; flex-wrap: wrap; gap: 6px; }
+  .tag { padding: 4px 11px; border-radius: 8px; font-size: 12px; font-weight: 600; background: var(--panel2); border: 1px solid var(--border); }
+  footer { color: var(--muted); font-size: 11px; margin-top: 20px; line-height: 1.8; }
+  footer a { color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>🌏 <span class="k">마켓</span> 딥다이브</h1>
+    <span class="sub" id="metaLine"></span>
+    <nav class="ptabs" data-active="markets"></nav>
+  </header>
+
+  <div class="mtabs" id="mtabs"></div>
+  <div id="market"></div>
+  <footer id="src"></footer>
+</div>
+
+<script src="assets/tabs.js?v=15"></script>
+<script src="data/data.js?v=15"></script>
+<script src="data/markets.js?v=15"></script>
+<script>
+const M = window.MARKETS_DATA;
+const EX = window.DASHBOARD_DATA.exportYears;
+const NAME_MAP = { us: 'United States of America', jp: 'Japan', cn: 'China' };
+const fmtUSD = v => v >= 1000 ? `$${(v / 1000).toFixed(2)}B` : `$${v.toLocaleString()}M`;
+const TODAY = new Date(M.meta.updated);
+
+document.getElementById('metaLine').textContent =
+  `채널·규제·플레이북: 웹 리서치 (2026.6) · 수출 수치: 식약처/관세청 · 작성일 ${M.meta.updated}`;
+
+/* 툴팁 엔진 */
+const dtip = document.createElement('div');
+dtip.className = 'dtip';
+document.body.appendChild(dtip);
+let dtipOwner = null;
+document.addEventListener('mouseover', e => {
+  const t = e.target.closest('[data-tip]');
+  if (t === dtipOwner) return;
+  dtipOwner = t;
+  if (!t) { dtip.classList.remove('show'); return; }
+  dtip.innerHTML = t.dataset.tip;
+  dtip.style.left = '0px'; dtip.style.top = '0px';
+  dtip.classList.add('show');
+  const r = t.getBoundingClientRect(), tw = dtip.offsetWidth, th = dtip.offsetHeight;
+  const x = Math.min(Math.max(8, r.left), innerWidth - tw - 8);
+  let y = r.bottom + 8;
+  if (y + th > innerHeight - 8) y = Math.max(8, r.top - th - 8);
+  dtip.style.left = x + 'px'; dtip.style.top = y + 'px';
+});
+document.addEventListener('scroll', () => { dtipOwner = null; dtip.classList.remove('show'); }, true);
+
+let cur = 'us';
+function dday(deadline) {
+  if (!deadline) return null;
+  const d = Math.ceil((new Date(deadline) - TODAY) / 86400000);
+  return d;
+}
+function exportStat(key) {
+  const n = NAME_MAP[key];
+  if (!n) return null;
+  const c25 = EX[2025].countries.find(c => c.name === n);
+  const c24 = EX[2024].countries.find(c => c.name === n);
+  return c25 ? { v: c25.value, yoy: c25.yoy, prev: c24?.value } : null;
+}
+
+function render() {
+  const m = M.markets.find(x => x.key === cur);
+  document.getElementById('mtabs').innerHTML = M.markets.map(x =>
+    `<button class="${x.key === cur ? 'on' : ''}" data-k="${x.key}">${x.flag} ${x.name}</button>`).join('');
+  const ex = exportStat(m.key);
+  document.getElementById('market').innerHTML = `
+    <div class="playbook" data-tip="여러 브랜드의 성공 사례에서 반복 확인된 경로 — 보장된 공식이 아니라 검증된 패턴입니다">🧭 검증된 플레이북 — ${m.playbook}
+      <small>주요 K-브랜드: ${m.topKBrands.join(' · ')}</small></div>
+    <div class="hero">
+      <div class="hcard" data-tip="출처: 각 시장 핵심 통계 (마켓 리서치 종합)"><div class="l">핵심 지표</div><div class="v" style="font-size:15px">${m.stat.value}</div><div class="s">${m.stat.label}</div></div>
+      ${ex ? `<div class="hcard" data-tip="출처: 관세청/식약처 2025년 연간 집계 — 글로벌 대시보드와 동일 데이터"><div class="l">2025 한국 화장품 수출액</div><div class="v">${fmtUSD(ex.v)}</div><div class="s">YoY ${ex.yoy > 0 ? '+' : ''}${ex.yoy}% (2024: ${fmtUSD(ex.prev)})</div></div>` : ''}
+      <div class="hcard"><div class="l">⚠️ 리스크</div><div class="s" style="margin-top:6px;font-size:12px;color:var(--text)">${m.risks}</div></div>
+    </div>
+    <div class="mgrid">
+      <div class="card">
+        <h2>🛒 채널 지형 — 어디서 팔 것인가</h2>
+        <div class="desc">진입 순서대로 정렬 (검증 무대 → 대중화 채널)</div>
+        <div class="chan">${m.channels.map(c => `
+          <div class="chrow"><div class="n">${c.name}</div><div class="r">${c.role}</div><div class="f">${c.fact}</div></div>`).join('')}</div>
+      </div>
+      <div class="card">
+        <h2>📋 규제 체크리스트</h2>
+        <div class="desc">D-day는 ${M.meta.updated} 기준 계산. <span class="sev must">필수</span> = 미준수 시 판매 불가 수준.</div>
+        <div class="reg">${m.regulations.map(r => {
+          const d = dday(r.deadline);
+          const cls = d == null ? 'dd-ok' : d < 0 ? 'dd-ok' : d < 90 ? 'dd-urgent' : d < 365 ? 'dd-soon' : 'dd-ok';
+          const lbl = d == null ? '상시' : d < 0 ? '시행 중' : `D-${d}`;
+          return `<div class="regrow">
+            <div class="dday ${cls}" data-tip="${r.deadline ? `시행일: ${r.deadline}` : '상시 적용 요건'}">${lbl}</div>
+            <div class="body"><b>${r.name}</b><span class="sev ${r.severity === '필수' ? 'must' : 'warn'}">${r.severity}</span><br>${r.summary}</div>
+          </div>`;
+        }).join('')}</div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>📰 출처</h2>
+      <div class="tagrow">${m.sources.map(s => `<a class="tag" style="text-decoration:none;color:var(--muted)" href="${s.url}" target="_blank">${s.name}</a>`).join('')}</div>
+    </div>`;
+}
+document.getElementById('mtabs').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  cur = b.dataset.k;
+  history.replaceState(null, '', '?m=' + cur);
+  render();
+});
+const sp = new URLSearchParams(location.search);
+if (sp.get('m') && M.markets.some(x => x.key === sp.get('m'))) cur = sp.get('m');
+render();
+
+document.getElementById('src').innerHTML =
+  `<b style="color:var(--text)">데이터 기준</b><br>· 채널·규제·플레이북: 2026.6 웹 리서치 (출처는 각 시장 하단 링크)<br>· 수출액: 식약처/관세청 (글로벌 대시보드와 동일 데이터셋)<br>※ 규제 요건은 개요이며 실제 진출 시 전문 검토 필요. 규제 시행일은 캘린더 탭과 연동됩니다.`;
+</script>
+</body>
+</html>

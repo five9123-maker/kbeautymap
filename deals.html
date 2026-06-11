@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>딜 워치 — K-Beauty 글로벌 대시보드</title>
+<meta name="description" content="K-뷰티 M&A·IPO 트래커 — 딜 타임라인, 밸류에이션 멀티플, IPO 파이프라인">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💼</text></svg>">
+<style>
+  :root {
+    --bg: #0e1117; --panel: #161b24; --panel2: #1c2330; --border: #2a3344;
+    --text: #e8ecf3; --muted: #8b95a7; --accent: #ff5c8a; --gold: #fbbf24;
+    --green: #4ade80; --red: #f87171;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", -apple-system, sans-serif; line-height: 1.5; }
+  .wrap { max-width: 1440px; margin: 0 auto; padding: 24px; }
+  header { display: flex; flex-wrap: wrap; align-items: baseline; gap: 12px; margin-bottom: 16px; }
+  header h1 { font-size: 26px; font-weight: 800; letter-spacing: -.5px; }
+  header h1 .k { color: var(--gold); }
+  header .sub { color: var(--muted); font-size: 13px; }
+  .ptabs { display: flex; border: 1.5px solid var(--border); border-radius: 12px; overflow: hidden; margin-left: auto; flex-shrink: 0; }
+  .ptabs a { display: flex; align-items: center; gap: 7px; padding: 7px 14px; font-size: 12px; font-weight: 700; color: var(--muted); text-decoration: none; border-right: 1px solid var(--border); transition: all .15s; white-space: nowrap; }
+  .ptabs a:last-child { border-right: none; }
+  .ptabs a .co { width: 7px; height: 7px; border-radius: 50%; }
+  .ptabs a:hover { color: var(--text); background: var(--panel2); }
+  .ptabs a.on { background: var(--panel2); color: #fff; }
+  .card { background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 18px; margin-bottom: 14px; }
+  .card h2 { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+  .card .desc { font-size: 12px; color: var(--muted); margin-bottom: 10px; }
+  .dtip { position: fixed; z-index: 200; max-width: 340px; padding: 10px 13px; background: #20283a; border: 1px solid #3a4663; border-radius: 10px; font-size: 11.5px; line-height: 1.6; color: var(--text); box-shadow: 0 10px 28px rgba(0,0,0,.55); pointer-events: none; opacity: 0; transition: opacity .12s; }
+  .dtip.show { opacity: 1; }
+  .dtip b { color: var(--gold); }
+
+  .statgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; margin-bottom: 14px; }
+  .stat { background: var(--panel2); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; }
+  .stat .l { font-size: 11px; color: var(--muted); }
+  .stat .v { font-size: 17px; font-weight: 800; margin-top: 2px; }
+  .stat .s { font-size: 10.5px; color: var(--muted); }
+
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; align-items: start; }
+  @media (max-width: 1100px) { .grid2 { grid-template-columns: 1fr; } }
+  #mchart { width: 100%; height: 430px; }
+
+  .tl { display: flex; flex-direction: column; gap: 6px; max-height: 470px; overflow-y: auto; padding-right: 4px; }
+  .yhead { font-size: 12px; font-weight: 900; color: var(--gold); margin: 8px 2px 2px; letter-spacing: .5px; }
+  .drow { display: grid; grid-template-columns: 52px minmax(0,1fr) auto; gap: 10px; align-items: center; background: var(--panel2); border: 1px solid var(--border); border-radius: 11px; padding: 9px 13px; }
+  .drow:hover { border-color: var(--gold); }
+  .drow .dt { font-size: 10.5px; color: var(--muted); font-weight: 700; }
+  .drow .who { font-size: 12.5px; min-width: 0; }
+  .drow .who b { font-weight: 800; }
+  .drow .who .br { font-size: 10.5px; color: var(--muted); }
+  .drow .amt { font-size: 13px; font-weight: 800; text-align: right; white-space: nowrap; }
+  .drow .amt small { display: block; font-weight: 400; font-size: 9.5px; color: var(--muted); }
+  .tbadge { font-size: 9px; font-weight: 800; padding: 1px 6px; border-radius: 5px; border: 1px solid; margin-left: 6px; vertical-align: 1px; }
+  .t-ma { color: var(--gold); border-color: rgba(251,191,36,.4); }
+  .t-ctl { color: #93c5fd; border-color: rgba(147,197,253,.4); }
+  .t-inv { color: var(--green); border-color: rgba(74,222,128,.35); }
+
+  .ipogrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 10px; }
+  .ipo { background: var(--panel2); border: 1px solid var(--border); border-radius: 12px; padding: 13px 15px; }
+  .ipo .st { font-size: 10px; font-weight: 800; padding: 1px 8px; border-radius: 99px; border: 1px solid; }
+  .st-done { color: var(--green); border-color: rgba(74,222,128,.4); }
+  .st-uw { color: var(--gold); border-color: rgba(251,191,36,.4); }
+  .st-plan { color: var(--muted); border-color: var(--border); }
+  .ipo h3 { font-size: 14.5px; font-weight: 800; margin: 5px 0 2px; }
+  .ipo .vv { font-size: 12.5px; font-weight: 700; color: var(--gold); }
+  .ipo .nn { font-size: 11.5px; color: var(--muted); margin-top: 4px; }
+  .ipo .src { font-size: 10px; margin-top: 5px; }
+  .ipo .src a { color: var(--muted); }
+  footer { color: var(--muted); font-size: 11px; margin-top: 20px; line-height: 1.8; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>💼 <span class="k">딜</span> 워치</h1>
+    <span class="sub" id="metaLine"></span>
+    <nav class="ptabs" data-active="deals"></nav>
+  </header>
+
+  <div class="statgrid" id="stats"></div>
+
+  <div class="grid2">
+    <div class="card">
+      <h2 data-tip="x축 = 인수 시점 연매출, y축 = 추정 기업가치(지분 인수가 ÷ 지분율로 100% 환산, 지분율 미상은 인수가 그대로)<br>점선 = EV/매출 1·2·3배 기준선.<br><b>가격·매출이 모두 공개된 딜만 표시</b>">📐 밸류에이션 멀티플 맵</h2>
+      <div class="desc">대각 기준선 위 = 매출 대비 비싸게 팔린 딜. 호버하면 산식·출처가 표시됩니다.</div>
+      <div id="mchart"></div>
+    </div>
+    <div class="card">
+      <h2>🗓 딜 타임라인</h2>
+      <div class="desc">2017~2026 주요 M&A·경영권·투자. 호버 시 상세, 클릭 시 출처 기사로 이동.</div>
+      <div class="tl" id="timeline"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>🛎 IPO 파이프라인 & 이력</h2>
+    <div class="desc">구다이글로벌 상장이 섹터 밸류에이션의 분수령 — 캘린더 탭에 예심 청구 예상 시점이 표시됩니다.</div>
+    <div class="ipogrid" id="ipos"></div>
+  </div>
+
+  <footer id="src"></footer>
+</div>
+
+<script src="assets/tabs.js?v=15"></script>
+<script src="assets/echarts.min.js?v=15"></script>
+<script src="data/deals.js?v=15"></script>
+<script>
+const D = window.DEALS_DATA;
+const fmtKRW = v => v == null ? '비공개' : v >= 10000 ? `${(v / 10000).toFixed(1)}조` : `${Math.round(v).toLocaleString()}억`;
+
+document.getElementById('metaLine').textContent =
+  `M&A ${D.deals.length}건 · IPO ${D.ipos.length}건 — 보도·공시 기반 (2026-06-11) · 비공개 딜은 '비공개' 표기`;
+
+/* 툴팁 엔진 */
+const dtip = document.createElement('div');
+dtip.className = 'dtip';
+document.body.appendChild(dtip);
+let dtipOwner = null;
+document.addEventListener('mouseover', e => {
+  const t = e.target.closest('[data-tip]');
+  if (t === dtipOwner) return;
+  dtipOwner = t;
+  if (!t) { dtip.classList.remove('show'); return; }
+  dtip.innerHTML = t.dataset.tip;
+  dtip.style.left = '0px'; dtip.style.top = '0px';
+  dtip.classList.add('show');
+  const r = t.getBoundingClientRect(), tw = dtip.offsetWidth, th = dtip.offsetHeight;
+  const x = Math.min(Math.max(8, r.left), innerWidth - tw - 8);
+  let y = r.bottom + 8;
+  if (y + th > innerHeight - 8) y = Math.max(8, r.top - th - 8);
+  dtip.style.left = x + 'px'; dtip.style.top = y + 'px';
+});
+document.addEventListener('scroll', () => { dtipOwner = null; dtip.classList.remove('show'); }, true);
+
+/* 추정 EV = 인수가 / 지분율 (100% 환산) */
+const ev = d => d.priceKRW == null ? null : d.stakePct ? Math.round(d.priceKRW / (d.stakePct / 100)) : d.priceKRW;
+
+/* ---------- 요약 ---------- */
+const recent12 = D.deals.filter(d => d.date >= '2025-07').length;
+const biggest = [...D.deals].filter(d => ev(d)).sort((a, b) => ev(b) - ev(a))[0];
+const withMul = D.deals.filter(d => ev(d) && d.targetRevKRW);
+const meds = withMul.map(d => ev(d) / d.targetRevKRW).sort((a, b) => a - b);
+const median = meds.length ? meds[Math.floor(meds.length / 2)] : null;
+document.getElementById('stats').innerHTML = `
+  <div class="stat" data-tip="2017~2026.6 수집된 보도·공시 기반 — 비공개 딜 다수라 전수가 아님"><div class="l">수록 딜</div><div class="v">${D.deals.length}건</div><div class="s">최근 12개월 ${recent12}건</div></div>
+  <div class="stat" data-tip="추정 EV = 지분 인수가 ÷ 지분율 (100% 환산)<br>${biggest.acquirer} → ${biggest.target} (${biggest.date})"><div class="l">최대 딜 (추정 EV)</div><div class="v">${biggest.target}</div><div class="s">${fmtKRW(ev(biggest))} · ${biggest.acquirer}</div></div>
+  <div class="stat" data-tip="EV/매출 배수의 중앙값 — 가격·매출 모두 공개된 ${withMul.length}건 기준<br>산식: (인수가÷지분율) ÷ 인수 시점 연매출"><div class="l">멀티플 중앙값 (EV/매출)</div><div class="v">${median ? median.toFixed(1) + '배' : '—'}</div><div class="s">공개 딜 ${withMul.length}건 기준</div></div>
+  <div class="stat" data-tip="상장완료 5 + 주관사선정 3 + 추진 2"><div class="l">IPO 파이프라인</div><div class="v">${D.ipos.filter(i => i.status !== '상장완료').length}건 진행</div><div class="s">상장완료 ${D.ipos.filter(i => i.status === '상장완료').length}건 (2023~)</div></div>`;
+
+/* ---------- 멀티플 맵 ---------- */
+const mc = echarts.init(document.getElementById('mchart'));
+const pts = withMul.map(d => ({ name: d.target, value: [d.targetRevKRW, ev(d), ev(d) / d.targetRevKRW], d }));
+const maxX = Math.max(...pts.map(p => p.value[0])) * 1.15;
+mc.setOption({
+  backgroundColor: 'transparent',
+  grid: { left: 14, right: 26, top: 20, bottom: 10, containLabel: true },
+  tooltip: {
+    backgroundColor: '#1c2330', borderColor: '#2a3344', textStyle: { color: '#e8ecf3' }, confine: true,
+    formatter: p => {
+      const d = p.data.d;
+      return `<b>${d.acquirer} → ${d.target}</b> (${d.date})<br>인수가 ${fmtKRW(d.priceKRW)}${d.stakePct ? ` (지분 ${d.stakePct}%)` : ''} → 추정 EV <b>${fmtKRW(ev(d))}</b><br>인수 시점 매출 ${fmtKRW(d.targetRevKRW)} → <b>EV/매출 ${(ev(d) / d.targetRevKRW).toFixed(1)}배</b><br><span style="color:#8b95a7;font-size:10px">${d.note}<br>출처: ${d.source}</span>`;
+    }
+  },
+  xAxis: { type: 'value', name: '인수 시점 매출(억)', nameTextStyle: { color: '#8b95a7', fontSize: 10 }, axisLabel: { color: '#8b95a7', formatter: v => fmtKRW(v) }, splitLine: { lineStyle: { color: '#222a38' } }, max: maxX },
+  yAxis: { type: 'value', name: '추정 EV(억)', nameTextStyle: { color: '#8b95a7', fontSize: 10 }, axisLabel: { color: '#8b95a7', formatter: v => fmtKRW(v) }, splitLine: { lineStyle: { color: '#222a38' } } },
+  series: [
+    ...[1, 2, 3, 7].map(m => ({
+      type: 'line', data: [[0, 0], [maxX, maxX * m]], showSymbol: false, silent: true,
+      lineStyle: { color: '#3a4356', width: 1, type: 'dashed' },
+      endLabel: { show: true, formatter: `${m}배`, color: '#5b6678', fontSize: 10 },
+    })),
+    {
+      type: 'scatter', data: pts,
+      symbolSize: p => Math.max(11, Math.sqrt(p[1]) / 2.4),
+      itemStyle: { color: '#fbbf24', opacity: .85, borderColor: '#0e1117', borderWidth: 1 },
+      label: { show: true, position: 'top', color: '#fde68a', fontSize: 10, fontWeight: 700, formatter: p => p.name },
+      labelLayout: { hideOverlap: true },
+    }
+  ]
+});
+
+/* ---------- 타임라인 ---------- */
+const byYear = {};
+[...D.deals].sort((a, b) => b.date.localeCompare(a.date)).forEach(d => {
+  const y = d.date.slice(0, 4);
+  (byYear[y] = byYear[y] ?? []).push(d);
+});
+const TBADGE = { 'M&A': 't-ma', '경영권': 't-ctl', '투자': 't-inv' };
+document.getElementById('timeline').innerHTML = Object.entries(byYear).map(([y, ds]) => `
+  <div class="yhead">${y}</div>` + ds.map(d => {
+    const tip = `<b>${d.acquirer} → ${d.target}</b><br>${d.note}<br><span style="color:#8b95a7;font-size:10px">출처: ${d.source} (클릭 시 기사로 이동)</span>`;
+    return `
+  <a class="drow" href="${d.sourceUrl}" target="_blank" style="text-decoration:none;color:inherit" data-tip="${tip.replace(/"/g, '&quot;')}">
+    <div class="dt">${d.date}</div>
+    <div class="who"><b>${d.acquirer}</b> → ${d.target}<span class="tbadge ${TBADGE[d.type] ?? 't-ma'}">${d.type}</span><br><span class="br">${d.brand}</span></div>
+    <div class="amt">${fmtKRW(d.priceKRW)}${d.stakePct ? `<small>지분 ${d.stakePct}%</small>` : ''}</div>
+  </a>`;
+  }).join('')).join('');
+
+/* ---------- IPO ---------- */
+const STC = { '상장완료': 'st-done', '주관사선정': 'st-uw', '추진': 'st-plan' };
+const order = { '주관사선정': 0, '추진': 1, '상장완료': 2 };
+document.getElementById('ipos').innerHTML = [...D.ipos].sort((a, b) => order[a.status] - order[b.status]).map(i => `
+  <div class="ipo">
+    <span class="st ${STC[i.status]}">${i.status}</span>
+    <h3>${i.company}</h3>
+    <div class="vv">${i.targetValuationKRW ? (i.status === '상장완료' ? '상장 시총 ' : '거론 밸류 ') + fmtKRW(i.targetValuationKRW) : '밸류 미공개'}</div>
+    <div class="nn">${i.listedDate ? `상장일 ${i.listedDate}` : i.expectedWindow ?? ''}${i.underwriters ? ` · ${i.underwriters}` : ''}</div>
+    <div class="nn">${i.note}</div>
+    <div class="src">📰 <a href="${i.sourceUrl}" target="_blank">${i.source}</a></div>
+  </div>`).join('');
+
+document.getElementById('src').innerHTML =
+  `<b style="color:var(--text)">데이터 기준</b><br>· 딜 가격·지분율: 보도·공시 기준 (비공개 딜은 표기), 추정 EV = 인수가 ÷ 지분율 (소수 지분 프리미엄/디스카운트 미반영 단순 환산)<br>· EV/매출 배수는 인수 '시점' 매출 기준 — 회계연도 차이로 ±1년 오차 가능<br>※ 투자 조언이 아니며, 분기 인사이트 갱신 시 신규 딜이 추가됩니다.`;
+
+window.addEventListener('resize', () => mc.resize());
+</script>
+</body>
+</html>

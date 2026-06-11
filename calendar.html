@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>K-뷰티 캘린더 — K-Beauty 글로벌 대시보드</title>
+<meta name="description" content="K-뷰티 규제 시행일·IPO·세일·전시·실적 일정 — D-day 카운트다운">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📅</text></svg>">
+<style>
+  :root {
+    --bg: #0e1117; --panel: #161b24; --panel2: #1c2330; --border: #2a3344;
+    --text: #e8ecf3; --muted: #8b95a7; --accent: #ff5c8a; --orange: #fb923c;
+    --green: #4ade80; --red: #f87171;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", -apple-system, sans-serif; line-height: 1.5; }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 24px; }
+  header { display: flex; flex-wrap: wrap; align-items: baseline; gap: 12px; margin-bottom: 16px; }
+  header h1 { font-size: 26px; font-weight: 800; letter-spacing: -.5px; }
+  header h1 .k { color: var(--orange); }
+  header .sub { color: var(--muted); font-size: 13px; }
+  .ptabs { display: flex; border: 1.5px solid var(--border); border-radius: 12px; overflow: hidden; margin-left: auto; flex-shrink: 0; }
+  .ptabs a { display: flex; align-items: center; gap: 7px; padding: 7px 14px; font-size: 12px; font-weight: 700; color: var(--muted); text-decoration: none; border-right: 1px solid var(--border); transition: all .15s; white-space: nowrap; }
+  .ptabs a:last-child { border-right: none; }
+  .ptabs a .co { width: 7px; height: 7px; border-radius: 50%; }
+  .ptabs a:hover { color: var(--text); background: var(--panel2); }
+  .ptabs a.on { background: var(--panel2); color: #fff; }
+  .dtip { position: fixed; z-index: 200; max-width: 330px; padding: 10px 13px; background: #20283a; border: 1px solid #3a4663; border-radius: 10px; font-size: 11.5px; line-height: 1.6; color: var(--text); box-shadow: 0 10px 28px rgba(0,0,0,.55); pointer-events: none; opacity: 0; transition: opacity .12s; }
+  .dtip.show { opacity: 1; }
+  .dtip b { color: var(--orange); }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+  .chips button { padding: 6px 14px; border-radius: 99px; border: 1px solid var(--border); background: var(--panel); color: var(--muted); font-size: 12px; font-weight: 700; cursor: pointer; transition: all .15s; }
+  .chips button.on { background: var(--orange); border-color: var(--orange); color: #0e1117; }
+
+  .mhead { font-size: 13px; font-weight: 900; color: var(--orange); letter-spacing: .5px; margin: 18px 2px 8px; }
+  .ev { display: grid; grid-template-columns: 84px minmax(0,1fr) auto; gap: 12px; align-items: center;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; margin-bottom: 7px; transition: border-color .15s; }
+  .ev:hover { border-color: var(--orange); }
+  .ev .dday { text-align: center; padding: 6px 4px; border-radius: 9px; font-size: 12px; font-weight: 900; }
+  .dd-urgent { background: rgba(248,113,113,.14); color: var(--red); border: 1px solid rgba(248,113,113,.4); }
+  .dd-soon { background: rgba(251,146,60,.12); color: var(--orange); border: 1px solid rgba(251,146,60,.4); }
+  .dd-far { background: var(--panel2); color: var(--muted); border: 1px solid var(--border); }
+  .ev .dday small { display: block; font-weight: 600; font-size: 9px; color: var(--muted); }
+  .ev .body { min-width: 0; }
+  .ev .body .t { font-size: 13.5px; font-weight: 800; }
+  .ev .body .n { font-size: 11.5px; color: var(--muted); }
+  .ev .body .n a { color: var(--muted); }
+  .cat { font-size: 10px; font-weight: 800; padding: 2px 9px; border-radius: 99px; border: 1px solid; white-space: nowrap; }
+  .c-규제 { color: var(--red); border-color: rgba(248,113,113,.4); }
+  .c-IPO { color: #fbbf24; border-color: rgba(251,191,36,.4); }
+  .c-세일 { color: var(--green); border-color: rgba(74,222,128,.4); }
+  .c-전시 { color: #93c5fd; border-color: rgba(147,197,253,.4); }
+  .c-실적 { color: #c084fc; border-color: rgba(192,132,252,.4); }
+  .est { font-size: 9.5px; color: var(--muted); border: 1px dashed var(--border); padding: 1px 7px; border-radius: 99px; margin-left: 6px; }
+  footer { color: var(--muted); font-size: 11px; margin-top: 22px; line-height: 1.8; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>📅 <span class="k">K-뷰티</span> 캘린더</h1>
+    <span class="sub" id="metaLine"></span>
+    <nav class="ptabs" data-active="calendar"></nav>
+  </header>
+
+  <div class="chips" id="cats"></div>
+  <div id="list"></div>
+  <footer id="src"></footer>
+</div>
+
+<script src="assets/tabs.js?v=15"></script>
+<script src="data/calendar.js?v=15"></script>
+<script>
+const D = window.CALENDAR_DATA;
+const TODAY = new Date(D.meta.updated);
+const CATS = ['전체', '규제', 'IPO', '세일', '전시', '실적'];
+let cur = '전체';
+
+document.getElementById('metaLine').textContent =
+  `${D.events.length}개 일정 · D-day는 ${D.meta.updated} 기준 · 점선 배지 = 과거 패턴 기반 예상`;
+
+/* 툴팁 엔진 */
+const dtip = document.createElement('div');
+dtip.className = 'dtip';
+document.body.appendChild(dtip);
+let dtipOwner = null;
+document.addEventListener('mouseover', e => {
+  const t = e.target.closest('[data-tip]');
+  if (t === dtipOwner) return;
+  dtipOwner = t;
+  if (!t) { dtip.classList.remove('show'); return; }
+  dtip.innerHTML = t.dataset.tip;
+  dtip.style.left = '0px'; dtip.style.top = '0px';
+  dtip.classList.add('show');
+  const r = t.getBoundingClientRect(), tw = dtip.offsetWidth, th = dtip.offsetHeight;
+  const x = Math.min(Math.max(8, r.left), innerWidth - tw - 8);
+  let y = r.bottom + 8;
+  if (y + th > innerHeight - 8) y = Math.max(8, r.top - th - 8);
+  dtip.style.left = x + 'px'; dtip.style.top = y + 'px';
+});
+document.addEventListener('scroll', () => { dtipOwner = null; dtip.classList.remove('show'); }, true);
+
+function dday(dateStr) {
+  const d = new Date(dateStr.length === 7 ? dateStr + '-15' : dateStr);
+  return Math.ceil((d - TODAY) / 86400000);
+}
+function render() {
+  document.getElementById('cats').innerHTML = CATS.map(c =>
+    `<button class="${c === cur ? 'on' : ''}" data-c="${c}">${c}</button>`).join('');
+  const evs = D.events.filter(e => cur === '전체' || e.category === cur);
+  const byMonth = {};
+  evs.forEach(e => { const m = e.date.slice(0, 7); (byMonth[m] = byMonth[m] ?? []).push(e); });
+  document.getElementById('list').innerHTML = Object.entries(byMonth).map(([m, es]) => `
+    <div class="mhead">${m.replace('-', '년 ')}월</div>` + es.map(e => {
+      const d = dday(e.date);
+      const cls = d < 30 ? 'dd-urgent' : d < 120 ? 'dd-soon' : 'dd-far';
+      const tip = `<b>${e.title}</b><br>${e.note}<br><span style="color:#8b95a7;font-size:10px">${e.confirmed ? '확정 일정' : '과거 패턴 기반 예상 일정'} · 출처: ${e.source}</span>`;
+      return `
+    <div class="ev" data-tip="${tip.replace(/"/g, '&quot;')}">
+      <div class="dday ${cls}">${d >= 0 ? 'D-' + d : '진행 중'}<small>${e.date}</small></div>
+      <div class="body">
+        <div class="t">${e.market} ${e.title}${e.confirmed ? '' : '<span class="est">예상</span>'}</div>
+        <div class="n">${e.note} · <a href="${e.sourceUrl}" target="_blank">${e.source}</a></div>
+      </div>
+      <span class="cat c-${e.category}">${e.category}</span>
+    </div>`;
+    }).join('')).join('');
+}
+document.getElementById('cats').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  cur = b.dataset.c;
+  history.replaceState(null, '', cur === '전체' ? location.pathname : '?c=' + cur);
+  render();
+});
+const sp = new URLSearchParams(location.search);
+if (CATS.includes(sp.get('c'))) cur = sp.get('c');
+render();
+
+document.getElementById('src').innerHTML =
+  `<b style="color:var(--text)">데이터 기준</b><br>· 규제 시행일·전시 일정: 각 기관 공식 발표 / 세일·실적 시즌: 과거 패턴 (예상 배지 표기)<br>· 일자 미상(월 단위) 일정의 D-day는 해당 월 15일 기준 근사치<br>※ 분기 인사이트 갱신 루틴이 일정도 함께 재점검합니다.`;
+</script>
+</body>
+</html>

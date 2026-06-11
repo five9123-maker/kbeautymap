@@ -144,10 +144,7 @@
   <header>
     <h1>🌱 <span class="k">인디 브랜드</span> 워치</h1>
     <span class="sub" id="metaLine"></span>
-    <nav class="ptabs">
-      <a href="index.html"><span class="co" style="background:var(--accent)"></span>글로벌 대시보드</a>
-      <a class="on" href="indie.html"><span class="co" style="background:var(--mint)"></span>인디 워치</a>
-    </nav>
+    <nav class="ptabs" data-active="indie"></nav>
   </header>
 
   <div class="card">
@@ -208,8 +205,9 @@
   <footer id="src"></footer>
 </div>
 
-<script src="assets/echarts.min.js?v=14"></script>
-<script src="data/indie.js?v=14"></script>
+<script src="assets/tabs.js?v=15"></script>
+<script src="assets/echarts.min.js?v=15"></script>
+<script src="data/indie.js?v=15"></script>
 <script>
 const D = window.INDIE_DATA;
 const YEARS = [2021, 2022, 2023, 2024, 2025];

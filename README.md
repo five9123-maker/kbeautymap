@@ -16,6 +16,12 @@ open index.html
 |---|---|
 | `index.html` | 대시보드 본체 (레이아웃 + 차트 로직) |
 | `data/data.js` | 전체 데이터 (`window.DASHBOARD_DATA`) — 수치 갱신은 이 파일만 수정 |
+| `indie.html` | 인디 브랜드 워치 — TOP 100 × 5년 시계열 비교 |
+| `deals.html` | 딜 워치 — M&A 타임라인·멀티플 맵·IPO 파이프라인 |
+| `markets.html` | 마켓 딥다이브 — 시장별 채널·규제·플레이북 |
+| `trends.html` | 성분 레이더 — 라이프사이클 트랙·PubMed 시계열 |
+| `calendar.html` | K-뷰티 캘린더 — 규제/IPO/세일/전시 D-day |
+| `data/*.js` | 페이지별 데이터 (indie/deals/markets/trends/calendar) |
 | `scripts/validate.js` | 데이터·구성 무결성 검증 (`node scripts/validate.js`) — CI 배포 게이트 |
 | `.github/workflows/deploy.yml` | 검증 통과 시에만 GitHub Pages 배포 |
 | `assets/echarts.min.js` | ECharts 5.5.1 |
