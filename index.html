@@ -8,6 +8,9 @@
 <meta property="og:title" content="K-Beauty 글로벌 대시보드">
 <meta property="og:description" content="브랜드 매출 순위 · 국가별 수출 지도 (2024/2025) · 히트 제품 실적">
 <meta property="og:type" content="website">
+<meta property="og:image" content="https://five9123-maker.github.io/kbeautymap/assets/og.png">
+<meta property="og:url" content="https://five9123-maker.github.io/kbeautymap/">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💄</text></svg>">
 <style>
   :root {
@@ -61,6 +64,14 @@
     transition: all .15s;
   }
   .secnav a:hover { color: #fff; border-color: var(--accent); background: var(--panel2); }
+  .secnav a.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .brow.flash { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(255,92,138,.4); }
+  .xlink {
+    margin-top: 10px; padding: 7px 14px; border-radius: 9px; border: 1px solid rgba(255,92,138,.4);
+    background: rgba(255,92,138,.1); color: var(--accent2); font-size: 12px; font-weight: 700; cursor: pointer;
+  }
+  .xlink:hover { background: rgba(255,92,138,.22); }
+  .blink { margin-left: 10px; font-size: 11px; color: var(--accent2); cursor: pointer; text-decoration: underline; }
   html { scroll-behavior: smooth; }
   [id^="sec-"] { scroll-margin-top: 64px; }
 
@@ -350,8 +361,9 @@
     <div class="card">
       <div class="eyebrow">02 · TOP 20</div>
       <h2>🏆 수출 상위 시장</h2>
-      <div class="desc">클릭하면 지도에서 해당 국가를 표시합니다.</div>
+      <div class="desc">국가를 클릭하면 (지도·리스트 모두) 시장 상세가 표시됩니다.</div>
       <div class="toplist" id="topMarkets"></div>
+      <div class="brandDetail" id="countryDetail"></div>
     </div>
   </div>
 
@@ -414,9 +426,9 @@
   <footer id="sources"></footer>
 </div>
 
-<script src="assets/echarts.min.js?v=7"></script>
-<script src="assets/world.js?v=7"></script>
-<script src="data/data.js?v=7"></script>
+<script src="assets/echarts.min.js?v=8"></script>
+<script src="assets/world.js?v=8"></script>
+<script src="data/data.js?v=8"></script>
 <script>
 const D = window.DASHBOARD_DATA;
 const fmtUSD = v => v >= 1000 ? `$${(v/1000).toFixed(2)}B` : `$${v.toLocaleString()}M`;
@@ -506,12 +518,43 @@ function renderTopMarkets() {
       <div class="yoy ${yoyCls(c.yoy)}">${yoyTxt(c.yoy)}</div>
     </div>`).join('');
 }
+/* ---------- 국가 상세 ---------- */
+const COUNTRY_INSIGHTS = {
+  '미국': ['🇺🇸 미국 관세', '📋 규제 · 미국'],
+  '일본': ['🇯🇵 일본 공식'],
+  '중국': ['⚠️ 리스크'],
+  '폴란드': ['📦 규제 · EU', '🌍 시장 다변화'],
+  '네덜란드': ['📦 규제 · EU'],
+  '프랑스': ['📦 규제 · EU'],
+  '아랍에미리트': ['🌍 시장 다변화'],
+  '인도네시아': ['🌍 시장 다변화'],
+};
+function renderCountryDetail(name) {
+  const c25 = D.exportYears[2025].countries.find(x => x.name === name);
+  const c24 = D.exportYears[2024].countries.find(x => x.name === name);
+  const c = c25 ?? c24;
+  const el = document.getElementById('countryDetail');
+  if (!c) { el.className = 'brandDetail'; return; }
+  const prods = D.products.filter(p => p.region.includes(c.nameKo)).slice(0, 6);
+  const tags = COUNTRY_INSIGHTS[c.nameKo] ?? [];
+  const yoyRef = c25 ?? c24;
+  el.className = 'brandDetail show';
+  el.innerHTML = `<h3>${c.flag} ${c.nameKo}</h3>
+    <div class="meta">${c24 ? `2024년 ${fmtUSD(c24.value)}` : ''}${c24 && c25 ? ' → ' : ''}${c25 ? `2025년 <b>${fmtUSD(c25.value)}</b>` : ''}
+      ${yoyRef.yoy != null ? ` <span class="${yoyCls(yoyRef.yoy)}">${yoyTxt(yoyRef.yoy)}</span>` : ''}</div>
+    ${prods.length ? `<div class="meta" style="margin-top:6px">이 시장이 주요 매출처인 제품</div>
+      <ul>${prods.map(p => `<li>🧴 ${p.brand} · ${p.name}</li>`).join('')}</ul>` : ''}
+    ${tags.length ? `<div style="margin-top:8px">${tags.map(t => `<a href="#sec-insights" class="chip" style="text-decoration:none">${t} 인사이트 →</a>`).join(' ')}</div>` : ''}`;
+}
+mapChart.on('click', p => { if (p.componentType === 'series') renderCountryDetail(p.name); });
+
 tm.addEventListener('click', e => {
   const item = e.target.closest('.item'); if (!item) return;
   const name = item.dataset.name;
   mapChart.dispatchAction({type: 'showTip', seriesIndex: 0, name});
   mapChart.dispatchAction({type: 'highlight', seriesIndex: 0, name});
   setTimeout(() => mapChart.dispatchAction({type: 'downplay', seriesIndex: 0, name}), 1800);
+  renderCountryDetail(name);
 });
 
 /* ---------- year toggle ---------- */
@@ -536,8 +579,8 @@ const BRAND_FILTERS = {
 const GROUP_LABEL = { house: '브랜드 기업', odm: 'ODM', sub: '자회사' };
 const GROUP_COLOR = { house: 'linear-gradient(90deg,#c44569,#ff5c8a)', odm: 'linear-gradient(90deg,#475569,#94a3b8)', sub: 'linear-gradient(90deg,#b97a8d,#ffb3c6)' };
 const logoImg = b => b.domain
-  ? `<img src="https://www.google.com/s2/favicons?domain=${b.domain}&sz=128" alt="${b.display}" loading="lazy"
-       onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+  ? `<img src="assets/logos/${b.domain}.png" alt="${b.display}" loading="lazy"
+       onerror="if(!this.dataset.fb){this.dataset.fb=1;this.src='https://www.google.com/s2/favicons?domain=${b.domain}&sz=128'}else{this.style.display='none';this.nextElementSibling.style.display='flex'}">
      <span class="mono">${b.display.replace(/[ (].*$/, '').slice(0, 1)}</span>`
   : `<span class="mono" style="display:flex">${b.display.replace(/[ (].*$/, '').slice(0, 1)}</span>`;
 
@@ -567,15 +610,35 @@ document.getElementById('brandFilter').addEventListener('click', e => {
   document.getElementById('brandDetail').className = 'brandDetail';
   renderBrands(b.dataset.f);
 });
+/* 브랜드 display → 제품 검색 키워드 (회사명·괄호 안 브랜드명 기준) */
+const brandQuery = b => {
+  const paren = b.display.match(/\(([^)]+)\)/)?.[1];
+  const base = b.display.replace(/\s*\(.*\)/, '').replace(/그룹$/, '');
+  for (const q of [paren, base].filter(x => x && x !== 'ODM')) {
+    const hit = D.products.some(p => [p.brand, p.company].filter(Boolean).join(' ').includes(q));
+    if (hit) return q;
+  }
+  return null;
+};
+
 document.getElementById('brandList').addEventListener('click', e => {
   const row = e.target.closest('.brow'); if (!row) return;
   const b = D.brands.find(x => x.display === row.dataset.name); if (!b) return;
+  const q = brandQuery(b);
   const el = document.getElementById('brandDetail');
   el.className = 'brandDetail show';
   el.innerHTML = `<h3>${b.display}</h3>
     <div class="meta">${b.year}년 매출 ${fmtKRW(b.revenueKRW)}${b.opProfit ? ` · 영업이익 ${fmtKRW(b.opProfit)}` : ''}${b.note ? ` · ${b.note}` : ''}</div>
-    <ul>${b.products.map(p => `<li>🧴 ${p}</li>`).join('')}</ul>`;
+    <ul>${b.products.map(p => `<li>🧴 ${p}</li>`).join('')}</ul>
+    ${q ? `<button class="xlink" data-q="${q}">🧪 제품 랭킹에서 "${q}" 보기 →</button>` : ''}`;
   el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+});
+document.getElementById('brandDetail').addEventListener('click', e => {
+  const btn = e.target.closest('.xlink'); if (!btn) return;
+  pState.q = btn.dataset.q; pState.cat = '전체';
+  document.getElementById('pSearch').value = pState.q;
+  renderCats(); renderList(); syncURL();
+  document.getElementById('sec-products').scrollIntoView({ behavior: 'smooth' });
 });
 
 /* ---------- export trend ---------- */
@@ -693,7 +756,7 @@ function filteredProducts() {
   let list = D.products.filter(p => {
     if (pState.cat !== '전체' && p.cat !== pState.cat) return false;
     if (!q) return true;
-    return [p.name, p.nameEn, p.brand, ...(p.keyIngredients ?? []), ...(p.benefits ?? [])]
+    return [p.name, p.nameEn, p.brand, p.company, ...(p.keyIngredients ?? []), ...(p.benefits ?? [])]
       .filter(Boolean).join(' ').toLowerCase().includes(q);
   });
   const sorters = {
@@ -740,15 +803,39 @@ function renderList() {
   }).join('');
 }
 
+/* 제품 → 브랜드 리스트 항목 매칭 */
+const findBrandFor = p => D.brands.find(b => {
+  const base = b.display.replace(/\s*\(.*\)/, '').replace(/그룹$/, '');
+  const paren = b.display.match(/\(([^)]+)\)/)?.[1];
+  const hay = [p.brand, p.company].filter(Boolean).join(' ');
+  return hay.includes(base) || (paren && paren !== 'ODM' && hay.includes(paren));
+});
+
+function jumpToBrand(display) {
+  document.getElementById('pModalWrap').classList.remove('show');
+  let row = document.querySelector(`.brow[data-name="${display}"]`);
+  if (!row) {
+    document.querySelectorAll('#brandFilter button').forEach(x => x.classList.toggle('on', x.dataset.f === 'all'));
+    renderBrands('all');
+    row = document.querySelector(`.brow[data-name="${display}"]`);
+  }
+  if (!row) return;
+  row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  row.classList.add('flash');
+  setTimeout(() => row.classList.remove('flash'), 2200);
+}
+
 function openModal(p) {
   const rates = [
     ['Amazon US', p.ratingAmazon, p.reviewsAmazon ? `리뷰 ${p.reviewsAmazon.toLocaleString()}+` : ''],
     ['올리브영', p.ratingOliveYoung, ''],
     ['화해', p.ratingHwahae, ''],
   ].filter(x => x[1]);
+  const ownerBrand = findBrandFor(p);
   document.getElementById('pModal').innerHTML = `
     <button class="mclose" onclick="document.getElementById('pModalWrap').classList.remove('show')">✕</button>
-    <div class="mbrand">${p.brand}${p.company ? ` · ${p.company}` : ''}</div>
+    <div class="mbrand">${p.brand}${p.company ? ` · ${p.company}` : ''}
+      ${ownerBrand ? `<a class="blink" data-bd="${ownerBrand.display}">💄 브랜드 순위에서 보기 →</a>` : ''}</div>
     <h3>${CAT_ICONS[p.cat] ?? ''} ${p.name}</h3>
     <div class="msub">${p.nameEn ?? ''}${p.nameEn ? ' · ' : ''}${p.cat ?? ''}${p.volume ? ` · ${p.volume}` : ''}${p.launchYear ? ` · ${p.launchYear}년 출시` : ''}</div>
     <div class="msec salesbox">📈 ${p.salesMetric ?? p.metric ?? '판매 지표 미공개'}
@@ -777,6 +864,8 @@ document.getElementById('plist').addEventListener('click', e => {
   if (p) openModal(p);
 });
 document.getElementById('pModalWrap').addEventListener('click', e => {
+  const bl = e.target.closest('.blink');
+  if (bl) { jumpToBrand(bl.dataset.bd); return; }
   if (e.target.id === 'pModalWrap') e.target.classList.remove('show');
 });
 document.addEventListener('keydown', e => {
@@ -808,6 +897,56 @@ document.getElementById('insights').innerHTML = (D.insights ?? []).map(it => `
     <div class="iwhy"><b>왜 중요한가</b> · ${it.why}</div>
     <div class="isrc">📰 <a href="${it.sourceUrl}" target="_blank">${it.sourceName}</a></div>
   </div>`).join('');
+
+/* ---------- URL 상태 동기화 (필터/검색/연도 공유 가능) ---------- */
+function syncURL() {
+  const sp = new URLSearchParams();
+  if (curYear !== D.meta.exportYear) sp.set('y', curYear);
+  const bf = document.querySelector('#brandFilter button.on')?.dataset.f;
+  if (bf && bf !== 'all') sp.set('bf', bf);
+  if (pState.cat !== '전체') sp.set('cat', pState.cat);
+  if (pState.q) sp.set('q', pState.q);
+  if (pState.sort !== 'rank') sp.set('sort', pState.sort);
+  const pm = document.querySelector('#prodMetricToggle button.on')?.dataset.m;
+  if (pm && pm !== 'units') sp.set('m', pm);
+  const qs = sp.toString();
+  history.replaceState(null, '', (qs ? '?' + qs : location.pathname) + location.hash);
+}
+['yearToggle', 'brandFilter', 'pCats', 'pSort', 'prodMetricToggle'].forEach(id =>
+  document.getElementById(id).addEventListener('click', () => setTimeout(syncURL, 0)));
+document.getElementById('pSearch').addEventListener('input', () => syncURL());
+
+(function initFromURL() {
+  const sp = new URLSearchParams(location.search);
+  if (sp.get('y') && D.exportYears[sp.get('y')]) {
+    curYear = +sp.get('y'); renderToggle(); renderMap(); renderTopMarkets();
+  }
+  const bf = sp.get('bf');
+  if (bf && BRAND_FILTERS[bf]) {
+    document.querySelectorAll('#brandFilter button').forEach(x => x.classList.toggle('on', x.dataset.f === bf));
+    renderBrands(bf);
+  }
+  let dirty = false;
+  if (sp.get('cat')) { pState.cat = sp.get('cat'); dirty = true; }
+  if (sp.get('q')) { pState.q = sp.get('q'); document.getElementById('pSearch').value = pState.q; dirty = true; }
+  if (['rating', 'priceAsc', 'priceDesc'].includes(sp.get('sort'))) {
+    pState.sort = sp.get('sort'); dirty = true;
+    document.querySelectorAll('#pSort button').forEach(x => x.classList.toggle('on', x.dataset.s === pState.sort));
+  }
+  if (dirty) { renderCats(); renderList(); }
+  if (sp.get('m') === 'revenue') {
+    document.querySelectorAll('#prodMetricToggle button').forEach(x => x.classList.toggle('on', x.dataset.m === 'revenue'));
+    renderProductRank('revenue');
+  }
+})();
+
+/* ---------- scrollspy ---------- */
+const spy = new IntersectionObserver(es => {
+  for (const e of es) if (e.isIntersecting)
+    document.querySelectorAll('.secnav a').forEach(a =>
+      a.classList.toggle('active', a.getAttribute('href') === '#' + e.target.id));
+}, { rootMargin: '-15% 0px -65% 0px' });
+document.querySelectorAll('[id^="sec-"]').forEach(s => spy.observe(s));
 
 /* ---------- 스크롤 리빌 ---------- */
 if ('IntersectionObserver' in window) {
