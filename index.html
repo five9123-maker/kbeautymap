@@ -38,14 +38,6 @@
   header h1 .k { color: var(--accent); }
   header .sub { color: var(--muted); font-size: 13px; }
 
-  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; margin: 16px 0; }
-  .kpi {
-    background: linear-gradient(135deg, var(--panel) 0%, var(--panel2) 100%);
-    border: 1px solid var(--border); border-radius: 14px; padding: 16px 18px;
-  }
-  .kpi .label { font-size: 12px; color: var(--muted); margin-bottom: 4px; }
-  .kpi .value { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; }
-  .kpi .delta { font-size: 12px; margin-top: 2px; }
   .up { color: var(--green); } .down { color: var(--red); }
 
   .grid { display: grid; gap: 14px; }
@@ -316,9 +308,6 @@
   @media (max-width: 700px) {
     .wrap { padding: 14px; }
     header h1 { font-size: 21px; }
-    .kpis { grid-template-columns: repeat(2, 1fr); gap: 8px; }
-    .kpi { padding: 12px 14px; }
-    .kpi .value { font-size: 19px; }
     #map { height: 360px; }
 
     .toplist { max-height: 320px; }
@@ -331,8 +320,6 @@
     <h1><span class="k">K-Beauty</span> 글로벌 대시보드</h1>
     <span class="sub" id="metaLine"></span>
   </header>
-
-  <div class="kpis" id="kpis"></div>
 
   <nav class="secnav">
     <a href="#sec-growth">① 성장</a>
@@ -435,9 +422,9 @@
   <footer id="sources"></footer>
 </div>
 
-<script src="assets/echarts.min.js?v=9"></script>
-<script src="assets/world.js?v=9"></script>
-<script src="data/data.js?v=9"></script>
+<script src="assets/echarts.min.js?v=10"></script>
+<script src="assets/world.js?v=10"></script>
+<script src="data/data.js?v=10"></script>
 <script>
 const D = window.DASHBOARD_DATA;
 const fmtUSD = v => v >= 1000 ? `$${(v/1000).toFixed(2)}B` : `$${v.toLocaleString()}M`;
@@ -448,13 +435,6 @@ const yoyCls = y => y == null ? '' : (y > 0 ? 'up' : 'down');
 /* ---------- meta + KPI ---------- */
 document.getElementById('metaLine').textContent =
   `데이터 기준: ${D.meta.dataYear} · 작성일 ${D.meta.updated}`;
-
-document.getElementById('kpis').innerHTML = D.kpi.map(k => `
-  <div class="kpi" ${k.tip ? `data-tip="${k.tip}"` : ''}>
-    <div class="label">${k.label}</div>
-    <div class="value">${k.value}</div>
-    <div class="delta ${yoyCls(k.yoy)}">${k.sub ?? yoyTxt(k.yoy)}</div>
-  </div>`).join('');
 
 /* ---------- 출처·산출근거 툴팁 엔진 ---------- */
 const dtip = document.createElement('div');
