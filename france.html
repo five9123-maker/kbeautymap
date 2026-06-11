@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>프랑스 케이스 — K-Beauty 글로벌 대시보드</title>
+<meta name="description" content="세계 1위 프랑스 뷰티 산업 — 20년 수출 시계열, 수출 대상국 지도, 발전 배경 구조 분석">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🇫🇷</text></svg>">
+<style>
+  :root {
+    --bg: #f4f6fa; --panel: #ffffff; --panel2: #eef1f7; --border: #d9dfeb;
+    --text: #1c2330; --muted: #5b6577; --accent: #e0407a;
+    --green: #15803d; --red: #dc2626;
+    --navbg: rgba(255,255,255,.92); --tipbg: #ffffff; --tipborder: #d8deea;
+    --fr: #1d4ed8; --frsoft: #3b82f6;
+  }
+  html[data-theme="dark"] {
+    --bg: #0e1117; --panel: #161b24; --panel2: #1c2330; --border: #2a3344;
+    --text: #e8ecf3; --muted: #8b95a7; --accent: #ff5c8a;
+    --green: #4ade80; --red: #f87171;
+    --navbg: rgba(14,17,23,.93); --tipbg: #20283a; --tipborder: #3a4663;
+    --fr: #93c5fd; --frsoft: #60a5fa;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", -apple-system, sans-serif; line-height: 1.5; }
+  .wrap { max-width: 1440px; margin: 0 auto; padding: 24px; }
+  header { display: flex; flex-wrap: wrap; align-items: baseline; gap: 12px; margin-bottom: 16px; }
+  header h1 { font-size: 26px; font-weight: 800; letter-spacing: -.5px; }
+  header h1 .k { color: var(--fr); }
+  header .sub { color: var(--muted); font-size: 13px; }
+  .card { background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 18px; margin-bottom: 14px; }
+  .card h2 { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+  .card .desc { font-size: 12px; color: var(--muted); margin-bottom: 10px; }
+  .eyebrow { font-size: 11px; font-weight: 800; letter-spacing: 1.5px; color: var(--fr); margin-bottom: 3px; text-transform: uppercase; }
+  .dtip { position: fixed; z-index: 200; max-width: 340px; padding: 10px 13px; background: var(--tipbg); border: 1px solid var(--tipborder); border-radius: 10px; font-size: 11.5px; line-height: 1.6; color: var(--text); box-shadow: 0 10px 28px rgba(0,0,0,.25); pointer-events: none; opacity: 0; transition: opacity .12s; }
+  .dtip.show { opacity: 1; }
+  .dtip b { color: var(--fr); }
+
+  .statgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 10px; margin-bottom: 14px; }
+  .stat { background: var(--panel); border: 1px solid var(--border); border-top: 3px solid var(--frsoft); border-radius: 12px; padding: 13px 15px; }
+  .stat .l { font-size: 11px; color: var(--muted); }
+  .stat .v { font-size: 19px; font-weight: 800; margin-top: 2px; }
+  .stat .s { font-size: 10.5px; color: var(--muted); }
+
+  .grid { display: grid; gap: 14px; }
+  .grid > * { min-width: 0; }
+  .row-map { grid-template-columns: 1fr 360px; }
+  .row-2 { grid-template-columns: 1fr 1fr; }
+  @media (max-width: 1000px) { .row-map, .row-2 { grid-template-columns: 1fr; } }
+
+  #frTrend { height: 360px; }
+  #frMap { height: 480px; }
+  #catPie { height: 230px; }
+  #coBar { height: 420px; }
+
+  .toplist { display: flex; flex-direction: column; gap: 6px; max-height: 480px; overflow-y: auto; }
+  .toplist .item { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 10px; background: var(--panel2); border: 1px solid transparent; }
+  .toplist .item:hover { border-color: var(--frsoft); }
+  .toplist .rank { width: 22px; text-align: center; font-weight: 800; color: var(--fr); font-size: 12.5px; }
+  .toplist .nm { flex: 1; font-size: 13px; font-weight: 600; min-width: 0; }
+  .toplist .val { font-size: 12.5px; font-weight: 700; }
+  .toplist .sh { font-size: 11px; color: var(--muted); width: 50px; text-align: right; }
+  .sharebar { height: 4px; border-radius: 99px; background: var(--border); margin-top: 4px; overflow: hidden; }
+  .sharebar i { display: block; height: 100%; background: var(--frsoft); border-radius: 99px; }
+
+  .fgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 12px; }
+  .fgrid > * { min-width: 0; }
+  .fcard { background: var(--panel2); border: 1px solid var(--border); border-radius: 14px; padding: 16px 18px; display: flex; flex-direction: column; gap: 8px; transition: transform .15s, border-color .15s; position: relative; overflow: hidden; }
+  .fcard:hover { transform: translateY(-3px); border-color: var(--frsoft); }
+  .fcard::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--frsoft), transparent); }
+  .fcard h3 { font-size: 14.5px; font-weight: 800; }
+  .fcard ul { list-style: none; display: flex; flex-direction: column; gap: 4px; }
+  .fcard li { font-size: 12px; padding-left: 14px; position: relative; }
+  .fcard li::before { content: '▸'; position: absolute; left: 0; color: var(--frsoft); }
+  .fwhy { font-size: 11.5px; color: var(--muted); border-top: 1px dashed var(--border); padding-top: 8px; margin-top: auto; }
+  .fwhy b { color: var(--text); }
+  .fsrc { font-size: 10.5px; } .fsrc a { color: var(--muted); }
+
+  table.cmp { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  table.cmp th, table.cmp td { padding: 10px 12px; border-bottom: 1px solid var(--border); text-align: left; vertical-align: top; }
+  table.cmp th { font-size: 11.5px; color: var(--muted); font-weight: 700; }
+  table.cmp td.axis { font-weight: 800; white-space: nowrap; width: 110px; }
+  table.cmp td.fr { color: var(--fr); }
+  table.cmp td.kr { color: var(--accent); }
+  .lesson { background: linear-gradient(135deg, rgba(59,130,246,.1), rgba(59,130,246,.02)); border: 1px solid rgba(59,130,246,.3); border-radius: 12px; padding: 13px 16px; margin-bottom: 8px; font-size: 13px; }
+  .lesson b { color: var(--fr); }
+  .lesson small { display: block; color: var(--muted); font-size: 11.5px; margin-top: 2px; }
+  footer { color: var(--muted); font-size: 11px; margin-top: 20px; line-height: 1.8; }
+  footer a { color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>🇫🇷 <span class="k">프랑스</span> 케이스 스터디</h1>
+    <span class="sub" id="metaLine"></span>
+  </header>
+
+  <div class="statgrid" id="stats"></div>
+
+  <div class="card">
+    <div class="eyebrow">01 · 20년의 궤적</div>
+    <h2>📈 프랑스 화장품 수출 20년 — 그리고 한국이 따라온 길</h2>
+    <div class="desc">프랑스(파랑)와 한국(핑크)의 수출액 — 한국은 20년 전 프랑스의 1/6 규모에서 출발해 2025년 2위까지 왔지만, 1위와의 격차는 여전히 2배 이상입니다.</div>
+    <div id="frTrend"></div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px;margin-top:12px" id="frTrends"></div>
+  </div>
+
+  <div class="grid row-map">
+    <div class="card">
+      <div class="eyebrow">02 · 어디서 매출이 나는가</div>
+      <h2>🌍 프랑스 화장품 수출 대상국 <span id="destYear" style="font-size:11px;color:var(--muted)"></span></h2>
+      <div class="desc">호버하면 수출액·비중이 표시됩니다. 미국·중국·독일이 3강 — 프랑스는 한국보다 수출국 분산이 넓습니다.</div>
+      <div id="frMap"></div>
+    </div>
+    <div>
+      <div class="card">
+        <h2>🏆 상위 수출 시장</h2>
+        <div class="toplist" id="destList"></div>
+      </div>
+      <div class="card">
+        <h2 data-tip="FEBEA(프랑스화장품협회) 발표 카테고리 구성 — 향수가 프랑스 수출의 간판">🧴 수출 카테고리 구성</h2>
+        <div id="catPie"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="eyebrow">03 · 왜 강한가</div>
+    <h2>🏛 프랑스 뷰티가 1위가 된 구조</h2>
+    <div class="desc">하루아침의 트렌드가 아니라 100년 넘게 쌓인 구조적 우위 — 각 카드에 수치 근거와 출처가 있습니다.</div>
+    <div class="fgrid" id="factors"></div>
+  </div>
+
+  <div class="grid row-2">
+    <div class="card">
+      <div class="eyebrow">04 · 기업 생태계</div>
+      <h2>🏢 프랑스 주요 뷰티 기업 매출</h2>
+      <div class="desc">단위: €B (최신 회계연도). 로레알 하나가 한국 전체 수출의 3배가 넘는 매출 규모입니다.</div>
+      <div id="coBar"></div>
+    </div>
+    <div class="card">
+      <div class="eyebrow">05 · 프랑스 vs 한국</div>
+      <h2>⚖️ 두 모델의 비교 — 그리고 시사점</h2>
+      <div class="desc">서로 다른 강점: 프랑스는 헤리티지와 럭셔리, 한국은 스피드와 가성비.</div>
+      <table class="cmp"><thead><tr><th></th><th>🇫🇷 프랑스</th><th>🇰🇷 한국</th></tr></thead><tbody id="cmpBody"></tbody></table>
+      <div style="margin-top:14px" id="lessons"></div>
+    </div>
+  </div>
+
+  <footer id="src"></footer>
+</div>
+
+<script src="assets/tabs.js?v=22"></script>
+<script src="assets/echarts.min.js?v=22"></script>
+<script src="assets/world.js?v=22"></script>
+<script src="data/data.js?v=22"></script>
+<script src="data/france.js?v=22"></script>
+<script>
+const F = window.FRANCE_DATA;
+const KR_TREND = window.DASHBOARD_DATA.exportTrend; // 한국 오버레이 (동일 데이터셋)
+const fmtB = v => v == null ? '—' : `$${v.toFixed(1)}B`;
+
+document.getElementById('metaLine').textContent =
+  `수출: FEBEA·UN Comtrade·K-STAT 기준 (통화·기준 연도는 각 차트 툴팁) · 작성일 ${F.meta.updated}`;
+
+/* 툴팁 엔진 */
+const dtip = document.createElement('div');
+dtip.className = 'dtip';
+document.body.appendChild(dtip);
+let dtipOwner = null;
+document.addEventListener('mouseover', e => {
+  const t = e.target.closest('[data-tip]');
+  if (t === dtipOwner) return;
+  dtipOwner = t;
+  if (!t) { dtip.classList.remove('show'); return; }
+  dtip.innerHTML = t.dataset.tip;
+  dtip.style.left = '0px'; dtip.style.top = '0px';
+  dtip.classList.add('show');
+  const r = t.getBoundingClientRect(), tw = dtip.offsetWidth, th = dtip.offsetHeight;
+  const x = Math.min(Math.max(8, r.left), innerWidth - tw - 8);
+  let y = r.bottom + 8;
+  if (y + th > innerHeight - 8) y = Math.max(8, r.top - th - 8);
+  dtip.style.left = x + 'px'; dtip.style.top = y + 'px';
+});
+document.addEventListener('scroll', () => { dtipOwner = null; dtip.classList.remove('show'); }, true);
+
+/* ---------- 헤드라인 스탯 ---------- */
+document.getElementById('stats').innerHTML = F.stats.map(s => `
+  <div class="stat" ${s.tip ? `data-tip="${s.tip.replace(/"/g, '&quot;')}"` : ''}>
+    <div class="l">${s.label}</div><div class="v">${s.value}</div><div class="s">${s.sub ?? ''}</div>
+  </div>`).join('');
+
+/* ---------- 20년 시계열 (프랑스 vs 한국) ---------- */
+const trend = echarts.init(document.getElementById('frTrend'));
+const allYears = F.series.map(s => s.year);
+trend.setOption({
+  backgroundColor: 'transparent',
+  grid: { left: 12, right: 100, top: 30, bottom: 10, containLabel: true },
+  legend: { top: 0, textStyle: { color: KB.c.muted }, icon: 'roundRect' },
+  tooltip: { trigger: 'axis', backgroundColor: KB.c.tooltipBg, borderColor: KB.c.tooltipBorder, textStyle: { color: KB.c.text },
+    formatter: ps => `<b>${ps[0]?.name}년</b><br>` + ps.filter(p => p.value != null).map(p =>
+      `${p.marker} ${p.seriesName}: <b>${fmtB(p.value)}</b>`).join('<br>') +
+      `<br><span style="color:${KB.c.muted};font-size:10px">프랑스: FEBEA/UN Comtrade 보도 종합 · 한국: 식약처/관세청</span>` },
+  xAxis: { type: 'category', data: allYears, axisLabel: { color: KB.c.muted } },
+  yAxis: { type: 'value', axisLabel: { color: KB.c.muted, formatter: v => '$' + v + 'B' }, splitLine: { lineStyle: { color: KB.c.split } } },
+  series: [
+    { name: '프랑스', type: 'line', smooth: true, connectNulls: true,
+      data: F.series.map(s => s.valueB),
+      lineStyle: { width: 3.2, color: '#3b82f6' }, itemStyle: { color: '#3b82f6' }, symbolSize: 6,
+      areaStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0, color: 'rgba(59,130,246,.22)' }, { offset: 1, color: 'rgba(59,130,246,0)' }]) },
+      endLabel: { show: true, formatter: p => `프랑스 ${fmtB(p.value)}`, color: '#3b82f6', fontWeight: 800, fontSize: 11.5 } },
+    { name: '한국', type: 'line', smooth: true,
+      data: allYears.map(y => { const k = KR_TREND.find(t => t.year === y); return k ? +(k.value / 1000).toFixed(2) : null; }),
+      lineStyle: { width: 3, color: KB.c.accent }, itemStyle: { color: KB.c.accent }, symbolSize: 6,
+      endLabel: { show: true, formatter: p => `한국 ${fmtB(p.value)}`, color: KB.c.accent, fontWeight: 800, fontSize: 11.5 } },
+  ],
+});
+
+/* ---------- 흐름 읽기 ---------- */
+document.getElementById('frTrends').innerHTML = F.trends.map(t => `
+  <div class="lesson" style="margin-bottom:0"><b>${t.title}</b><small>${t.fact}</small></div>`).join('');
+
+/* ---------- 수출 대상국 지도 + 리스트 ---------- */
+document.getElementById('destYear').textContent = `(${F.destinations.year}년, FEBEA 기준)`;
+echarts.registerMap('world', window.WORLD_GEOJSON);
+const frMap = echarts.init(document.getElementById('frMap'));
+const maxV = Math.max(...F.destinations.items.map(d => d.valueB));
+frMap.setOption({
+  backgroundColor: 'transparent',
+  tooltip: { backgroundColor: KB.c.tooltipBg, borderColor: KB.c.tooltipBorder, textStyle: { color: KB.c.text },
+    formatter: p => {
+      const d = F.destinations.items.find(x => x.countryEn === p.name);
+      if (p.name === 'France') return `🇫🇷 <b>프랑스</b> — 수출국`;
+      if (!d) return `${p.name}<br><span style="color:${KB.c.muted}">상위권 외</span>`;
+      return `<b>${d.country}</b><br>프랑스 화장품 수입: <b>${fmtB(d.valueB)}</b>${d.sharePct ? ` (${d.sharePct}%)` : ''}<br><span style="color:${KB.c.muted};font-size:10px">출처: FEBEA ${F.destinations.year}</span>`;
+    } },
+  visualMap: { min: 0, max: maxV, left: 10, bottom: 10, calculable: false,
+    inRange: { color: ['#dbeafe', '#93c5fd', '#3b82f6', '#1d4ed8'] },
+    textStyle: { color: KB.c.muted, fontSize: 10 }, formatter: v => fmtB(v) },
+  series: [{
+    type: 'map', map: 'world', roam: true, zoom: 1.1, scaleLimit: { min: 1, max: 8 },
+    itemStyle: { areaColor: KB.c.mapArea, borderColor: KB.c.mapBorder, borderWidth: .6 },
+    emphasis: { label: { show: false }, itemStyle: { areaColor: '#fbbf24' } },
+    select: { disabled: true },
+    data: [
+      ...F.destinations.items.map(d => ({ name: d.countryEn, value: d.valueB })),
+      { name: 'France', itemStyle: { areaColor: '#1e3a8a' } },
+    ],
+  }],
+});
+document.getElementById('destList').innerHTML = F.destinations.items.map((d, i) => `
+  <div class="item" data-tip="${(`<b>${d.country}</b> — ${F.destinations.year}년 프랑스 화장품 수출 ${fmtB(d.valueB)}${d.sharePct ? `, 전체의 ${d.sharePct}%` : ''}<br>출처: FEBEA/관세 통계 보도`).replace(/"/g, '&quot;')}">
+    <div class="rank">${i + 1}</div>
+    <div class="nm">${d.country}<div class="sharebar"><i style="width:${(d.valueB / maxV * 100).toFixed(0)}%"></i></div></div>
+    <div class="val">${fmtB(d.valueB)}</div>
+    <div class="sh">${d.sharePct ? d.sharePct + '%' : ''}</div>
+  </div>`).join('');
+
+/* ---------- 카테고리 도넛 ---------- */
+const catPie = echarts.init(document.getElementById('catPie'));
+catPie.setOption({
+  backgroundColor: 'transparent',
+  tooltip: { backgroundColor: KB.c.tooltipBg, borderColor: KB.c.tooltipBorder, textStyle: { color: KB.c.text },
+    formatter: p => `${p.name}: <b>${p.value}%</b><br><span style="color:${KB.c.muted};font-size:10px">출처: FEBEA 수출 구성</span>` },
+  series: [{ type: 'pie', radius: ['45%', '74%'], center: ['50%', '52%'],
+    itemStyle: { borderColor: KB.c.tooltipBg, borderWidth: 2, borderRadius: 5 },
+    label: { color: KB.c.text, fontSize: 11, formatter: '{b}\n{d}%' },
+    data: F.catShare.map((c, i) => ({ name: c.name, value: c.sharePct, itemStyle: { color: ['#1d4ed8', '#3b82f6', '#93c5fd', '#cbd5e1'][i % 4] } })) }],
+});
+
+/* ---------- 발전 배경 카드 ---------- */
+document.getElementById('factors').innerHTML = F.factors.map(f => `
+  <div class="fcard">
+    <h3>${f.icon} ${f.title}</h3>
+    <ul>${f.facts.map(x => `<li>${x}</li>`).join('')}</ul>
+    <div class="fwhy"><b>수출 경쟁력으로</b> · ${f.why}</div>
+    <div class="fsrc">📰 <a href="${f.sourceUrl}" target="_blank">${f.source}</a></div>
+  </div>`).join('');
+
+/* ---------- 기업 매출 바 ---------- */
+const coBar = echarts.init(document.getElementById('coBar'));
+const cos = [...F.companies].sort((a, b) => a.revenueB_EUR - b.revenueB_EUR);
+coBar.setOption({
+  backgroundColor: 'transparent',
+  grid: { left: 8, right: 70, top: 8, bottom: 8, containLabel: true },
+  tooltip: { backgroundColor: KB.c.tooltipBg, borderColor: KB.c.tooltipBorder, textStyle: { color: KB.c.text },
+    formatter: p => {
+      const c = cos[p.dataIndex];
+      return `<b>${c.company}</b> (FY${c.year})<br>매출 <b>€${c.revenueB_EUR}B</b><br><span style="color:${KB.c.muted};font-size:10px">${c.note}<br>출처: ${c.source}</span>`;
+    } },
+  xAxis: { type: 'value', axisLabel: { color: KB.c.muted, formatter: v => '€' + v + 'B' }, splitLine: { lineStyle: { color: KB.c.split } } },
+  yAxis: { type: 'category', data: cos.map(c => c.company), axisLabel: { color: KB.c.text, fontSize: 11.5, fontWeight: 600 } },
+  series: [{ type: 'bar', barWidth: '60%',
+    data: cos.map(c => ({ value: c.revenueB_EUR, itemStyle: { color: '#3b82f6', borderRadius: [0, 5, 5, 0] } })),
+    label: { show: true, position: 'right', color: KB.c.muted, fontSize: 10.5, formatter: p => '€' + p.value + 'B' } }],
+});
+
+/* ---------- 비교 표 + 시사점 ---------- */
+document.getElementById('cmpBody').innerHTML = F.comparison.map(c => `
+  <tr><td class="axis">${c.axis}</td><td class="fr">${c.france}</td><td class="kr">${c.korea}</td></tr>`).join('');
+document.getElementById('lessons').innerHTML = F.lessons.map((l, i) => `
+  <div class="lesson"><b>시사점 ${i + 1} · ${l.title}</b><small>${l.detail}</small></div>`).join('');
+
+document.getElementById('src').innerHTML =
+  `<b style="color:var(--text)">데이터 기준</b><br>` + F.meta.sources.map(s =>
+    s.url ? `· <a href="${s.url}" target="_blank" style="text-decoration:underline">${s.label}</a>` : `· ${s.label}`).join('<br>') +
+  `<br>※ 프랑스 수출액은 연도·출처에 따라 EUR/USD 기준이 혼재해 환산치를 병기 — 차트는 USD 통일 (환산 기준은 데이터 파일 주석).`;
+
+window.addEventListener('resize', () => [trend, frMap, catPie, coBar].forEach(c => c.resize()));
+</script>
+</body>
+</html>

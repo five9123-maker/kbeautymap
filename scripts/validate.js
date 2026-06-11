@@ -212,6 +212,30 @@ const ok = (m) => console.log('  ✓ ' + m);
   }
 }
 
+/* ---------- 프랑스 케이스 (france.html) ---------- */
+{
+  const w = {}; const g = global.window; global.window = w;
+  require(path.join(root, 'data/france.js'));
+  global.window = g;
+  const F = w.FRANCE_DATA;
+  if (!F) errs.push('FRANCE_DATA 누락');
+  else {
+    if (!(F.series?.length >= 15)) errs.push('프랑스 시계열 부족');
+    for (const s of F.series) if (!s.year || s.valueB == null || s.valueB < 5 || s.valueB > 60) errs.push(`프랑스 시계열 이상치: ${s.year}`);
+    if (!(F.destinations?.items?.length >= 10)) errs.push('프랑스 대상국 부족');
+    // GeoJSON 국가명 정합성
+    let geo = fs.readFileSync(path.join(root, 'assets/world.js'), 'utf8');
+    const names = new Set(JSON.parse(geo.slice(geo.indexOf('=') + 1, geo.lastIndexOf(';'))).features.map(f => f.properties.name));
+    for (const d of F.destinations.items) if (!names.has(d.countryEn)) errs.push(`프랑스 대상국 GeoJSON 불일치: ${d.countryEn}`);
+    for (const sec of ['factors', 'companies', 'comparison', 'lessons', 'trends', 'catShare', 'stats'])
+      if (!(F[sec]?.length >= 3)) errs.push(`프랑스 ${sec} 부족`);
+    for (const f of F.factors) if (!f.title || !f.facts?.length || !f.why || !f.sourceUrl) errs.push(`프랑스 factor 필드 누락: ${f.key}`);
+    const catSum = F.catShare.reduce((a, c) => a + c.sharePct, 0);
+    if (Math.abs(catSum - 100) > 2) errs.push(`프랑스 카테고리 합 이상: ${catSum}`);
+    ok(`프랑스: 시계열 ${F.series.length}년, 대상국 ${F.destinations.items.length}, 배경 ${F.factors.length}`);
+  }
+}
+
 if (errs.length) {
   console.error('\n❌ 검증 실패 ' + errs.length + '건:\n' + errs.map(e => '  - ' + e).join('\n'));
   process.exit(1);

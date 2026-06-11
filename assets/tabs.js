@@ -29,6 +29,7 @@
     { href: 'markets.html', label: '마켓', color: '#60a5fa' },
     { href: 'trends.html', label: '성분 레이더', color: '#c084fc' },
     { href: 'calendar.html', label: '캘린더', color: '#fb923c' },
+    { href: 'france.html', label: '프랑스 케이스', color: '#3b82f6' },
   ];
   const current = location.pathname.split('/').pop() || 'index.html';
 
