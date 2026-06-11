@@ -56,10 +56,22 @@
       content: ''; position: absolute; left: 12px; right: 12px; bottom: -7px;
       height: 2px; border-radius: 2px; background: var(--tabco, #ff5c8a);
     }
+    .gnav .thsw {
+      position: relative; appearance: none; border: 1px solid var(--border, #2a3344);
+      background: var(--panel2, #1c2330); width: 58px; height: 28px; border-radius: 99px;
+      cursor: pointer; flex-shrink: 0; display: flex; align-items: center;
+      justify-content: space-between; padding: 0 7px; transition: background .2s;
+    }
+    .gnav .thsw .ic { font-size: 12px; line-height: 1; }
+    .gnav .thsw .knob {
+      position: absolute; top: 2px; left: 2px; width: 22px; height: 22px; border-radius: 50%;
+      background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,.35); transition: left .22s cubic-bezier(.3,.9,.4,1);
+    }
+    html[data-theme="dark"] .gnav .thsw .knob { left: calc(100% - 24px); background: #ff5c8a; }
     .gnav .thbtn {
-      appearance: none; border: 1px solid var(--border, #2a3344); background: var(--panel, #161b24);
+      display: none; appearance: none; border: 1px solid var(--border, #2a3344); background: var(--panel, #161b24);
       color: var(--text, #e8ecf3); font-size: 14px; line-height: 1;
-      width: 34px; height: 34px; border-radius: 9px; cursor: pointer; flex-shrink: 0;
+      width: 38px; height: 38px; border-radius: 9px; cursor: pointer; flex-shrink: 0;
     }
     .gnav .ham {
       display: none; appearance: none; border: 1px solid var(--border, #2a3344);
@@ -69,7 +81,8 @@
     @media (max-width: 860px) {
       .gnav-in { padding: 0 16px; }
       .gnav .ham { display: block; margin-left: auto; }
-      .gnav .thbtn { margin-left: 0; }
+      .gnav .thsw { display: none; }
+      .gnav .thbtn { display: block; }
       .gnav .links {
         display: none; position: absolute; top: 54px; left: 0; right: 0;
         flex-direction: column; gap: 0; margin: 0; padding: 6px 10px 10px;
@@ -96,13 +109,18 @@
           `<a class="${t.href === current ? 'on' : ''}" href="${t.href}" style="--tabco:${t.color}">
              <span class="co" style="background:${t.color}"></span>${t.label}</a>`).join('')}
         </nav>
+        <button class="thsw" role="switch" aria-checked="${theme === 'dark'}" aria-label="다크 모드 토글" title="다크/라이트 전환">
+          <span class="ic">☀️</span><span class="ic">🌙</span><span class="knob"></span>
+        </button>
         <button class="thbtn" aria-label="테마 전환" title="다크/라이트 전환">${theme === 'dark' ? '☀️' : '🌙'}</button>
       </div>`;
     document.body.prepend(nav);
-    nav.querySelector('.thbtn').addEventListener('click', () => {
+    const flip = () => {
       localStorage.setItem('kb-theme', theme === 'dark' ? 'light' : 'dark');
       location.reload(); // 차트 색상 재초기화
-    });
+    };
+    nav.querySelector('.thsw').addEventListener('click', flip);
+    nav.querySelector('.thbtn').addEventListener('click', flip);
     const ham = nav.querySelector('.ham');
     const links = nav.querySelector('.links');
     ham.addEventListener('click', () => {
