@@ -16,8 +16,18 @@ open index.html
 |---|---|
 | `index.html` | 대시보드 본체 (레이아웃 + 차트 로직) |
 | `data/data.js` | 전체 데이터 (`window.DASHBOARD_DATA`) — 수치 갱신은 이 파일만 수정 |
+| `scripts/validate.js` | 데이터·구성 무결성 검증 (`node scripts/validate.js`) — CI 배포 게이트 |
+| `.github/workflows/deploy.yml` | 검증 통과 시에만 GitHub Pages 배포 |
 | `assets/echarts.min.js` | ECharts 5.5.1 |
-| `assets/world.js` | Natural Earth 50m 국가 GeoJSON (홍콩·대만·싱가포르 포함) |
+| `assets/world.js` | Natural Earth 50m 국가 GeoJSON (홍콩·대만·싱가포르 포함, 남극 제외) |
+| `assets/logos/` | 브랜드 로고 30개 로컬 캐시 (favicon API 폴백) |
+
+## 갱신 규칙
+
+- `data/data.js` 수정 시 `index.html`의 `?v=N` 캐시버스트를 반드시 +1 (3곳)
+- push 전 `node scripts/validate.js` 통과 확인 — CI에서도 실패 시 배포 차단
+- 인사이트 브리핑은 분기마다 클라우드 루틴이 자동 갱신 (1/4/7/10월 1일)
+- URL 파라미터로 상태 공유 가능: `?y=2024&cat=립&q=쿠션&sort=rating&bf=house&m=revenue`
 
 ## 기능
 
