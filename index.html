@@ -188,8 +188,9 @@
   }
   .bname { min-width: 0; }
   .bname .bn { font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .bname .bt { font-size: 10.5px; color: var(--muted); display: flex; gap: 5px; align-items: center; margin-top: 1px; }
-  .gbadge { padding: 0 6px; border-radius: 5px; font-size: 9.5px; font-weight: 700; border: 1px solid; }
+  .bname .bt { font-size: 10.5px; color: var(--muted); display: flex; gap: 5px; align-items: center; margin-top: 1px; white-space: nowrap; overflow: hidden; }
+  .bname .bt .tyoy { display: none; }
+  .gbadge { padding: 0 6px; border-radius: 5px; font-size: 9.5px; font-weight: 700; border: 1px solid; white-space: nowrap; flex-shrink: 0; }
   .gbadge.house { color: var(--accent2); border-color: rgba(255,92,138,.4); }
   .gbadge.odm { color: #9fb0c8; border-color: rgba(148,163,184,.4); }
   .gbadge.sub { color: #f3c6d3; border-color: rgba(255,179,198,.35); }
@@ -198,7 +199,7 @@
   .brev .track { height: 5px; border-radius: 99px; background: rgba(42,51,68,.8); margin-top: 4px; overflow: hidden; }
   .brev .fillr { height: 100%; border-radius: 99px; }
   .byoy { font-size: 11px; font-weight: 700; text-align: right; }
-  @media (max-width: 700px) { .brow { grid-template-columns: 26px 38px minmax(0,1fr) 90px; } .byoy { display: none; } .blogo { width: 38px; height: 38px; } }
+  @media (max-width: 700px) { .brow { grid-template-columns: 26px 38px minmax(0,1fr) 90px; } .byoy { display: none; } .bname .bt .tyoy { display: inline; } .blogo { width: 38px; height: 38px; } }
 
   /* ---------- 플랫폼 실측 랭킹 ---------- */
   @keyframes rowIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
@@ -522,7 +523,7 @@ function renderBrands(filter) {
       <div class="bname">
         <div class="bn">${b.display}</div>
         <div class="bt"><span class="gbadge ${b.group}">${GROUP_LABEL[b.group]}</span><span>FY${b.year}</span>
-          ${b.yoy != null ? `<span class="${yoyCls(b.yoy)}">${yoyTxt(b.yoy)}</span>` : ''}</div>
+          ${b.yoy != null ? `<span class="tyoy ${yoyCls(b.yoy)}">${yoyTxt(b.yoy)}</span>` : ''}</div>
       </div>
       <div class="brev">
         <div class="rv">${fmtKRW(b.revenueKRW)}</div>
