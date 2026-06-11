@@ -199,7 +199,7 @@
 
     <div class="card">
       <h2>📈 5년 매출 시계열 비교 <span class="ytoggle" style="margin-left:10px"><button id="logBtn">log 스케일</button></span></h2>
-      <div class="desc">좌측 리스트에서 브랜드를 클릭해 비교하세요 (최대 8개). 점선 구간은 데이터 없는 해를 건너뛴 보간입니다.</div>
+      <div class="desc">좌측 리스트에서 브랜드를 클릭해 비교하세요 — 최대 20개, 초과하면 가장 먼저 선택한 항목부터 자동 해제됩니다. 13개 이상부터는 선 끝 라벨 대신 상단 칩과 호버 툴팁으로 구분하세요.</div>
       <div class="selchips" id="selchips"></div>
       <div id="cmp"></div>
     </div>
@@ -213,7 +213,7 @@
 <script>
 const D = window.INDIE_DATA;
 const YEARS = [2021, 2022, 2023, 2024, 2025];
-const PALETTE = ['#5eead4','#ff5c8a','#fbbf24','#818cf8','#4ade80','#f87171','#38bdf8','#e879f9'];
+const PALETTE = ['#5eead4','#ff5c8a','#fbbf24','#818cf8','#4ade80','#f87171','#38bdf8','#e879f9','#fb923c','#a3e635','#22d3ee','#f472b6','#c084fc','#facc15','#34d399','#fca5a5','#60a5fa','#fda4af','#86efac','#fcd34d'];
 const fmtKRW = v => v == null ? '—' : v >= 10000 ? `${(v/10000).toFixed(2)}조` : `${Math.round(v).toLocaleString()}억`;
 
 document.getElementById('metaLine').textContent =
@@ -374,7 +374,7 @@ let logScale = false;
 function renderChart() {
   const sel = state.sel.map(n => D.series.find(c => c.company === n)).filter(Boolean);
   document.getElementById('selchips').innerHTML = sel.map((c, i) =>
-    `<span class="sc" data-c="${c.company}"><i style="background:${PALETTE[i % 8]}"></i>${c.company} ✕</span>`).join('') +
+    `<span class="sc" data-c="${c.company}"><i style="background:${PALETTE[i % PALETTE.length]}"></i>${c.company} ✕</span>`).join('') +
     (sel.length ? '' : '<span class="hint">좌측에서 브랜드를 클릭해 비교를 시작하세요</span>');
   cmp.setOption({
     backgroundColor: 'transparent',
@@ -401,10 +401,10 @@ function renderChart() {
     series: sel.map((c, i) => ({
       name: c.company, type: 'line', smooth: false, connectNulls: true,
       data: YEARS.map(y => c.revenues[y]),
-      lineStyle: { width: 2.6, color: PALETTE[i % 8] },
-      itemStyle: { color: PALETTE[i % 8] },
+      lineStyle: { width: 2.6, color: PALETTE[i % PALETTE.length] },
+      itemStyle: { color: PALETTE[i % PALETTE.length] },
       symbolSize: 7,
-      endLabel: { show: true, formatter: p => `${c.company} ${fmtKRW(p.value)}`, color: PALETTE[i % 8], fontSize: 11, fontWeight: 700, distance: 8 },
+      endLabel: { show: sel.length <= 12, formatter: p => `${c.company} ${fmtKRW(p.value)}`, color: PALETTE[i % PALETTE.length], fontSize: 11, fontWeight: 700, distance: 8 },
       labelLayout: { moveOverlap: 'shiftY' },
     }))
   }, { notMerge: true });
@@ -421,7 +421,7 @@ document.getElementById('ilist').addEventListener('click', e => {
   const row = e.target.closest('.irow'); if (!row) return;
   const name = row.dataset.c;
   if (state.sel.includes(name)) state.sel = state.sel.filter(x => x !== name);
-  else if (state.sel.length < 8) state.sel.push(name);
+  else { state.sel.push(name); while (state.sel.length > 20) state.sel.shift(); }
   renderList(); renderChart(); syncURL();
 });
 document.getElementById('selchips').addEventListener('click', e => {
@@ -449,7 +449,7 @@ document.getElementById('logBtn').addEventListener('click', e => {
     document.querySelectorAll('#iSort button').forEach(x => x.classList.toggle('on', x.dataset.s === state.sort));
   }
   const sel = (sp.get('sel') ?? '').split('|').filter(n => D.series.some(c => c.company === n));
-  state.sel = sel.length ? sel.slice(0, 8) : (D.defaultSelection ?? []).filter(n => D.series.some(c => c.company === n));
+  state.sel = sel.length ? sel.slice(0, 20) : (D.defaultSelection ?? []).filter(n => D.series.some(c => c.company === n));
   renderList(); renderChart();
 })();
 
