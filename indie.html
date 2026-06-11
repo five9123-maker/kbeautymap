@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>인디 브랜드 워치 — K-Beauty 글로벌 대시보드</title>
+<meta name="description" content="약진하는 K-뷰티 인디 브랜드 TOP 100의 5년 매출 시계열 비교">
+<meta property="og:title" content="K-Beauty 인디 브랜드 워치">
+<meta property="og:description" content="인디 브랜드 TOP 100 · 2021~2025 매출 시계열 인터랙티브 비교">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌱</text></svg>">
+<style>
+  :root {
+    --bg: #0e1117;
+    --panel: #161b24;
+    --panel2: #1c2330;
+    --border: #2a3344;
+    --text: #e8ecf3;
+    --muted: #8b95a7;
+    --accent: #ff5c8a;
+    --mint: #5eead4;
+    --green: #4ade80;
+    --red: #f87171;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", -apple-system, sans-serif;
+    line-height: 1.5;
+  }
+  .wrap { max-width: 1440px; margin: 0 auto; padding: 24px; }
+  header { display: flex; flex-wrap: wrap; align-items: baseline; gap: 12px; margin-bottom: 16px; }
+  header h1 { font-size: 26px; font-weight: 800; letter-spacing: -0.5px; }
+  header h1 .k { color: var(--mint); }
+  header .sub { color: var(--muted); font-size: 13px; }
+  .back {
+    padding: 6px 14px; border-radius: 99px; font-size: 12px; font-weight: 700;
+    color: var(--muted); text-decoration: none; border: 1px solid var(--border); background: var(--panel);
+    margin-left: auto; transition: all .15s;
+  }
+  .back:hover { color: #fff; border-color: var(--accent); }
+  .up { color: var(--green); } .down { color: var(--red); }
+
+  .card {
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: 14px; padding: 18px; margin-bottom: 14px;
+  }
+  .card h2 { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+  .card .desc { font-size: 12px; color: var(--muted); margin-bottom: 10px; }
+  .grid { display: grid; gap: 14px; grid-template-columns: 480px 1fr; align-items: start; }
+  @media (max-width: 1100px) { .grid { grid-template-columns: 1fr; } }
+
+  .dtip {
+    position: fixed; z-index: 200; max-width: 330px; padding: 10px 13px;
+    background: #20283a; border: 1px solid #3a4663; border-radius: 10px;
+    font-size: 11.5px; line-height: 1.6; color: var(--text);
+    box-shadow: 0 10px 28px rgba(0,0,0,.55); pointer-events: none;
+    opacity: 0; transition: opacity .12s;
+  }
+  .dtip.show { opacity: 1; }
+  .dtip b { color: var(--mint); }
+
+  .bar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+  .bar input {
+    flex: 1 1 160px; padding: 8px 13px; border-radius: 10px;
+    border: 1px solid var(--border); background: var(--panel2); color: var(--text);
+    font-size: 13px; outline: none;
+  }
+  .bar input:focus { border-color: var(--mint); }
+  .ytoggle { display: inline-flex; gap: 4px; }
+  .ytoggle button {
+    padding: 5px 12px; border-radius: 99px; border: 1px solid var(--border);
+    background: var(--panel2); color: var(--muted); font-size: 11.5px; font-weight: 700; cursor: pointer;
+  }
+  .ytoggle button.on { background: var(--mint); border-color: var(--mint); color: #0e1117; }
+
+  .ilist { display: flex; flex-direction: column; gap: 6px; max-height: 1020px; overflow-y: auto; padding-right: 4px; }
+  .irow {
+    display: grid; grid-template-columns: 30px minmax(0,1fr) 78px 92px 64px; gap: 9px; align-items: center;
+    background: var(--panel2); border: 1px solid var(--border); border-radius: 11px;
+    padding: 8px 12px; cursor: pointer; transition: transform .12s, border-color .12s;
+    animation: rowIn .3s both;
+  }
+  @keyframes rowIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  .irow:hover { transform: translateX(3px); border-color: var(--mint); }
+  .irow.sel { border-color: var(--mint); background: rgba(94,234,212,.07); }
+  .irow .rk { font-size: 13px; font-weight: 900; font-style: italic; color: var(--muted); text-align: center; }
+  .irow.sel .rk { color: var(--mint); }
+  .irow .co .c { font-size: 12.5px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .irow .co .b { font-size: 10.5px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .irow .rv { font-size: 12px; font-weight: 800; text-align: right; }
+  .irow .rv small { display: block; font-weight: 400; font-size: 9.5px; color: var(--muted); }
+  .irow svg { display: block; }
+  .cagr { font-size: 10.5px; font-weight: 800; text-align: right; }
+  .pill {
+    display: inline-block; padding: 0 7px; border-radius: 6px; border: 1px solid;
+    font-size: 9.5px; font-weight: 700;
+  }
+
+  #cmp { width: 100%; height: 560px; }
+  .selchips { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 4px; }
+  .selchips .sc {
+    display: inline-flex; align-items: center; gap: 6px; padding: 4px 11px; border-radius: 99px;
+    font-size: 12px; font-weight: 700; border: 1px solid var(--border); background: var(--panel2); cursor: pointer;
+  }
+  .selchips .sc i { width: 9px; height: 9px; border-radius: 99px; display: inline-block; font-style: normal; }
+  .selchips .sc:hover { border-color: var(--red); }
+  .selchips .hint { font-size: 11px; color: var(--muted); align-self: center; }
+
+  .statgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; margin-bottom: 14px; }
+  .stat {
+    background: var(--panel2); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px;
+  }
+  .stat .l { font-size: 11px; color: var(--muted); }
+  .stat .v { font-size: 17px; font-weight: 800; margin-top: 2px; }
+  .stat .s { font-size: 10.5px; color: var(--muted); }
+
+  footer { color: var(--muted); font-size: 11px; margin-top: 20px; line-height: 1.8; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>🌱 <span class="k">인디 브랜드</span> 워치</h1>
+    <span class="sub" id="metaLine"></span>
+    <a class="back" href="index.html">← 메인 대시보드</a>
+  </header>
+
+  <div class="statgrid" id="stats"></div>
+
+  <div class="grid">
+    <div class="card">
+      <h2>📋 인디 브랜드 TOP 100</h2>
+      <div class="desc">최근 매출 기준. 행을 클릭하면 우측 차트에 추가/제거됩니다. 미니 그래프는 2021~2025 매출 추이.</div>
+      <div class="bar">
+        <input type="search" id="iSearch" placeholder="🔍 기업·브랜드 검색">
+        <span class="ytoggle" id="iSort">
+          <button class="on" data-s="rev">최신 매출</button>
+          <button data-s="grow">5년 성장배수</button>
+          <button data-s="cagr">CAGR</button>
+          <button data-s="drop">하락폭</button>
+        </span>
+      </div>
+      <div class="ilist" id="ilist"></div>
+    </div>
+
+    <div class="card">
+      <h2>📈 5년 매출 시계열 비교 <span class="ytoggle" style="margin-left:10px"><button id="logBtn">log 스케일</button></span></h2>
+      <div class="desc">좌측 리스트에서 브랜드를 클릭해 비교하세요 (최대 8개). 점선 구간은 데이터 없는 해를 건너뛴 보간입니다.</div>
+      <div class="selchips" id="selchips"></div>
+      <div id="cmp"></div>
+    </div>
+  </div>
+
+  <footer id="src"></footer>
+</div>
+
+<script src="assets/echarts.min.js?v=14"></script>
+<script src="data/indie.js?v=14"></script>
+<script>
+const D = window.INDIE_DATA;
+const YEARS = [2021, 2022, 2023, 2024, 2025];
+const PALETTE = ['#5eead4','#ff5c8a','#fbbf24','#818cf8','#4ade80','#f87171','#38bdf8','#e879f9'];
+const fmtKRW = v => v == null ? '—' : v >= 10000 ? `${(v/10000).toFixed(2)}조` : `${Math.round(v).toLocaleString()}억`;
+
+document.getElementById('metaLine').textContent =
+  `매출 단위: 억원 (감사보고서·공시·실적 보도 기준) · 작성일 ${D.meta.updated}`;
+
+/* ---------- 파생 지표 ---------- */
+for (const c of D.series) {
+  const ys = YEARS.filter(y => c.revenues[y] != null);
+  c.latestYear = ys[ys.length - 1] ?? null;
+  c.latest = c.latestYear ? c.revenues[c.latestYear] : null;
+  c.firstYear = ys[0] ?? null;
+  c.first = c.firstYear ? c.revenues[c.firstYear] : null;
+  c.span = ys.length;
+  c.growth = (c.first > 0 && c.latest != null && c.firstYear !== c.latestYear) ? c.latest / c.first : null;
+  c.cagr = c.growth ? (Math.pow(c.growth, 1 / (c.latestYear - c.firstYear)) - 1) * 100 : null;
+}
+const ranked = [...D.series].sort((a, b) => (b.latest ?? -1) - (a.latest ?? -1));
+ranked.forEach((c, i) => c.rank = i + 1);
+
+/* ---------- 요약 통계 ---------- */
+const withSeries = D.series.filter(c => c.span >= 2);
+const topGrow = [...withSeries].filter(c => c.cagr != null && c.latest >= 100).sort((a, b) => b.cagr - a.cagr)[0];
+const topDrop = [...withSeries].filter(c => c.cagr != null && c.first >= 500).sort((a, b) => a.cagr - b.cagr)[0];
+document.getElementById('stats').innerHTML = `
+  <div class="stat" data-tip="최신 연도 매출 확인 기업 수 / 2개 연도 이상 시계열 보유 기업 수<br>출처: 감사보고서·공시·실적 분석 보도 종합">
+    <div class="l">수록 기업</div><div class="v">${D.series.length}개사</div>
+    <div class="s">시계열 2년+ ${withSeries.length}개사</div></div>
+  <div class="stat" data-tip="CAGR = (최신연도 매출 ÷ 최초연도 매출)^(1/연수) − 1<br>최신 매출 100억 이상 기업 중 최고">
+    <div class="l">최고 성장 (CAGR)</div><div class="v up">${topGrow ? topGrow.company : '—'}</div>
+    <div class="s">${topGrow ? `연평균 +${topGrow.cagr.toFixed(0)}% (${topGrow.firstYear}→${topGrow.latestYear})` : ''}</div></div>
+  <div class="stat" data-tip="최초연도 매출 500억 이상 기업 중 CAGR 최저 — 하락 사이클 추적용">
+    <div class="l">최대 하락</div><div class="v down">${topDrop ? topDrop.company : '—'}</div>
+    <div class="s">${topDrop ? `연평균 ${topDrop.cagr.toFixed(0)}% (${topDrop.firstYear}→${topDrop.latestYear})` : ''}</div></div>
+  <div class="stat" data-tip="최신 매출 1,000억 이상 인디 기업 수 — '인디 메가브랜드' 규모 지표">
+    <div class="l">매출 1,000억+ </div><div class="v">${D.series.filter(c => c.latest >= 1000).length}개사</div>
+    <div class="s">5,000억+ ${D.series.filter(c => c.latest >= 5000).length}개사</div></div>`;
+
+/* ---------- 출처·산출근거 툴팁 ---------- */
+const dtip = document.createElement('div');
+dtip.className = 'dtip';
+document.body.appendChild(dtip);
+let dtipOwner = null;
+document.addEventListener('mouseover', e => {
+  const t = e.target.closest('[data-tip]');
+  if (t === dtipOwner) return;
+  dtipOwner = t;
+  if (!t) { dtip.classList.remove('show'); return; }
+  dtip.innerHTML = t.dataset.tip;
+  dtip.style.left = '0px'; dtip.style.top = '0px';
+  dtip.classList.add('show');
+  const r = t.getBoundingClientRect(), tw = dtip.offsetWidth, th = dtip.offsetHeight;
+  const x = Math.min(Math.max(8, r.left), innerWidth - tw - 8);
+  let y = r.bottom + 8;
+  if (y + th > innerHeight - 8) y = Math.max(8, r.top - th - 8);
+  dtip.style.left = x + 'px'; dtip.style.top = y + 'px';
+});
+document.addEventListener('scroll', () => { dtipOwner = null; dtip.classList.remove('show'); }, true);
+
+/* ---------- 스파크라인 (SVG) ---------- */
+function spark(c, w = 88, h = 26) {
+  const vals = YEARS.map(y => c.revenues[y]);
+  const known = vals.filter(v => v != null);
+  if (known.length < 2) return `<svg width="${w}" height="${h}"><text x="4" y="17" font-size="9" fill="#5b6678">데이터 부족</text></svg>`;
+  const max = Math.max(...known), min = Math.min(...known);
+  const xs = i => 4 + i * (w - 8) / (YEARS.length - 1);
+  const ys = v => max === min ? h / 2 : h - 4 - (v - min) / (max - min) * (h - 8);
+  const pts = vals.map((v, i) => v == null ? null : [xs(i), ys(v)]);
+  const seg = pts.filter(Boolean).map(p => p.join(',')).join(' ');
+  const up = c.latest >= (c.first ?? c.latest);
+  const color = up ? '#5eead4' : '#f87171';
+  return `<svg width="${w}" height="${h}">
+    <polyline points="${seg}" fill="none" stroke="${color}" stroke-width="1.6"/>
+    ${pts.map(p => p ? `<circle cx="${p[0]}" cy="${p[1]}" r="1.6" fill="${color}"/>` : '').join('')}
+  </svg>`;
+}
+
+/* ---------- 리스트 ---------- */
+const state = { q: '', sort: 'rev', sel: [] };
+function filtered() {
+  const q = state.q.trim().toLowerCase();
+  let list = ranked.filter(c => !q ||
+    [c.company, ...(c.brands ?? [])].join(' ').toLowerCase().includes(q));
+  const sorters = {
+    rev: (a, b) => (b.latest ?? -1) - (a.latest ?? -1),
+    grow: (a, b) => (b.growth ?? -1) - (a.growth ?? -1),
+    cagr: (a, b) => (b.cagr ?? -1e9) - (a.cagr ?? -1e9),
+    drop: (a, b) => (a.cagr ?? 1e9) - (b.cagr ?? 1e9),
+  };
+  return list.sort(sorters[state.sort]);
+}
+function renderList() {
+  const items = filtered();
+  document.getElementById('ilist').innerHTML = items.map((c, i) => {
+    const tip = `<b>${c.company}</b> · ${(c.brands ?? []).join(', ')}` +
+      (c.foreign ? `<br>🌍 외국인 창업·해외 법인 (${c.hq ?? '-'}${c.founders ? ` · ${c.founders}` : ''}) — 매출은 보도 기준 환산치(연평균 환율)` : '') +
+      `<br>${YEARS.map(y => `${y}: ${fmtKRW(c.revenues[y])}`).join(' · ')}` +
+      (c.cagr != null ? `<br>CAGR ${c.cagr > 0 ? '+' : ''}${c.cagr.toFixed(1)}% = (${fmtKRW(c.latest)} ÷ ${fmtKRW(c.first)})^(1/${c.latestYear - c.firstYear}) − 1` : '<br>시계열 부족으로 CAGR 미산출') +
+      `<br>출처: ${c.source ?? '감사보고서·실적 보도'}` + (c.note ? `<br>${c.note}` : '');
+    return `
+    <div class="irow ${state.sel.includes(c.company) ? 'sel' : ''}" data-c="${c.company}" data-tip="${tip.replace(/"/g, '&quot;')}" style="animation-delay:${Math.min(i * 12, 380)}ms">
+      <div class="rk">${c.rank}</div>
+      <div class="co"><div class="c">${c.company}${c.foreign ? ' <span class="pill" style="color:#93c5fd;border-color:rgba(147,197,253,.4)">🌍</span>' : ''}</div><div class="b">${(c.brands ?? []).join(' · ')}${c.hq ? ` · ${c.hq}` : ''}</div></div>
+      <div class="rv">${fmtKRW(c.latest)}<small>FY${c.latestYear ?? '—'}</small></div>
+      <div>${spark(c)}</div>
+      <div class="cagr ${c.cagr > 0 ? 'up' : c.cagr < 0 ? 'down' : ''}">${c.cagr != null ? (c.cagr > 0 ? '+' : '') + c.cagr.toFixed(0) + '%' : '—'}<br><span style="color:#5b6678;font-weight:400;font-size:9px">CAGR</span></div>
+    </div>`;
+  }).join('');
+}
+
+/* ---------- 비교 차트 ---------- */
+const cmp = echarts.init(document.getElementById('cmp'));
+let logScale = false;
+function renderChart() {
+  const sel = state.sel.map(n => D.series.find(c => c.company === n)).filter(Boolean);
+  document.getElementById('selchips').innerHTML = sel.map((c, i) =>
+    `<span class="sc" data-c="${c.company}"><i style="background:${PALETTE[i % 8]}"></i>${c.company} ✕</span>`).join('') +
+    (sel.length ? '' : '<span class="hint">좌측에서 브랜드를 클릭해 비교를 시작하세요</span>');
+  cmp.setOption({
+    backgroundColor: 'transparent',
+    grid: { left: 14, right: 110, top: 24, bottom: 10, containLabel: true },
+    tooltip: {
+      trigger: 'axis', backgroundColor: '#1c2330', borderColor: '#2a3344', textStyle: { color: '#e8ecf3' },
+      formatter: ps => `<b>${ps[0]?.name}년</b><br/>` + ps
+        .filter(p => p.value != null)
+        .sort((a, b) => b.value - a.value)
+        .map(p => {
+          const c = D.series.find(x => x.company === p.seriesName);
+          const prev = c?.revenues[+p.name - 1];
+          const yoy = prev ? ` <span style="color:${p.value >= prev ? '#4ade80' : '#f87171'}">(${p.value >= prev ? '+' : ''}${((p.value / prev - 1) * 100).toFixed(0)}%)</span>` : '';
+          return `${p.marker} ${p.seriesName}: <b>${fmtKRW(p.value)}</b>${yoy}`;
+        }).join('<br/>') +
+        `<br/><span style="color:#8b95a7;font-size:10px">출처: 각사 감사보고서·공시·실적 보도 (연결 기준 우선)</span>`
+    },
+    xAxis: { type: 'category', data: YEARS, axisLabel: { color: '#8b95a7' } },
+    yAxis: {
+      type: logScale ? 'log' : 'value', logBase: 10, min: logScale ? 10 : undefined,
+      axisLabel: { color: '#8b95a7', formatter: v => fmtKRW(v) },
+      splitLine: { lineStyle: { color: '#222a38' } }
+    },
+    series: sel.map((c, i) => ({
+      name: c.company, type: 'line', smooth: false, connectNulls: true,
+      data: YEARS.map(y => c.revenues[y]),
+      lineStyle: { width: 2.6, color: PALETTE[i % 8] },
+      itemStyle: { color: PALETTE[i % 8] },
+      symbolSize: 7,
+      endLabel: { show: true, formatter: p => `${c.company} ${fmtKRW(p.value)}`, color: PALETTE[i % 8], fontSize: 11, fontWeight: 700, distance: 8 },
+      labelLayout: { moveOverlap: 'shiftY' },
+    }))
+  }, { notMerge: true });
+}
+
+/* ---------- 인터랙션 ---------- */
+function syncURL() {
+  const sp = new URLSearchParams();
+  if (state.sel.length) sp.set('sel', state.sel.join('|'));
+  if (state.sort !== 'rev') sp.set('sort', state.sort);
+  history.replaceState(null, '', sp.toString() ? '?' + sp.toString() : location.pathname);
+}
+document.getElementById('ilist').addEventListener('click', e => {
+  const row = e.target.closest('.irow'); if (!row) return;
+  const name = row.dataset.c;
+  if (state.sel.includes(name)) state.sel = state.sel.filter(x => x !== name);
+  else if (state.sel.length < 8) state.sel.push(name);
+  renderList(); renderChart(); syncURL();
+});
+document.getElementById('selchips').addEventListener('click', e => {
+  const sc = e.target.closest('.sc'); if (!sc) return;
+  state.sel = state.sel.filter(x => x !== sc.dataset.c);
+  renderList(); renderChart(); syncURL();
+});
+document.getElementById('iSearch').addEventListener('input', e => { state.q = e.target.value; renderList(); });
+document.getElementById('iSort').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  document.querySelectorAll('#iSort button').forEach(x => x.classList.toggle('on', x === b));
+  state.sort = b.dataset.s; renderList(); syncURL();
+});
+document.getElementById('logBtn').addEventListener('click', e => {
+  logScale = !logScale;
+  e.target.classList.toggle('on', logScale);
+  renderChart();
+});
+
+/* ---------- 초기화 ---------- */
+(function init() {
+  const sp = new URLSearchParams(location.search);
+  if (['grow', 'cagr', 'drop'].includes(sp.get('sort'))) {
+    state.sort = sp.get('sort');
+    document.querySelectorAll('#iSort button').forEach(x => x.classList.toggle('on', x.dataset.s === state.sort));
+  }
+  const sel = (sp.get('sel') ?? '').split('|').filter(n => D.series.some(c => c.company === n));
+  state.sel = sel.length ? sel.slice(0, 8) : (D.defaultSelection ?? []).filter(n => D.series.some(c => c.company === n));
+  renderList(); renderChart();
+})();
+
+document.getElementById('src').innerHTML =
+  `<b style="color:var(--text)">데이터 기준</b><br/>` + D.meta.sources.map(s => `· ${s}`).join('<br/>') +
+  `<br/>※ 매출은 연결 기준 우선, 일부 별도 기준 혼재. 빈 연도는 감사보고서 미공시 등으로 확인 불가한 해입니다.` +
+  `<br/>※ 🌍 표시는 외국인 창업·해외 법인 K-뷰티 브랜드 — 매출은 외화 보도치를 연평균 환율로 환산한 값이라 국내 감사보고서 수치와 정밀도가 다릅니다.`;
+
+window.addEventListener('resize', () => cmp.resize());
+</script>
+</body>
+</html>

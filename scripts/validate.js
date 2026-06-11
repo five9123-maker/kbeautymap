@@ -126,6 +126,38 @@ const ok = (m) => console.log('  ✓ ' + m);
   ok(`index.html: 캐시버스트 v=${vers[0]} 일관, 에셋 존재`);
 }
 
+/* ---------- 인디 브랜드 워치 (indie.html) ---------- */
+{
+  const w2 = {};
+  const g = global.window; global.window = w2;
+  require(path.join(root, 'data/indie.js'));
+  const I = w2.INDIE_DATA;
+  global.window = g;
+  if (!I?.series?.length) errs.push('INDIE_DATA 누락');
+  else {
+    if (I.series.length < 90 || I.series.length > 100) errs.push(`인디 기업 수 이상: ${I.series.length}`);
+    const names = new Set();
+    for (const c of I.series) {
+      if (!c.company || !c.revenues) { errs.push(`인디 필드 누락: ${c.company ?? '?'}`); continue; }
+      if (names.has(c.company)) errs.push(`인디 기업명 중복: ${c.company}`);
+      names.add(c.company);
+      const vals = [2021, 2022, 2023, 2024, 2025].map(y => c.revenues[y]);
+      if (!vals.some(v => v != null)) errs.push(`인디 매출 전무: ${c.company}`);
+      for (const v of vals)
+        if (v != null && (typeof v !== 'number' || v < 10 || v > 50000)) errs.push(`인디 매출 이상치: ${c.company} ${v}`);
+    }
+    for (const n of I.defaultSelection ?? [])
+      if (!names.has(n)) errs.push(`defaultSelection에 없는 기업: ${n}`);
+    const cov24 = I.series.filter(c => c.revenues[2024] != null).length;
+    if (cov24 < 60) errs.push(`인디 2024 커버리지 부족: ${cov24}`);
+    if (!I.series.some(c => c.foreign)) errs.push('외국인 창업 브랜드(foreign) 누락');
+    ok(`인디: ${I.series.length}개사 (2024 커버리지 ${cov24}, 해외 법인 ${I.series.filter(c => c.foreign).length})`);
+  }
+  const ih = fs.readFileSync(path.join(root, 'indie.html'), 'utf8');
+  const iv = [...ih.matchAll(/\?v=(\d+)/g)].map(m => +m[1]);
+  if (new Set(iv).size > 1) errs.push(`indie.html 캐시버스트 불일치: ${iv.join(',')}`);
+}
+
 if (errs.length) {
   console.error('\n❌ 검증 실패 ' + errs.length + '건:\n' + errs.map(e => '  - ' + e).join('\n'));
   process.exit(1);
