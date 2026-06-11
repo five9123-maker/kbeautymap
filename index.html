@@ -58,12 +58,6 @@
   .secnav a:hover { color: #fff; border-color: var(--accent); background: var(--panel2); }
   .secnav a.active { background: var(--accent); border-color: var(--accent); color: #fff; }
   .brow.flash { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(255,92,138,.4); }
-  .xlink {
-    margin-top: 10px; padding: 7px 14px; border-radius: 9px; border: 1px solid rgba(255,92,138,.4);
-    background: rgba(255,92,138,.1); color: var(--accent2); font-size: 12px; font-weight: 700; cursor: pointer;
-  }
-  .xlink:hover { background: rgba(255,92,138,.22); }
-  .blink { margin-left: 10px; font-size: 11px; color: var(--accent2); cursor: pointer; text-decoration: underline; }
   .dtip {
     position: fixed; z-index: 200; max-width: 330px; padding: 10px 13px;
     background: #20283a; border: 1px solid #3a4663; border-radius: 10px;
@@ -197,112 +191,24 @@
   .byoy { font-size: 11px; font-weight: 700; text-align: right; }
   @media (max-width: 700px) { .brow { grid-template-columns: 26px 38px minmax(0,1fr) 90px; } .byoy { display: none; } .blogo { width: 38px; height: 38px; } }
 
-  /* ---------- 제품 랭킹 익스플로러 (화해 스타일) ---------- */
-  .explorer-bar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 14px 0 10px; }
-  .explorer-bar input {
-    flex: 1 1 220px; min-width: 180px; padding: 9px 14px; border-radius: 10px;
-    border: 1px solid var(--border); background: var(--panel2); color: var(--text);
-    font-size: 13px; outline: none; transition: border-color .15s;
-  }
-  .explorer-bar input:focus { border-color: var(--accent); }
-  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
-  .chips button {
-    padding: 6px 13px; border-radius: 99px; border: 1px solid var(--border);
-    background: var(--panel2); color: var(--muted); font-size: 12px; font-weight: 600; cursor: pointer;
-    transition: all .15s;
-  }
-  .chips button:hover { border-color: var(--accent2); color: var(--text); }
-  .chips button.on { background: var(--accent); border-color: var(--accent); color: #fff; }
-  .sortgrp { display: flex; gap: 4px; margin-left: auto; }
-
-  .plist { display: flex; flex-direction: column; gap: 8px; margin-top: 6px; }
-  .prow {
-    display: grid; grid-template-columns: 52px 54px 1fr auto; gap: 12px; align-items: center;
-    background: var(--panel2); border: 1px solid var(--border); border-radius: 14px;
-    padding: 12px 16px; cursor: pointer; position: relative; overflow: hidden;
-    transition: transform .15s, border-color .15s;
-    animation: rowIn .35s both;
-  }
+  /* ---------- 플랫폼 실측 랭킹 ---------- */
   @keyframes rowIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
-  .prow:hover { transform: translateY(-2px); border-color: var(--accent); }
-  .prow::before {
-    content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
-    background: var(--accent); opacity: 0; transition: opacity .15s;
-  }
-  .prow:hover::before { opacity: 1; }
-  .prank {
-    font-size: 22px; font-weight: 900; font-style: italic; text-align: center; color: var(--muted);
-    letter-spacing: -1px;
-  }
-  .prank.r1 { background: linear-gradient(135deg,#ffd700,#ff9a3c); -webkit-background-clip: text; background-clip: text; color: transparent; font-size: 26px; }
-  .prank.r2 { background: linear-gradient(135deg,#e8ecf3,#9aa7bd); -webkit-background-clip: text; background-clip: text; color: transparent; font-size: 24px; }
-  .prank.r3 { background: linear-gradient(135deg,#ffb38a,#c97b4a); -webkit-background-clip: text; background-clip: text; color: transparent; font-size: 24px; }
-  .pthumb {
-    width: 54px; height: 54px; border-radius: 12px; display: flex; align-items: center; justify-content: center;
-    font-size: 26px; background: linear-gradient(135deg, var(--panel) 0%, #2a2330 100%);
-    border: 1px solid var(--border);
-  }
-  .pinfo { min-width: 0; }
-  .pinfo .pb { font-size: 11px; color: var(--accent); font-weight: 700; letter-spacing: .4px; }
-  .pinfo .pn { font-size: 14px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .pinfo .pm { font-size: 11px; color: var(--muted); margin-top: 2px; display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: center; }
-  .stars { position: relative; display: inline-block; font-size: 12px; color: #3a4356; line-height: 1; }
-  .stars .fill { position: absolute; left: 0; top: 0; overflow: hidden; color: #ffd166; white-space: nowrap; }
-  .badge {
-    display: inline-block; padding: 1px 7px; border-radius: 6px; font-size: 10px; font-weight: 700;
-    background: rgba(255,92,138,.14); color: var(--accent2); border: 1px solid rgba(255,92,138,.3);
-  }
-  .pside { text-align: right; }
-  .pside .pp { font-size: 14px; font-weight: 800; }
-  .pside .pu { font-size: 11px; color: var(--muted); }
   .pcount { font-size: 12px; color: var(--muted); margin: 6px 2px; }
-
-  /* 상세 모달 */
-  .modalwrap {
-    position: fixed; inset: 0; background: rgba(8,10,15,.72); backdrop-filter: blur(4px);
-    display: none; align-items: flex-end; justify-content: center; z-index: 100; padding: 0 12px;
+  .row-plat { grid-template-columns: 1fr 1fr; align-items: start; }
+  @media (max-width: 1000px) { .row-plat { grid-template-columns: 1fr; } }
+  .plat-oy { border-top: 3px solid #7bc96f; }
+  .plat-qoo { border-top: 3px solid #ff6b6b; }
+  .plat-oy .toplist .rank { color: #9fdd8e; }
+  .plat-qoo .toplist .rank { color: #ff9b9b; }
+  .plat-oy .chip { border-color: rgba(123,201,111,.45); color: #9fdd8e; }
+  .plat-qoo .chip { border-color: rgba(255,107,107,.45); color: #ff9b9b; }
+  .qcat {
+    display: inline-block; margin: 10px 2px 4px; padding: 3px 12px; border-radius: 99px;
+    font-size: 11px; font-weight: 800; letter-spacing: .3px;
+    background: rgba(255,107,107,.12); color: #ff9b9b; border: 1px solid rgba(255,107,107,.35);
   }
-  .modalwrap.show { display: flex; }
-  .modal {
-    width: 100%; max-width: 680px; max-height: 86vh; overflow-y: auto;
-    background: var(--panel); border: 1px solid var(--border); border-bottom: none;
-    border-radius: 20px 20px 0 0; padding: 26px 28px 34px;
-    animation: slideUp .28s cubic-bezier(.2,.9,.3,1) both;
-  }
-  @keyframes slideUp { from { transform: translateY(40px); opacity: 0; } to { transform: none; opacity: 1; } }
-  .modal .mclose {
-    float: right; background: var(--panel2); border: 1px solid var(--border); color: var(--muted);
-    width: 30px; height: 30px; border-radius: 99px; cursor: pointer; font-size: 14px;
-  }
-  .modal .mbrand { font-size: 12px; color: var(--accent); font-weight: 700; letter-spacing: .5px; }
-  .modal h3 { font-size: 20px; font-weight: 800; margin: 2px 0 4px; letter-spacing: -.3px; }
-  .modal .msub { font-size: 12px; color: var(--muted); margin-bottom: 14px; }
-  .modal .msec { margin: 14px 0; }
-  .modal .msec h4 { font-size: 12px; color: var(--muted); font-weight: 700; margin-bottom: 7px; letter-spacing: .3px; }
-  .tagrow { display: flex; flex-wrap: wrap; gap: 6px; }
-  .tag {
-    padding: 4px 11px; border-radius: 8px; font-size: 12px; font-weight: 600;
-    background: var(--panel2); border: 1px solid var(--border); color: var(--text);
-  }
-  .tag.green { color: #86efac; border-color: rgba(74,222,128,.3); background: rgba(74,222,128,.08); }
-  .salesbox {
-    background: linear-gradient(135deg, rgba(255,92,138,.12), rgba(255,92,138,.04));
-    border: 1px solid rgba(255,92,138,.3); border-radius: 12px; padding: 12px 16px;
-    font-size: 14px; font-weight: 700; color: var(--accent2);
-  }
-  .salesbox small { display: block; font-weight: 400; font-size: 11px; color: var(--muted); margin-top: 3px; }
-  .ratebar { display: grid; grid-template-columns: 86px 1fr 60px; gap: 10px; align-items: center; margin: 6px 0; font-size: 12px; }
-  .ratebar .track { height: 8px; border-radius: 99px; background: var(--panel2); overflow: hidden; }
-  .ratebar .fillb { height: 100%; border-radius: 99px; background: linear-gradient(90deg, #c44569, var(--accent)); }
-  .ratebar .v { text-align: right; font-weight: 700; }
-  .msrc { font-size: 11px; color: var(--muted); }
-  .msrc a { color: var(--accent2); }
 
   @media (max-width: 700px) {
-    .prow { grid-template-columns: 36px 44px 1fr; }
-    .pside { display: none; }
-    .pthumb { width: 44px; height: 44px; font-size: 22px; }
-    .sortgrp { margin-left: 0; }
   }
 
   @media (max-width: 700px) {
@@ -325,7 +231,7 @@
     <a href="#sec-growth">① 성장</a>
     <a href="#sec-map">② 수출 지도</a>
     <a href="#sec-brands">③ 브랜드</a>
-    <a href="#sec-products">④ 제품</a>
+    <a href="#sec-products">④ 플랫폼 랭킹</a>
     <a href="#sec-insights">⑤ 인사이트</a>
   </nav>
 
@@ -376,35 +282,19 @@
     <div class="brandDetail" id="brandDetail"></div>
   </div>
 
-  <div class="card" id="sec-products">
-    <div class="eyebrow">04 · 무엇이 팔리는가</div>
-    <h2>🏆 플랫폼 실측 랭킹</h2>
-    <div class="desc">에디터 추정이 아닌, 플랫폼이 직접 집계·공표하는 판매 기반 랭킹입니다. 항목에 호버하면 집계 기준이 표시됩니다.</div>
-    <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(380px,1fr));gap:14px;margin-bottom:22px">
-      <div>
-        <h2 style="font-size:13.5px" data-tip="올리브영 글로벌몰 공식 베스트셀러 — '일일 판매 데이터 기반' 실측 랭킹.<br>스냅샷 시점 기준 · 기획세트(증정 포함) 단위 집계 · 평점/리뷰는 글로벌몰 자체 수치">🌿 올리브영 글로벌 베스트셀러 <span class="chip" id="oyDate"></span></h2>
-        <div class="toplist" style="max-height:430px" id="oyList"></div>
-      </div>
-      <div>
-        <h2 style="font-size:13.5px" data-tip="eBay Japan(Qoo10 운영사)이 PR Times에 공식 발표하는 월간 랭킹 — 실제 판매개수(販売個数) 기준 집계">🇯🇵 Qoo10 재팬 월간 공식 랭킹 <span class="chip" id="qooDate"></span></h2>
-        <div class="toplist" style="max-height:430px" id="qooList"></div>
-      </div>
+  <div class="grid row-plat" id="sec-products">
+    <div class="card plat-oy">
+      <div class="eyebrow" style="color:#7bc96f">04 · 무엇이 팔리는가 — 글로벌몰</div>
+      <h2 data-tip="올리브영 글로벌몰 공식 베스트셀러 — '일일 판매 데이터 기반' 실측 랭킹.<br>스냅샷 시점 기준 · 기획세트(증정 포함) 단위 집계 · 평점/리뷰는 글로벌몰 자체 수치">🌿 올리브영 글로벌 베스트셀러 TOP 20 <span class="chip" id="oyDate"></span></h2>
+      <div class="desc">전 세계 역직구 고객 대상 일일 판매 데이터 기반. 가격·평점·리뷰는 글로벌몰 실측치.</div>
+      <div class="toplist" style="max-height:560px" id="oyList"></div>
     </div>
-
-    <h2>🧪 제품 도감 30</h2>
-    <div class="desc">주요 제품의 성분·효능·가격·평점 데이터베이스. 정렬은 Amazon 리뷰 수 등 공개 지표만 사용하며, 제품을 클릭하면 상세가 열립니다.</div>
-    <div class="explorer-bar">
-      <input type="search" id="pSearch" placeholder="🔍 제품·브랜드·성분 검색">
-      <span class="sortgrp ytoggle" id="pSort">
-        <button class="on" data-s="reviews">Amazon 리뷰순</button>
-        <button data-s="rating">평점순</button>
-        <button data-s="priceAsc">낮은 가격</button>
-        <button data-s="priceDesc">높은 가격</button>
-      </span>
+    <div class="card plat-qoo">
+      <div class="eyebrow" style="color:#ff6b6b">04 · 무엇이 팔리는가 — 일본</div>
+      <h2 data-tip="eBay Japan(Qoo10 운영사)이 PR Times에 공식 발표하는 월간 랭킹 — 실제 판매개수(販売個数) 기준 집계">🇯🇵 Qoo10 재팬 월간 공식 랭킹 <span class="chip" id="qooDate"></span></h2>
+      <div class="desc">운영사가 직접 발표하는 실제 판매개수 기준 월간 랭킹. 발표 카테고리는 매월 달라집니다.</div>
+      <div class="toplist" style="max-height:560px" id="qooList"></div>
     </div>
-    <div class="chips" id="pCats"></div>
-    <div class="pcount" id="pCount"></div>
-    <div class="plist" id="plist"></div>
   </div>
 
   <div class="card" id="sec-insights">
@@ -414,16 +304,12 @@
     <div class="igrid" id="insights"></div>
   </div>
 
-  <div class="modalwrap" id="pModalWrap">
-    <div class="modal" id="pModal"></div>
-  </div>
-
   <footer id="sources"></footer>
 </div>
 
-<script src="assets/echarts.min.js?v=11"></script>
-<script src="assets/world.js?v=11"></script>
-<script src="data/data.js?v=11"></script>
+<script src="assets/echarts.min.js?v=12"></script>
+<script src="assets/world.js?v=12"></script>
+<script src="data/data.js?v=12"></script>
 <script>
 const D = window.DASHBOARD_DATA;
 const fmtUSD = v => v >= 1000 ? `$${(v/1000).toFixed(2)}B` : `$${v.toLocaleString()}M`;
@@ -643,36 +529,16 @@ document.getElementById('brandFilter').addEventListener('click', e => {
   document.getElementById('brandDetail').className = 'brandDetail';
   renderBrands(b.dataset.f);
 });
-/* 브랜드 display → 제품 검색 키워드 (회사명·괄호 안 브랜드명 기준) */
-const brandQuery = b => {
-  const paren = b.display.match(/\(([^)]+)\)/)?.[1];
-  const base = b.display.replace(/\s*\(.*\)/, '').replace(/그룹$/, '');
-  for (const q of [paren, base].filter(x => x && x !== 'ODM')) {
-    const hit = D.products.some(p => [p.brand, p.company].filter(Boolean).join(' ').includes(q));
-    if (hit) return q;
-  }
-  return null;
-};
-
 document.getElementById('brandList').addEventListener('click', e => {
   const row = e.target.closest('.brow'); if (!row) return;
   const b = D.brands.find(x => x.display === row.dataset.name); if (!b) return;
-  const q = brandQuery(b);
   const el = document.getElementById('brandDetail');
   el.className = 'brandDetail show';
   el.innerHTML = `<h3>${b.display}</h3>
     <div class="meta">${b.year}년 매출 ${fmtKRW(b.revenueKRW)}${b.opProfit ? ` · 영업이익 ${fmtKRW(b.opProfit)}` : ''}${b.note ? ` · ${b.note}` : ''}</div>
     <ul>${b.products.map(p => `<li>🧴 ${p}</li>`).join('')}</ul>
-    ${b.source ? `<div class="meta" style="margin-top:8px">📰 출처: ${b.sourceUrl ? `<a href="${b.sourceUrl}" target="_blank" style="color:#ffb3c6">${b.source}</a>` : b.source}</div>` : ''}
-    ${q ? `<button class="xlink" data-q="${q}">🧪 제품 랭킹에서 "${q}" 보기 →</button>` : ''}`;
+    ${b.source ? `<div class="meta" style="margin-top:8px">📰 출처: ${b.sourceUrl ? `<a href="${b.sourceUrl}" target="_blank" style="color:#ffb3c6">${b.source}</a>` : b.source}</div>` : ''}`;
   el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-});
-document.getElementById('brandDetail').addEventListener('click', e => {
-  const btn = e.target.closest('.xlink'); if (!btn) return;
-  pState.q = btn.dataset.q; pState.cat = '전체';
-  document.getElementById('pSearch').value = pState.q;
-  renderCats(); renderList(); syncURL();
-  document.getElementById('sec-products').scrollIntoView({ behavior: 'smooth' });
 });
 
 /* ---------- export trend ---------- */
@@ -736,7 +602,7 @@ pieChart.setOption({
   const q = PR.qoo10jp;
   document.getElementById('qooDate').textContent = `${q.month} 월간`;
   document.getElementById('qooList').innerHTML = q.categories.map(cat => `
-    <div class="pcount" style="margin:4px 2px 2px"><b style="color:var(--text)">${cat.category}</b></div>` +
+    <div><span class="qcat">${cat.category}</span></div>` +
     cat.items.map(it => `
     <div class="item" data-tip="${(`<b>${it.brand}</b> ${it.name}<br>${q.month} ${cat.category} ${it.rank}위 — ${q.basis}<br>출처: ${q.sourceName} (${q.releaseDate} 발표)`).replace(/"/g, '&quot;')}">
       <div class="rank">${it.rank}</div>
@@ -744,153 +610,6 @@ pieChart.setOption({
     </div>`).join('')).join('') +
     `<div class="pcount">출처: <a href="${q.sourceUrl}" target="_blank" style="color:#8b95a7">${q.sourceName}</a> · ${q.basis}</div>`;
 }
-
-/* ---------- 제품 랭킹 익스플로러 ---------- */
-const CAT_ICONS = {
-  '토너·패드': '💧', '에센스·세럼': '✨', '크림·로션': '🧴', '선케어': '☀️',
-  '쿠션·베이스': '🪞', '립': '💋', '마스크팩': '🎭', '디바이스': '⚡', '클렌징': '🫧',
-};
-const pState = { q: '', cat: '전체', sort: 'reviews' };
-const ratingOf = p => Math.max(p.ratingAmazon ?? 0, p.ratingOliveYoung ?? 0, p.ratingHwahae ?? 0);
-const starsHtml = r => `<span class="stars">★★★★★<span class="fill" style="width:${r/5*100}%">★★★★★</span></span>`;
-const wonFmt = v => v == null ? '가격 미공개' : `₩${v.toLocaleString()}`;
-
-function filteredProducts() {
-  const q = pState.q.trim().toLowerCase();
-  let list = D.products.filter(p => {
-    if (pState.cat !== '전체' && p.cat !== pState.cat) return false;
-    if (!q) return true;
-    return [p.name, p.nameEn, p.brand, p.company, ...(p.keyIngredients ?? []), ...(p.benefits ?? [])]
-      .filter(Boolean).join(' ').toLowerCase().includes(q);
-  });
-  const sorters = {
-    reviews: (a, b) => (b.reviewsAmazon ?? 0) - (a.reviewsAmazon ?? 0),
-    rating: (a, b) => ratingOf(b) - ratingOf(a),
-    priceAsc: (a, b) => (a.priceKRW ?? 1e12) - (b.priceKRW ?? 1e12),
-    priceDesc: (a, b) => (b.priceKRW ?? -1) - (a.priceKRW ?? -1),
-  };
-  return list.sort(sorters[pState.sort]);
-}
-
-function renderCats() {
-  const cats = ['전체', ...new Set(D.products.map(p => p.cat).filter(Boolean))];
-  document.getElementById('pCats').innerHTML = cats.map(c =>
-    `<button class="${c === pState.cat ? 'on' : ''}" data-c="${c}">${c === '전체' ? '전체' : `${CAT_ICONS[c] ?? ''} ${c}`}</button>`).join('');
-}
-
-function renderList() {
-  const items = filteredProducts();
-  document.getElementById('pCount').textContent =
-    `${items.length}개 제품${pState.cat !== '전체' ? ` · ${pState.cat}` : ''}${pState.q ? ` · "${pState.q}" 검색` : ''}`;
-  document.getElementById('plist').innerHTML = items.map((p, i) => {
-    const r = ratingOf(p);
-    const award = (p.awards ?? [])[0];
-    const tip = `<b>${p.name}</b><br>정렬 위치는 현재 선택된 공개 지표(리뷰 수·평점·가격) 기준` +
-      `<br>판매 지표: ${p.salesMetric}` +
-      (r ? `<br>평점 ${r.toFixed(1)} = Amazon/올리브영 리스팅·보도 기준 최대값 (리뷰 수는 보수적 하한)` : '') +
-      (p.priceKRW ? `<br>가격: 정가 기준 (할인가 변동 큼)` : '') +
-      `<br>출처: ${p.sourceName}`;
-    return `
-    <div class="prow" data-rank="${p.rank}" data-tip="${tip.replace(/"/g, '&quot;')}" style="animation-delay:${Math.min(i * 28, 500)}ms">
-      <div class="prank ${i < 3 ? 'r' + (i + 1) : ''}">${i + 1}</div>
-      <div class="pthumb">${CAT_ICONS[p.cat] ?? '🧴'}</div>
-      <div class="pinfo">
-        <div class="pb">${p.brand}</div>
-        <div class="pn">${p.name}</div>
-        <div class="pm">
-          ${r ? `${starsHtml(r)} <b style="color:#ffd166">${r.toFixed(1)}</b>` : '<span>평점 수집 전</span>'}
-          ${p.reviewsAmazon ? `<span>리뷰 ${p.reviewsAmazon.toLocaleString()}+</span>` : ''}
-          <span>${p.cat ?? ''}</span>
-          ${award ? `<span class="badge">🏆 ${award}</span>` : ''}
-        </div>
-      </div>
-      <div class="pside">
-        <div class="pp">${wonFmt(p.priceKRW)}</div>
-        <div class="pu">${p.priceUSD ? `$${p.priceUSD} · ` : ''}${p.volume ?? ''}</div>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-/* 제품 → 브랜드 리스트 항목 매칭 */
-const findBrandFor = p => D.brands.find(b => {
-  const base = b.display.replace(/\s*\(.*\)/, '').replace(/그룹$/, '');
-  const paren = b.display.match(/\(([^)]+)\)/)?.[1];
-  const hay = [p.brand, p.company].filter(Boolean).join(' ');
-  return hay.includes(base) || (paren && paren !== 'ODM' && hay.includes(paren));
-});
-
-function jumpToBrand(display) {
-  document.getElementById('pModalWrap').classList.remove('show');
-  let row = document.querySelector(`.brow[data-name="${display}"]`);
-  if (!row) {
-    document.querySelectorAll('#brandFilter button').forEach(x => x.classList.toggle('on', x.dataset.f === 'all'));
-    renderBrands('all');
-    row = document.querySelector(`.brow[data-name="${display}"]`);
-  }
-  if (!row) return;
-  row.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  row.classList.add('flash');
-  setTimeout(() => row.classList.remove('flash'), 2200);
-}
-
-function openModal(p) {
-  const rates = [
-    ['Amazon US', p.ratingAmazon, p.reviewsAmazon ? `리뷰 ${p.reviewsAmazon.toLocaleString()}+` : ''],
-    ['올리브영', p.ratingOliveYoung, ''],
-    ['화해', p.ratingHwahae, ''],
-  ].filter(x => x[1]);
-  const ownerBrand = findBrandFor(p);
-  document.getElementById('pModal').innerHTML = `
-    <button class="mclose" onclick="document.getElementById('pModalWrap').classList.remove('show')">✕</button>
-    <div class="mbrand">${p.brand}${p.company ? ` · ${p.company}` : ''}
-      ${ownerBrand ? `<a class="blink" data-bd="${ownerBrand.display}">💄 브랜드 순위에서 보기 →</a>` : ''}</div>
-    <h3>${CAT_ICONS[p.cat] ?? ''} ${p.name}</h3>
-    <div class="msub">${p.nameEn ?? ''}${p.nameEn ? ' · ' : ''}${p.cat ?? ''}${p.volume ? ` · ${p.volume}` : ''}${p.launchYear ? ` · ${p.launchYear}년 출시` : ''}</div>
-    <div class="msec salesbox">📈 ${p.salesMetric ?? p.metric ?? '판매 지표 미공개'}
-      ${p.note ? `<small>${p.note}</small>` : ''}</div>
-    <div class="msec"><h4>💰 가격</h4>
-      <div class="tagrow"><span class="tag">${wonFmt(p.priceKRW)}</span>
-      ${p.priceUSD ? `<span class="tag">Amazon $${p.priceUSD}</span>` : ''}</div></div>
-    ${(p.keyIngredients ?? []).length ? `<div class="msec"><h4>🧬 핵심 성분</h4>
-      <div class="tagrow">${p.keyIngredients.map(k => `<span class="tag green">${k}</span>`).join('')}</div></div>` : ''}
-    ${(p.benefits ?? []).length ? `<div class="msec"><h4>🎯 효능·피부 고민</h4>
-      <div class="tagrow">${p.benefits.map(b => `<span class="tag">${b}</span>`).join('')}</div></div>` : ''}
-    ${rates.length ? `<div class="msec"><h4>⭐ 평점 비교</h4>
-      ${rates.map(([n, v, extra]) => `<div class="ratebar"><span>${n}</span>
-        <div class="track"><div class="fillb" style="width:${v/5*100}%"></div></div>
-        <span class="v">${v.toFixed(1)} <small style="color:#8b95a7">${extra}</small></span></div>`).join('')}</div>` : ''}
-    ${(p.awards ?? []).length ? `<div class="msec"><h4>🏆 수상</h4>
-      <div class="tagrow">${p.awards.map(a => `<span class="badge" style="font-size:11px;padding:4px 10px">${a}</span>`).join('')}</div></div>` : ''}
-    <div class="msec"><h4>📍 주요 매출 지역</h4><div class="tagrow"><span class="tag">${p.region ?? p.mainMarkets ?? '-'}</span></div></div>
-    <div class="msec msrc">📰 출처: ${p.sourceUrl ? `<a href="${p.sourceUrl}" target="_blank">${p.sourceName ?? p.sourceUrl}</a>` : (p.sourceName ?? '-')}</div>`;
-  document.getElementById('pModalWrap').classList.add('show');
-}
-
-document.getElementById('plist').addEventListener('click', e => {
-  const row = e.target.closest('.prow'); if (!row) return;
-  const p = D.products.find(x => x.rank === +row.dataset.rank);
-  if (p) openModal(p);
-});
-document.getElementById('pModalWrap').addEventListener('click', e => {
-  const bl = e.target.closest('.blink');
-  if (bl) { jumpToBrand(bl.dataset.bd); return; }
-  if (e.target.id === 'pModalWrap') e.target.classList.remove('show');
-});
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') document.getElementById('pModalWrap').classList.remove('show');
-});
-document.getElementById('pSearch').addEventListener('input', e => { pState.q = e.target.value; renderList(); });
-document.getElementById('pCats').addEventListener('click', e => {
-  const b = e.target.closest('button'); if (!b) return;
-  pState.cat = b.dataset.c; renderCats(); renderList();
-});
-document.getElementById('pSort').addEventListener('click', e => {
-  const b = e.target.closest('button'); if (!b) return;
-  document.querySelectorAll('#pSort button').forEach(x => x.classList.toggle('on', x === b));
-  pState.sort = b.dataset.s; renderList();
-});
-renderCats(); renderList();
 
 /* ---------- sources ---------- */
 document.getElementById('sources').innerHTML =
@@ -913,15 +632,11 @@ function syncURL() {
   if (curYear !== D.meta.exportYear) sp.set('y', curYear);
   const bf = document.querySelector('#brandFilter button.on')?.dataset.f;
   if (bf && bf !== 'all') sp.set('bf', bf);
-  if (pState.cat !== '전체') sp.set('cat', pState.cat);
-  if (pState.q) sp.set('q', pState.q);
-  if (pState.sort !== 'reviews') sp.set('sort', pState.sort);
   const qs = sp.toString();
   history.replaceState(null, '', (qs ? '?' + qs : location.pathname) + location.hash);
 }
-['yearToggle', 'brandFilter', 'pCats', 'pSort'].forEach(id =>
+['yearToggle', 'brandFilter'].forEach(id =>
   document.getElementById(id).addEventListener('click', () => setTimeout(syncURL, 0)));
-document.getElementById('pSearch').addEventListener('input', () => syncURL());
 
 (function initFromURL() {
   const sp = new URLSearchParams(location.search);
@@ -933,14 +648,6 @@ document.getElementById('pSearch').addEventListener('input', () => syncURL());
     document.querySelectorAll('#brandFilter button').forEach(x => x.classList.toggle('on', x.dataset.f === bf));
     renderBrands(bf);
   }
-  let dirty = false;
-  if (sp.get('cat')) { pState.cat = sp.get('cat'); dirty = true; }
-  if (sp.get('q')) { pState.q = sp.get('q'); document.getElementById('pSearch').value = pState.q; dirty = true; }
-  if (['reviews', 'rating', 'priceAsc', 'priceDesc'].includes(sp.get('sort'))) {
-    pState.sort = sp.get('sort'); dirty = true;
-    document.querySelectorAll('#pSort button').forEach(x => x.classList.toggle('on', x.dataset.s === pState.sort));
-  }
-  if (dirty) { renderCats(); renderList(); }
 })();
 
 /* ---------- scrollspy ---------- */
