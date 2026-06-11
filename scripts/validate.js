@@ -230,9 +230,15 @@ const ok = (m) => console.log('  ✓ ' + m);
     for (const sec of ['factors', 'companies', 'comparison', 'lessons', 'trends', 'catShare', 'stats'])
       if (!(F[sec]?.length >= 3)) errs.push(`프랑스 ${sec} 부족`);
     for (const f of F.factors) if (!f.title || !f.facts?.length || !f.why || !f.sourceUrl) errs.push(`프랑스 factor 필드 누락: ${f.key}`);
+    const comp = F.competitors ?? {};
+    if (Object.keys(comp).length < 4) errs.push('프랑스 경쟁국 시계열 부족');
+    for (const [c, arr] of Object.entries(comp)) {
+      if (arr.length < 15) errs.push(`경쟁국 시계열 부족: ${c}`);
+      for (const p of arr) if (p.valueB < 0.3 || p.valueB > 30) errs.push(`경쟁국 이상치: ${c} ${p.year}`);
+    }
     const catSum = F.catShare.reduce((a, c) => a + c.sharePct, 0);
     if (Math.abs(catSum - 100) > 2) errs.push(`프랑스 카테고리 합 이상: ${catSum}`);
-    ok(`프랑스: 시계열 ${F.series.length}년, 대상국 ${F.destinations.items.length}, 배경 ${F.factors.length}`);
+    ok(`프랑스: 시계열 ${F.series.length}년, 대상국 ${F.destinations.items.length}, 배경 ${F.factors.length}, 경쟁국 ${Object.keys(F.competitors ?? {}).length}`);
   }
 }
 

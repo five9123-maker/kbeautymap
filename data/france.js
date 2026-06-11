@@ -1,5 +1,5 @@
 /* 프랑스 케이스 스터디 데이터 — FEBEA·UN Comtrade·각사 IR (웹 리서치 2026-06-12)
- * 시계열: USD 십억 (HS33, 2025는 FEBEA 환산 — note 참고). 한국 오버레이는 data.js exportTrend 사용 */
+ * 시계열: USD 십억 (HS33 계열, 2025 프랑스는 FEBEA 환산 — note 참고). 경쟁국은 UN Comtrade HS3303~3307 */
 window.FRANCE_DATA = {
   "meta": {
     "updated": "2026-06-12",
@@ -11,6 +11,10 @@ window.FRANCE_DATA = {
       {
         "label": "UN Comtrade — France HS33 수출 2005~2024 (시계열 기준)",
         "url": "https://comtradeplus.un.org/"
+      },
+      {
+        "label": "경쟁국(미국·독일·이탈리아·스페인·일본): UN Comtrade HS 3303~3307 합계, 명목 USD — K-STAT 앵커와 교차 검증",
+        "url": "https://comtradeplus.un.org/TradeFlow"
       },
       {
         "label": "L'Oréal Finance·LVMH·Pierre Fabre 등 각사 IR (기업 매출)",
@@ -534,5 +538,437 @@ window.FRANCE_DATA = {
       "title": "피인수 생태계에서 자본 수출국으로",
       "detail": "로레알·LVMH는 외부 브랜드를 사들여 글로벌 유통에 태우는 플랫폼 — 구다이글로벌 등 '한국판 로레알'이 형성돼야 수출 호황이 산업 자산으로 누적"
     }
-  ]
+  ],
+  "competitors": {
+    "미국": [
+      {
+        "year": 2005,
+        "valueB": 4.4
+      },
+      {
+        "year": 2006,
+        "valueB": 5.01
+      },
+      {
+        "year": 2007,
+        "valueB": 5.65
+      },
+      {
+        "year": 2008,
+        "valueB": 6.35
+      },
+      {
+        "year": 2009,
+        "valueB": 5.97
+      },
+      {
+        "year": 2010,
+        "valueB": 6.76
+      },
+      {
+        "year": 2011,
+        "valueB": 7.14
+      },
+      {
+        "year": 2012,
+        "valueB": 7.74
+      },
+      {
+        "year": 2013,
+        "valueB": 8.26
+      },
+      {
+        "year": 2014,
+        "valueB": 8.6
+      },
+      {
+        "year": 2015,
+        "valueB": 8.76
+      },
+      {
+        "year": 2016,
+        "valueB": 8.87
+      },
+      {
+        "year": 2017,
+        "valueB": 9.55
+      },
+      {
+        "year": 2018,
+        "valueB": 10.11
+      },
+      {
+        "year": 2019,
+        "valueB": 10.36
+      },
+      {
+        "year": 2020,
+        "valueB": 8.81
+      },
+      {
+        "year": 2021,
+        "valueB": 9.57
+      },
+      {
+        "year": 2022,
+        "valueB": 10.38
+      },
+      {
+        "year": 2023,
+        "valueB": 11.08
+      },
+      {
+        "year": 2024,
+        "valueB": 11.2
+      },
+      {
+        "year": 2025,
+        "valueB": 10.75
+      }
+    ],
+    "독일": [
+      {
+        "year": 2005,
+        "valueB": 4.65
+      },
+      {
+        "year": 2006,
+        "valueB": 5.38
+      },
+      {
+        "year": 2007,
+        "valueB": 6.54
+      },
+      {
+        "year": 2008,
+        "valueB": 7.5
+      },
+      {
+        "year": 2009,
+        "valueB": 6.61
+      },
+      {
+        "year": 2010,
+        "valueB": 7.15
+      },
+      {
+        "year": 2011,
+        "valueB": 8.03
+      },
+      {
+        "year": 2012,
+        "valueB": 7.89
+      },
+      {
+        "year": 2013,
+        "valueB": 8.24
+      },
+      {
+        "year": 2014,
+        "valueB": 8.22
+      },
+      {
+        "year": 2015,
+        "valueB": 7.09
+      },
+      {
+        "year": 2016,
+        "valueB": 7.34
+      },
+      {
+        "year": 2017,
+        "valueB": 7.64
+      },
+      {
+        "year": 2018,
+        "valueB": 8.4
+      },
+      {
+        "year": 2019,
+        "valueB": 8.47
+      },
+      {
+        "year": 2020,
+        "valueB": 7.09
+      },
+      {
+        "year": 2021,
+        "valueB": 8.48
+      },
+      {
+        "year": 2022,
+        "valueB": 8.91
+      },
+      {
+        "year": 2023,
+        "valueB": 9.98
+      },
+      {
+        "year": 2024,
+        "valueB": 8.86
+      },
+      {
+        "year": 2025,
+        "valueB": 9.86
+      }
+    ],
+    "이탈리아": [
+      {
+        "year": 2005,
+        "valueB": 2.52
+      },
+      {
+        "year": 2006,
+        "valueB": 2.68
+      },
+      {
+        "year": 2007,
+        "valueB": 2.98
+      },
+      {
+        "year": 2008,
+        "valueB": 3.27
+      },
+      {
+        "year": 2009,
+        "valueB": 2.67
+      },
+      {
+        "year": 2010,
+        "valueB": 3
+      },
+      {
+        "year": 2011,
+        "valueB": 3.51
+      },
+      {
+        "year": 2012,
+        "valueB": 3.46
+      },
+      {
+        "year": 2013,
+        "valueB": 3.9
+      },
+      {
+        "year": 2014,
+        "valueB": 4.06
+      },
+      {
+        "year": 2015,
+        "valueB": 3.88
+      },
+      {
+        "year": 2016,
+        "valueB": 4.42
+      },
+      {
+        "year": 2017,
+        "valueB": 4.91
+      },
+      {
+        "year": 2018,
+        "valueB": 5.43
+      },
+      {
+        "year": 2019,
+        "valueB": 5.3
+      },
+      {
+        "year": 2020,
+        "valueB": 4.57
+      },
+      {
+        "year": 2021,
+        "valueB": 5.58
+      },
+      {
+        "year": 2022,
+        "valueB": 5.95
+      },
+      {
+        "year": 2023,
+        "valueB": 7.39
+      },
+      {
+        "year": 2024,
+        "valueB": 8.05
+      },
+      {
+        "year": 2025,
+        "valueB": 8.99
+      }
+    ],
+    "스페인": [
+      {
+        "year": 2005,
+        "valueB": 1.64
+      },
+      {
+        "year": 2006,
+        "valueB": 1.8
+      },
+      {
+        "year": 2007,
+        "valueB": 2.14
+      },
+      {
+        "year": 2008,
+        "valueB": 2.48
+      },
+      {
+        "year": 2009,
+        "valueB": 2.27
+      },
+      {
+        "year": 2010,
+        "valueB": 2.59
+      },
+      {
+        "year": 2011,
+        "valueB": 2.96
+      },
+      {
+        "year": 2012,
+        "valueB": 2.86
+      },
+      {
+        "year": 2013,
+        "valueB": 3.31
+      },
+      {
+        "year": 2014,
+        "valueB": 3.43
+      },
+      {
+        "year": 2015,
+        "valueB": 3.08
+      },
+      {
+        "year": 2016,
+        "valueB": 3.26
+      },
+      {
+        "year": 2017,
+        "valueB": 3.7
+      },
+      {
+        "year": 2018,
+        "valueB": 4.31
+      },
+      {
+        "year": 2019,
+        "valueB": 4.51
+      },
+      {
+        "year": 2020,
+        "valueB": 3.69
+      },
+      {
+        "year": 2021,
+        "valueB": 4.84
+      },
+      {
+        "year": 2022,
+        "valueB": 5.26
+      },
+      {
+        "year": 2023,
+        "valueB": 6.46
+      },
+      {
+        "year": 2024,
+        "valueB": 8
+      },
+      {
+        "year": 2025,
+        "valueB": 9.05
+      }
+    ],
+    "일본": [
+      {
+        "year": 2005,
+        "valueB": 0.78
+      },
+      {
+        "year": 2006,
+        "valueB": 0.83
+      },
+      {
+        "year": 2007,
+        "valueB": 0.9
+      },
+      {
+        "year": 2008,
+        "valueB": 1.1
+      },
+      {
+        "year": 2009,
+        "valueB": 1.19
+      },
+      {
+        "year": 2010,
+        "valueB": 1.49
+      },
+      {
+        "year": 2011,
+        "valueB": 1.65
+      },
+      {
+        "year": 2012,
+        "valueB": 1.6
+      },
+      {
+        "year": 2013,
+        "valueB": 1.42
+      },
+      {
+        "year": 2014,
+        "valueB": 1.46
+      },
+      {
+        "year": 2015,
+        "valueB": 1.74
+      },
+      {
+        "year": 2016,
+        "valueB": 2.49
+      },
+      {
+        "year": 2017,
+        "valueB": 3.35
+      },
+      {
+        "year": 2018,
+        "valueB": 4.81
+      },
+      {
+        "year": 2019,
+        "valueB": 5.33
+      },
+      {
+        "year": 2020,
+        "valueB": 6.2
+      },
+      {
+        "year": 2021,
+        "valueB": 7.26
+      },
+      {
+        "year": 2022,
+        "valueB": 5.79
+      },
+      {
+        "year": 2023,
+        "valueB": 4.37
+      },
+      {
+        "year": 2024,
+        "valueB": 3.48
+      },
+      {
+        "year": 2025,
+        "valueB": 3.88
+      }
+    ]
+  }
 };
