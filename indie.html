@@ -53,6 +53,7 @@
   .card h2 { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
   .card .desc { font-size: 12px; color: var(--muted); margin-bottom: 10px; }
   .grid { display: grid; gap: 14px; grid-template-columns: 480px 1fr; align-items: stretch; }
+  .grid > * { min-width: 0; }
   /* 좌측 리스트 카드: 우측 차트 카드 높이에 맞추고 내부 스크롤 */
   .listcard { position: relative; margin-bottom: 14px; }
   .listcard .inner { position: absolute; inset: 18px; display: flex; flex-direction: column; }
@@ -205,9 +206,9 @@
   <footer id="src"></footer>
 </div>
 
-<script src="assets/tabs.js?v=15"></script>
-<script src="assets/echarts.min.js?v=15"></script>
-<script src="data/indie.js?v=15"></script>
+<script src="assets/tabs.js?v=16"></script>
+<script src="assets/echarts.min.js?v=16"></script>
+<script src="data/indie.js?v=16"></script>
 <script>
 const D = window.INDIE_DATA;
 const YEARS = [2021, 2022, 2023, 2024, 2025];

@@ -8,6 +8,15 @@
     { key: 'trends', href: 'trends.html', label: '성분 레이더', color: '#c084fc' },
     { key: 'calendar', href: 'calendar.html', label: '캘린더', color: '#fb923c' },
   ];
+  const style = document.createElement('style');
+  style.textContent = `
+    @media (max-width: 880px) {
+      nav.ptabs { order: 99; flex-basis: 100%; margin-left: 0; margin-top: 4px;
+        overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+      nav.ptabs::-webkit-scrollbar { display: none; }
+      nav.ptabs a { padding: 7px 12px; font-size: 11.5px; flex-shrink: 0; }
+    }`;
+  document.head.appendChild(style);
   document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('nav.ptabs').forEach(nav => {
       const active = nav.dataset.active;

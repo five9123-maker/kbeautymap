@@ -41,6 +41,7 @@
   .up { color: var(--green); } .down { color: var(--red); }
 
   .grid { display: grid; gap: 14px; }
+  .grid > * { min-width: 0; }
   .row-map { grid-template-columns: 1fr 340px; }
   .row-growth { grid-template-columns: 5fr 3fr; }
   @media (max-width: 1000px) { .row-map, .row-growth { grid-template-columns: 1fr; } }
@@ -319,10 +320,10 @@
   <footer id="sources"></footer>
 </div>
 
-<script src="assets/tabs.js?v=15"></script>
-<script src="assets/echarts.min.js?v=15"></script>
-<script src="assets/world.js?v=15"></script>
-<script src="data/data.js?v=15"></script>
+<script src="assets/tabs.js?v=16"></script>
+<script src="assets/echarts.min.js?v=16"></script>
+<script src="assets/world.js?v=16"></script>
+<script src="data/data.js?v=16"></script>
 <script>
 const D = window.DASHBOARD_DATA;
 const fmtUSD = v => v >= 1000 ? `$${(v/1000).toFixed(2)}B` : `$${v.toLocaleString()}M`;

@@ -39,6 +39,7 @@
   .stat .s { font-size: 10.5px; color: var(--muted); }
 
   .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; align-items: start; }
+  .grid2 > * { min-width: 0; }
   @media (max-width: 1100px) { .grid2 { grid-template-columns: 1fr; } }
   #mchart { width: 100%; height: 430px; }
 
@@ -103,9 +104,9 @@
   <footer id="src"></footer>
 </div>
 
-<script src="assets/tabs.js?v=15"></script>
-<script src="assets/echarts.min.js?v=15"></script>
-<script src="data/deals.js?v=15"></script>
+<script src="assets/tabs.js?v=16"></script>
+<script src="assets/echarts.min.js?v=16"></script>
+<script src="data/deals.js?v=16"></script>
 <script>
 const D = window.DEALS_DATA;
 const fmtKRW = v => v == null ? '비공개' : v >= 10000 ? `${(v / 10000).toFixed(1)}조` : `${Math.round(v).toLocaleString()}억`;

@@ -47,6 +47,7 @@
   .hcard .s { font-size: 11px; color: var(--muted); margin-top: 2px; }
 
   .mgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; align-items: start; }
+  .mgrid > *, .hero > * { min-width: 0; }
   @media (max-width: 1000px) { .mgrid { grid-template-columns: 1fr; } }
   .chan { display: flex; flex-direction: column; gap: 7px; }
   .chrow { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; background: var(--panel2); border: 1px solid var(--border); border-radius: 11px; padding: 10px 14px; }
@@ -85,9 +86,9 @@
   <footer id="src"></footer>
 </div>
 
-<script src="assets/tabs.js?v=15"></script>
-<script src="data/data.js?v=15"></script>
-<script src="data/markets.js?v=15"></script>
+<script src="assets/tabs.js?v=16"></script>
+<script src="data/data.js?v=16"></script>
+<script src="data/markets.js?v=16"></script>
 <script>
 const M = window.MARKETS_DATA;
 const EX = window.DASHBOARD_DATA.exportYears;
