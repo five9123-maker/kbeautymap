@@ -46,19 +46,8 @@
   .row-growth { grid-template-columns: 5fr 3fr; }
   @media (max-width: 1000px) { .row-map, .row-growth { grid-template-columns: 1fr; } }
 
-  .ptabs { display: flex; border: 1.5px solid var(--border); border-radius: 12px; overflow: hidden; margin-left: auto; flex-shrink: 0; }
-  .ptabs a {
-    display: flex; align-items: center; gap: 7px; padding: 7px 18px;
-    font-size: 12.5px; font-weight: 700; color: var(--muted); text-decoration: none;
-    border-right: 1px solid var(--border); transition: all .15s; white-space: nowrap;
-  }
-  .ptabs a:last-child { border-right: none; }
-  .ptabs a .co { width: 7px; height: 7px; border-radius: 50%; }
-  .ptabs a:hover { color: var(--text); background: var(--panel2); }
-  .ptabs a.on { background: var(--panel2); color: #fff; }
-  @media (max-width: 700px) { .ptabs a { padding: 6px 12px; font-size: 11.5px; } }
   .secnav {
-    position: sticky; top: 0; z-index: 50;
+    position: sticky; top: 54px; z-index: 50;
     display: flex; gap: 6px; flex-wrap: wrap; padding: 10px 2px; margin: 0 -2px 14px;
     background: rgba(14,17,23,.82); backdrop-filter: blur(8px);
   }
@@ -80,7 +69,7 @@
   .dtip.show { opacity: 1; }
   .dtip b { color: var(--accent2); }
   html { scroll-behavior: smooth; }
-  [id^="sec-"] { scroll-margin-top: 64px; }
+  [id^="sec-"] { scroll-margin-top: 120px; }
 
   .eyebrow {
     font-size: 11px; font-weight: 800; letter-spacing: 1.5px; color: var(--accent);
@@ -237,7 +226,6 @@
   <header>
     <h1><span class="k">K-Beauty</span> 글로벌 대시보드</h1>
     <span class="sub" id="metaLine"></span>
-    <nav class="ptabs" data-active="global"></nav>
   </header>
 
   <nav class="secnav">
@@ -320,10 +308,10 @@
   <footer id="sources"></footer>
 </div>
 
-<script src="assets/tabs.js?v=16"></script>
-<script src="assets/echarts.min.js?v=16"></script>
-<script src="assets/world.js?v=16"></script>
-<script src="data/data.js?v=16"></script>
+<script src="assets/tabs.js?v=17"></script>
+<script src="assets/echarts.min.js?v=17"></script>
+<script src="assets/world.js?v=17"></script>
+<script src="data/data.js?v=17"></script>
 <script>
 const D = window.DASHBOARD_DATA;
 const fmtUSD = v => v >= 1000 ? `$${(v/1000).toFixed(2)}B` : `$${v.toLocaleString()}M`;

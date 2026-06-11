@@ -19,12 +19,6 @@
   header h1 { font-size: 26px; font-weight: 800; letter-spacing: -.5px; }
   header h1 .k { color: var(--gold); }
   header .sub { color: var(--muted); font-size: 13px; }
-  .ptabs { display: flex; border: 1.5px solid var(--border); border-radius: 12px; overflow: hidden; margin-left: auto; flex-shrink: 0; }
-  .ptabs a { display: flex; align-items: center; gap: 7px; padding: 7px 14px; font-size: 12px; font-weight: 700; color: var(--muted); text-decoration: none; border-right: 1px solid var(--border); transition: all .15s; white-space: nowrap; }
-  .ptabs a:last-child { border-right: none; }
-  .ptabs a .co { width: 7px; height: 7px; border-radius: 50%; }
-  .ptabs a:hover { color: var(--text); background: var(--panel2); }
-  .ptabs a.on { background: var(--panel2); color: #fff; }
   .card { background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 18px; margin-bottom: 14px; }
   .card h2 { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
   .card .desc { font-size: 12px; color: var(--muted); margin-bottom: 10px; }
@@ -77,7 +71,6 @@
   <header>
     <h1>💼 <span class="k">딜</span> 워치</h1>
     <span class="sub" id="metaLine"></span>
-    <nav class="ptabs" data-active="deals"></nav>
   </header>
 
   <div class="statgrid" id="stats"></div>
@@ -104,9 +97,9 @@
   <footer id="src"></footer>
 </div>
 
-<script src="assets/tabs.js?v=16"></script>
-<script src="assets/echarts.min.js?v=16"></script>
-<script src="data/deals.js?v=16"></script>
+<script src="assets/tabs.js?v=17"></script>
+<script src="assets/echarts.min.js?v=17"></script>
+<script src="data/deals.js?v=17"></script>
 <script>
 const D = window.DEALS_DATA;
 const fmtKRW = v => v == null ? '비공개' : v >= 10000 ? `${(v / 10000).toFixed(1)}조` : `${Math.round(v).toLocaleString()}억`;

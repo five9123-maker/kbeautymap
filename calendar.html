@@ -19,12 +19,6 @@
   header h1 { font-size: 26px; font-weight: 800; letter-spacing: -.5px; }
   header h1 .k { color: var(--orange); }
   header .sub { color: var(--muted); font-size: 13px; }
-  .ptabs { display: flex; border: 1.5px solid var(--border); border-radius: 12px; overflow: hidden; margin-left: auto; flex-shrink: 0; }
-  .ptabs a { display: flex; align-items: center; gap: 7px; padding: 7px 14px; font-size: 12px; font-weight: 700; color: var(--muted); text-decoration: none; border-right: 1px solid var(--border); transition: all .15s; white-space: nowrap; }
-  .ptabs a:last-child { border-right: none; }
-  .ptabs a .co { width: 7px; height: 7px; border-radius: 50%; }
-  .ptabs a:hover { color: var(--text); background: var(--panel2); }
-  .ptabs a.on { background: var(--panel2); color: #fff; }
   .dtip { position: fixed; z-index: 200; max-width: 330px; padding: 10px 13px; background: #20283a; border: 1px solid #3a4663; border-radius: 10px; font-size: 11.5px; line-height: 1.6; color: var(--text); box-shadow: 0 10px 28px rgba(0,0,0,.55); pointer-events: none; opacity: 0; transition: opacity .12s; }
   .dtip.show { opacity: 1; }
   .dtip b { color: var(--orange); }
@@ -61,7 +55,6 @@
   <header>
     <h1>📅 <span class="k">K-뷰티</span> 캘린더</h1>
     <span class="sub" id="metaLine"></span>
-    <nav class="ptabs" data-active="calendar"></nav>
   </header>
 
   <div class="chips" id="cats"></div>
@@ -69,8 +62,8 @@
   <footer id="src"></footer>
 </div>
 
-<script src="assets/tabs.js?v=16"></script>
-<script src="data/calendar.js?v=16"></script>
+<script src="assets/tabs.js?v=17"></script>
+<script src="data/calendar.js?v=17"></script>
 <script>
 const D = window.CALENDAR_DATA;
 const TODAY = new Date(D.meta.updated);
