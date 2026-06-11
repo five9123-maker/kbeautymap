@@ -107,6 +107,14 @@
   .selchips .sc:hover { border-color: var(--red); }
   .selchips .hint { font-size: 11px; color: var(--muted); align-self: center; }
 
+  .defgrid { display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 20px; align-items: start; }
+  @media (max-width: 1000px) { .defgrid { grid-template-columns: 1fr; } }
+  .crit { display: flex; flex-wrap: wrap; gap: 6px; }
+  .cr {
+    padding: 5px 12px; border-radius: 9px; font-size: 12px; font-weight: 700; border: 1px solid;
+  }
+  .cr.in { color: var(--mint); border-color: rgba(94,234,212,.35); background: rgba(94,234,212,.07); }
+  .cr.out { color: var(--red); border-color: rgba(248,113,113,.3); background: rgba(248,113,113,.06); }
   .statgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; margin-bottom: 14px; }
   .stat {
     background: var(--panel2); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px;
@@ -125,6 +133,33 @@
     <span class="sub" id="metaLine"></span>
     <a class="back" href="index.html">← 메인 대시보드</a>
   </header>
+
+  <div class="card">
+    <div class="defgrid">
+      <div>
+        <h2>🔎 '인디'의 기준</h2>
+        <div class="desc">이 리스트가 포함/제외하는 범위 — 항목에 호버하면 상세 기준이 표시됩니다.</div>
+        <div class="crit">
+          <span class="cr in" data-tip="자체 화장품 브랜드를 보유·운영하는 기업 (브랜드사). 매출은 감사보고서·공시 연결 기준 우선">✓ 자체 브랜드 보유 기업</span>
+          <span class="cr in" data-tip="미샤·토니모리·네이처리퍼블릭 등 — 대기업 계열이 아닌 독립 중견으로 분류 (note에 '로드숍 출신' 표기)">✓ 로드숍 출신 중견</span>
+          <span class="cr in" data-tip="구다이글로벌처럼 인디 브랜드를 연쇄 인수한 '인디 출신 애그리게이터'와 그 산하 브랜드사(티르티르·크레이버 등, 인수 전 단독 실적)">✓ 인디 애그리게이터·피인수사</span>
+          <span class="cr in" data-tip="Yepoda(베를린)·Glow Recipe(뉴욕) 등 외국인 창업·해외 법인 K-뷰티 — 🌍 배지, 외화 보도치를 연평균 환율로 환산, TOP 100 컷 면제">✓ 외국인 창업·해외 법인 🌍</span>
+          <span class="cr out" data-tip="아모레퍼시픽·LG생활건강·애경·신세계 등 대기업 그룹 계열 브랜드사 제외 (예: 이니스프리, 원씽)">✗ 대기업 계열</span>
+          <span class="cr out" data-tip="한국콜마·코스맥스·코스메카 등 제조 전문(ODM/OEM) 기업 제외 — 자체 브랜드가 본업이 아님">✗ ODM/OEM 전문</span>
+          <span class="cr out" data-tip="실리콘투·MiiN 등 유통·리테일 기업 제외">✗ 유통사</span>
+        </div>
+        <div class="desc" style="margin-top:8px">랭킹 기준: 가장 최근 확인 연도의 매출(억원). 피인수 후 단독 실적이 비공개되면 마지막 공시 연도로 순위 산정.</div>
+      </div>
+      <div>
+        <h2 style="font-size:13px" data-tip="최신 확인 연도 매출 기준 구간별 기업 수 — 인디 생태계의 허리가 어디인지">📊 매출 구간 분포</h2>
+        <div id="distRev" style="height:190px"></div>
+      </div>
+      <div>
+        <h2 style="font-size:13px" data-tip="CAGR = 최초→최신 확인 연도 연평균 성장률. '시계열 부족'은 확인 연도가 1개뿐인 기업">🌗 성장 vs 하락 분포</h2>
+        <div id="distGrow" style="height:190px"></div>
+      </div>
+    </div>
+  </div>
 
   <div class="statgrid" id="stats"></div>
 
@@ -197,6 +232,51 @@ document.getElementById('stats').innerHTML = `
   <div class="stat" data-tip="최신 매출 1,000억 이상 인디 기업 수 — '인디 메가브랜드' 규모 지표">
     <div class="l">매출 1,000억+ </div><div class="v">${D.series.filter(c => c.latest >= 1000).length}개사</div>
     <div class="s">5,000억+ ${D.series.filter(c => c.latest >= 5000).length}개사</div></div>`;
+
+/* ---------- 분포 대시보드 ---------- */
+const BUCKETS = [
+  { label: '<300억', min: 0, max: 300 },
+  { label: '300~500', min: 300, max: 500 },
+  { label: '500~1천', min: 500, max: 1000 },
+  { label: '1천~3천', min: 1000, max: 3000 },
+  { label: '3천~1조', min: 3000, max: 10000 },
+  { label: '1조+', min: 10000, max: Infinity },
+];
+const distRev = echarts.init(document.getElementById('distRev'));
+distRev.setOption({
+  backgroundColor: 'transparent',
+  grid: { left: 6, right: 14, top: 8, bottom: 2, containLabel: true },
+  tooltip: { backgroundColor: '#1c2330', borderColor: '#2a3344', textStyle: { color: '#e8ecf3' },
+    formatter: p => `최신 매출 ${p.name}: <b>${p.value}개사</b><br><span style="color:#8b95a7;font-size:10px">기준: 각사 최신 확인 연도 매출 (감사보고서·공시)</span>` },
+  xAxis: { type: 'value', axisLabel: { color: '#8b95a7', fontSize: 10 }, splitLine: { lineStyle: { color: '#222a38' } } },
+  yAxis: { type: 'category', data: BUCKETS.map(b => b.label).reverse(), axisLabel: { color: '#e8ecf3', fontSize: 10.5 } },
+  series: [{
+    type: 'bar', barWidth: '62%',
+    data: BUCKETS.map(b => D.series.filter(c => c.latest >= b.min && c.latest < b.max).length).reverse(),
+    itemStyle: { color: '#5eead4', borderRadius: [0, 5, 5, 0] },
+    label: { show: true, position: 'right', color: '#8b95a7', fontSize: 10 },
+  }]
+});
+
+const growDist = [
+  { name: '고성장 (CAGR +50%↑)', f: c => c.cagr != null && c.cagr >= 50, color: '#5eead4' },
+  { name: '성장 (0~50%)', f: c => c.cagr != null && c.cagr >= 0 && c.cagr < 50, color: '#4ade80' },
+  { name: '역성장 (CAGR <0)', f: c => c.cagr != null && c.cagr < 0, color: '#f87171' },
+  { name: '시계열 부족', f: c => c.cagr == null, color: '#3e4a5e' },
+];
+const distGrow = echarts.init(document.getElementById('distGrow'));
+distGrow.setOption({
+  backgroundColor: 'transparent',
+  tooltip: { backgroundColor: '#1c2330', borderColor: '#2a3344', textStyle: { color: '#e8ecf3' },
+    formatter: p => `${p.name}: <b>${p.value}개사</b> (${p.percent}%)<br><span style="color:#8b95a7;font-size:10px">CAGR = 최초→최신 확인 연도 연평균 성장률</span>` },
+  legend: { show: false },
+  series: [{
+    type: 'pie', radius: ['44%', '74%'], center: ['50%', '50%'],
+    itemStyle: { borderColor: '#161b24', borderWidth: 2, borderRadius: 5 },
+    label: { color: '#e8ecf3', fontSize: 10, formatter: p => `${p.name.split(' ')[0]} ${p.value}` },
+    data: growDist.map(g => ({ name: g.name, value: D.series.filter(g.f).length, itemStyle: { color: g.color } })),
+  }]
+});
 
 /* ---------- 출처·산출근거 툴팁 ---------- */
 const dtip = document.createElement('div');
@@ -360,7 +440,7 @@ document.getElementById('src').innerHTML =
   `<br/>※ 매출은 연결 기준 우선, 일부 별도 기준 혼재. 빈 연도는 감사보고서 미공시 등으로 확인 불가한 해입니다.` +
   `<br/>※ 🌍 표시는 외국인 창업·해외 법인 K-뷰티 브랜드 — 매출은 외화 보도치를 연평균 환율로 환산한 값이라 국내 감사보고서 수치와 정밀도가 다릅니다.`;
 
-window.addEventListener('resize', () => cmp.resize());
+window.addEventListener('resize', () => [cmp, distRev, distGrow].forEach(c => c.resize()));
 </script>
 </body>
 </html>
