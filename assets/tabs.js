@@ -41,7 +41,7 @@
       background: var(--navbg, rgba(14,17,23,.93)); backdrop-filter: blur(10px);
       border-bottom: 1px solid var(--border, #2a3344);
     }
-    .gnav-in { height: 54px; display: flex; align-items: center; gap: 12px; padding: 0 24px; }
+    .gnav-in { max-width: 1440px; margin: 0 auto; height: 54px; display: flex; align-items: center; gap: 12px; padding: 0 24px; }
     .gnav .brand { font-size: 15px; font-weight: 800; color: var(--text, #e8ecf3); text-decoration: none; letter-spacing: -.3px; white-space: nowrap; }
     .gnav .brand b { color: var(--accent, #ff5c8a); }
     .gnav .links { display: flex; gap: 2px; margin-left: auto; }
